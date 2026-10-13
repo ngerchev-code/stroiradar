@@ -1,110 +1,33 @@
 {
- "updated": "2026-10-13T22:20:38.181Z",
+ "updated": "2026-10-13T22:32:39.329Z",
  "status": {
   "mobilebg": {
    "name": "Mobile.bg",
    "ok": 1,
    "err": 0,
    "lastError": "",
-   "at": "2026-10-13T22:18:27.193Z"
-  },
-  "olxro": {
-   "name": "OLX.ro",
-   "ok": 0,
-   "err": 14,
-   "lastError": "HTTP 403",
-   "at": "2026-10-13T22:18:32.680Z"
-  },
-  "olxpl": {
-   "name": "OLX.pl",
-   "ok": 0,
-   "err": 14,
-   "lastError": "HTTP 403",
-   "at": "2026-10-13T22:18:33.701Z"
-  },
-  "machineryline": {
-   "name": "Machineryline",
-   "ok": 0,
-   "err": 19,
-   "lastError": "HTTP 404",
-   "at": "2026-10-13T22:18:35.443Z"
-  },
-  "machinio": {
-   "name": "Machinio",
-   "ok": 0,
-   "err": 19,
-   "lastError": "HTTP 404",
-   "at": "2026-10-13T22:18:35.570Z"
-  },
-  "autoline": {
-   "name": "Autoline",
-   "ok": 0,
-   "err": 19,
-   "lastError": "HTTP 404",
-   "at": "2026-10-13T22:18:35.826Z"
-  },
-  "truck1": {
-   "name": "Truck1",
-   "ok": 16,
-   "err": 3,
-   "lastError": "HTTP 429",
-   "at": "2026-10-13T22:18:35.945Z"
-  },
-  "mobilede": {
-   "name": "Mobile.de",
-   "ok": 0,
-   "err": 19,
-   "lastError": "HTTP 403",
-   "at": "2026-10-13T22:18:36.925Z"
-  },
-  "machinerytrader": {
-   "name": "MachineryTrader.eu",
-   "ok": 0,
-   "err": 19,
-   "lastError": "HTTP 403",
-   "at": "2026-10-13T22:18:37.561Z"
-  },
-  "mascus": {
-   "name": "Mascus",
-   "ok": 19,
-   "err": 0,
-   "lastError": "",
-   "at": "2026-10-13T22:18:38.186Z"
+   "at": "2026-10-13T22:25:04.874Z"
   },
   "kleinanzeigen": {
    "name": "Kleinanzeigen",
-   "ok": 19,
+   "ok": 25,
    "err": 0,
    "lastError": "",
-   "at": "2026-10-13T22:18:39.771Z"
-  },
-  "truckscout24": {
-   "name": "TruckScout24",
-   "ok": 16,
-   "err": 3,
-   "lastError": "HTTP 404",
-   "at": "2026-10-13T22:18:41.173Z"
+   "at": "2026-10-13T22:25:15.343Z"
   },
   "machineseeker": {
    "name": "Machineseeker",
-   "ok": 15,
-   "err": 4,
+   "ok": 12,
+   "err": 13,
    "lastError": "HTTP 404",
-   "at": "2026-10-13T22:18:41.561Z"
-  },
-  "olx": {
-   "name": "OLX.bg",
-   "ok": 0,
-   "err": 63,
-   "lastError": "HTTP 403",
-   "at": "2026-10-13T22:18:47.837Z"
+   "at": "2026-10-13T22:25:17.239Z"
   },
   "bazar": {
    "name": "Bazar.bg",
-   "ok": 63,
+   "ok": 60,
    "err": 0,
    "lastError": "",
-   "at": "2026-10-13T22:19:22.728Z"
+   "at": "2026-10-13T22:26:25.648Z"
   }
  }
 }
