@@ -232,6 +232,7 @@
   "mulcher",
   "imeks"
  ],
- "excludePattern": "лодк|катер|яхт|джет|jet ?ski|водн\\w* (мотор|колело|ски)|извънбордов|плавателн|понтон|boot|boat|yacht|schlauchboot|außenborder|ponton|резервн|част(и)? за|(^|\\s)части(\\s|$)|консуматив|филтр|(^|\\s)масл[оа](\\s|$)|гуми за|акумулатор|ersatzteil|spare ?part|zubehör|verschleißteil|\\bfilter\\b|części|piese",
- "telehandlerPattern": "(телескоп|telehandler|teleskoplader|ładowarka teleskop|loadall|merlo|\\bjcb 5\\d\\d)"
+ "excludePattern": "лодк|катер|яхт|джет|jet ?ski|водн\\w* (мотор|колело|ски)|извънбордов|плавателн|понтон|boot|boat|yacht|schlauchboot|außenborder|ponton|резервн|част(и)? за|(^|\\s)части(\\s|$)|консуматив|филтр|(^|\\s)масл[оа](\\s|$)|гуми за|акумулатор|ersatzteil|spare ?part|zubehör|verschleißteil|\\bfilter\\b|części|piese|(^|\\s)гуми(\\s|$)|джанти|(^|\\s)reifen(\\s|$)",
+ "telehandlerPattern": "(телескоп|telehandler|teleskoplader|ładowarka teleskop|loadall|merlo|\\bjcb 5\\d\\d)",
+ "inboxTopic": "bb-showroom-in-319983c2f7"
 }

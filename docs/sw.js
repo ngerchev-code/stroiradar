@@ -1,5 +1,5 @@
 // СтройРадар — service worker: офлайн, известия, проверка във фона
-const V = 'bb-v4';
+const V = 'bb-v5';
 const SHELL = ['./', 'index.html', 'app.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/badge-96.png'];
 
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL))); self.skipWaiting(); });

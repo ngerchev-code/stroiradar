@@ -1,7 +1,8 @@
 // СтройРадар — периодично събиране на обяви (пуска се от GitHub Actions на всеки 20 мин).
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { searchSource, enrich, classify, RELEVANT } from './core.mjs';
+import { searchSource, enrich, classify, RELEVANT, NOISE, priceFromDesc } from './core.mjs';
 import { collectNews } from './news.mjs';
+import { collectInbox } from './inbox.mjs';
 
 const ROOT = new URL('../docs/data/', import.meta.url);
 const config = JSON.parse(await readFile(new URL('./config.json', import.meta.url), 'utf8'));
@@ -11,7 +12,8 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 let old = [];
 try { old = JSON.parse(await readFile(new URL('listings.json', ROOT), 'utf8')).items || []; } catch {}
 const EXCLX = t => new RegExp(config.excludePattern || '^$', 'i').test(t) || (new RegExp(config.telehandlerPattern || '^$', 'i').test(t) && !/manitou/i.test(t));
-old = old.filter(i => RELEVANT.test(i.title + ' ' + (i.desc || '') + ' ' + i.url) && !EXCLX(i.title + ' ' + i.url));
+old = old.filter(i => RELEVANT.test(i.title + ' ' + (i.desc || '') + ' ' + i.url) && !EXCLX(i.title + ' ' + i.url) && !NOISE.test(i.title));
+for (const i of old) { i.type = classify(i.title + ' ' + (i.desc || ''), i.title); const pd = priceFromDesc(i.desc); if (pd) i.price = pd; }
 const known = new Map(old.map(i => [i.id, i]));
 const firstRun = old.length === 0;
 
@@ -37,7 +39,7 @@ async function runSource(key, src, terms) {
       const q = queue.shift();
       try {
         const items = await searchSource(key, src, q, { enrichDetails: false });
-        for (const it of items) { it.matched = q; if (!RELEVANT.test(it.title + ' ' + (it.desc || '') + ' ' + it.url) || EXCL.test(it.title + ' ' + it.url)) continue; if (!found.has(it.id)) found.set(it.id, it); }
+        for (const it of items) { it.matched = q; if (!RELEVANT.test(it.title + ' ' + (it.desc || '') + ' ' + it.url) || EXCL.test(it.title + ' ' + it.url) || NOISE.test(it.title)) continue; if (!found.has(it.id)) found.set(it.id, it); }
         ok++;
       } catch (e) { err++; last = e.message; }
       await sleep(700);
@@ -60,7 +62,7 @@ console.log(`Намерени: ${found.size}, нови: ${fresh.length}`);
 for (let i = 0; i < fresh.length; i += 6) {
   await Promise.all(fresh.slice(i, i + 6).map(async it => {
     if (it.source !== 'olx' && !it.desc) await enrich(it);
-    it.type = classify(it.title + ' ' + it.desc);
+    it.type = classify(it.title + ' ' + it.desc, it.title);
     if (EXCL.test(it.title + ' ' + (it.desc || ''))) found.delete(it.id);
     it.firstSeen = new Date().toISOString();
   }));
@@ -80,6 +82,7 @@ const items = [...merged.values()]
 
 await mkdir(ROOT, { recursive: true });
 await writeFile(new URL('listings.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), items }));
+try { console.log('Шоурум — нови заявки:', await collectInbox(config.inboxTopic)); } catch (e) { console.log('Шоурум:', e.message); }
 try { const news = await collectNews(); if (news.length) await writeFile(new URL('news.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), items: news })); console.log('Новини:', news.length); } catch (e) { console.log('Новини:', e.message); }
 await writeFile(new URL('status.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), status }, null, 1));
 

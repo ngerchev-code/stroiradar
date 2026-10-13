@@ -4,20 +4,26 @@
 const UA = 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Mobile Safari/537.36';
 
 // ---------- Класификация ----------
-const WANT = /(търс(я|им|и се)|купувам|изкупувам|купуваме|нужен|нужна|необходим|wanted|suche|kaufe|търся под наем|наемам)/i;
-const SERVICE = /(ремонт|сервиз|сервизн|диагностик|резервн\w* част|части за|хидравли\w* ремонт|сварки|заварки|сервисни услуги|repair|service|ersatzteil|spare part)/i;
+const WANT = /(^|\s)(търся|търсим|търси се|купувам|изкупувам|купуваме|нужен|нужна|наемам|wanted|suche|kaufe|ankauf|kupię|kupie|cumpăr|cumpar)(\s|$)/i;
+const SERVICE = /(услуги с|услуги|изкопни услуги|кърти, чисти|ремонт|сервиз|сервизн|диагностик|резервн\w* част|части за|хидравли\w* ремонт|сварки|заварки|сервисни услуги|repair|service|ersatzteil|spare part)/i;
 const RENT = /(под наем|наем|наемане|rent|miete|vermiet)/i;
 
-export function classify(text) {
+export function priceFromDesc(desc) {
+  const m = /Цена[^0-9]{0,6}(\d[\d\s.,]*)\s*(€|EUR|лв\.?|BGN)/i.exec(desc || '');
+  return m ? `${m[1].trim()} ${m[2]}` : '';
+}
+export function classify(text, title) {
   const t = (text || '').toLowerCase();
-  if (WANT.test(t)) return 'wanted';
+  if (WANT.test((title ?? text) || '')) return 'wanted';
   if (SERVICE.test(t)) return 'service';
   if (RENT.test(t)) return 'rent';
   return 'sale';
 }
 
 // ---------- Филтър по бранша ----------
-export const RELEVANT = /багер|товарач|валяк|виброплоч|трамбовк|пачекрак|чук|къртач|мулчер|асфалт|фреза|трошачк|сито|генератор|компресор|телескоп|булдозер|грейдер|къртиц|сондаж|бобкат|самосвал|кран|вишка|челен|верижен|кофа|бързосменник|инвентар|строителн|земни работи|изкоп|хидравли|excavator|loader|backhoe|roller|compactor|breaker|mulcher|paver|crusher|screen|generator|compressor|telehandler|dozer|grader|bagger|lader|walze|platte|hammer|koparka|ładowark|excavator|buldoexcavator|încărcător|cilindru|hidromek|ammann|jcb|caterpillar|\bcat\b|komatsu|volvo|case|bobcat|takeuchi|kubota|hitachi|liebherr|doosan|develon|hyundai|new holland|terex|manitou|merlo|bomag|dynapac|hamm|wacker|fae|imeks|hycon|atmos|grundomat|tracto|rioned|komplet|yanmar|kobelco|sany|xcmg|liugong|mecalac|kramer|weidemann|avant|gehl|sdmo|aksa|сметосъбира|боклукчийск|самосвал|тристран|рециклатор|термоконтейнер|вишк|kipper|müll|arbeitsbühne|planierraupe|minibagger|midibagger|kettenbagger|radlader|kompaktlader|teleskoplader|миди|samosval|bager|valyak|tovarach|kofa|chuk|vibroplocha|trambovka|kompresor|vishka|buldozer|greyder|kartitsa|frez|asfalt/i;
+export const RELEVANT = /багер|товарач|валяк|виброплоч|трамбовк|пачекрак|хидравличен чук|къртач|мулчер|асфалтополагач|асфалтова|фреза за асфалт|трошачк|генератор|компресор|телескопичен|булдозер|грейдер|къртиц|сондаж|бобкат|самосвал|автокран|кран[- ]?манипулатор|вишк|челен|верижен|бързосменник|прикачен инвентар|строителна техника|земни работи|сметосъбира|боклукчийск|тристран|рециклатор|термоконтейнер|excavator|backhoe|wheel loader|skid ?steer|telehandler|compactor|hydraulic breaker|mulcher|asphalt paver|crusher|bulldozer|grader|minibagger|midibagger|kettenbagger|mobilbagger|baggerlader|radlader|kompaktlader|teleskoplader|planierraupe|rüttelplatte|walzenzug|tandemwalze|hydraulikhammer|abbruchhammer|forstmulcher|kipper|müllwagen|arbeitsbühne|stromerzeuger|baukompressor|koparka|ładowarka|buldoexcavator|hidromek|ammann|\bjcb\b|caterpillar|komatsu|takeuchi|kubota|hitachi|liebherr|doosan|develon|new holland|terex|manitou|bomag|dynapac|\bhamm\b|wacker|neuson|\bimeks\b|hycon|grundomat|tracto-technik|rioned|komplet|yanmar|kobelco|\bsany\b|xcmg|liugong|mecalac|kramer|weidemann|\bavant\b|\bgehl\b|\bsdmo\b|\baksa\b|bager|valyak|tovarach|vibroplocha|trambovka|buldozer|greyder|samosval|vishka/i;
+// Шум от потребителски сайтове (игри, мебели, инструменти)
+export const NOISE = /детски|за деца|конструктор|warhammer|skylander|lego|playmobil|siku|bruder|modell|spielzeug|играчк|модел 1:|1:\d{2}|figur|kill team|dice|würfel|landhausdiele|parkett|bohrhammer|akku|ladegerät/i;
 
 // ---------- Помощни ----------
 const ENT = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', '#39': "'" };
@@ -114,7 +120,17 @@ export async function enrich(item) {
     item.desc = (meta(html, 'og:description') || meta(html, 'description')).slice(0, 400);
     const amt = meta(html, 'product:price:amount') || meta(html, 'og:price:amount');
     const cur = meta(html, 'product:price:currency') || meta(html, 'og:price:currency');
-    if (amt) item.price = `${amt} ${cur || ''}`.trim();
+    const pd = priceFromDesc(item.desc);
+    // JSON-LD (schema.org Offer) — най-надеждната цена на детайлната страница
+    let ld = '';
+    for (const m of html.matchAll(/<script[^>]+application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi)) {
+      const p = /"price"\s*:\s*"?([\d.]+)"?[\s\S]{0,200}?"priceCurrency"\s*:\s*"([A-Z]{3})"|"priceCurrency"\s*:\s*"([A-Z]{3})"[\s\S]{0,200}?"price"\s*:\s*"?([\d.]+)"?/.exec(m[1]);
+      if (p) { ld = `${p[1] || p[4]} ${p[2] || p[3]}`; break; }
+    }
+    if (pd) item.price = pd;
+    else if (ld) item.price = ld;
+    else if (amt) item.price = `${amt} ${cur || ''}`.trim();
+    else if (item.source && item.source !== 'bazar' && item.source !== 'mobilebg') item.price = '';
     else if (!item.price) item.price = priceFrom(meta(html, 'og:description')) || priceFrom(decode(html.slice(0, 60000)));
   } catch { /* ок — остава каквото е намерено в списъка */ }
   return item;
@@ -157,7 +173,7 @@ export function hash(s) {
 export async function searchSource(key, src, q, opts) {
   const items = src.olx ? (await searchOlx(q || 'строителна техника', src.domain)).map(i => ({ ...i, id: i.id.replace(/^olx-/, key + '-'), source: key })) : await searchHtml(key, src, q, opts);
   for (const it of items) {
-    it.type = classify(it.title + ' ' + it.desc);
+    it.type = classify(it.title + ' ' + it.desc, it.title);
     it.foreign = !!src.foreign;
   }
   return items;

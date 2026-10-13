@@ -4,6 +4,7 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const BGN = 1.95583;
+const KEY_MARKETS = ['BG', 'TR', 'RO', 'RS', 'IT', 'FR', 'ES', 'DE'];
 
 // ---------- Справочници ----------
 const SOURCES = {
@@ -13,17 +14,47 @@ const SOURCES = {
   mascus:        { name: 'Mascus',        flag: '🇪🇺', foreign: true, link: q => `https://www.mascus.bg/+/${encodeURIComponent(q)},1,relevance,search.html` },
   machineryline: { name: 'Machineryline', flag: '🇪🇺', foreign: true, link: q => `https://machineryline.bg/-/search?q=${encodeURIComponent(q)}` },
   autoline:      { name: 'Autoline',      flag: '🇪🇺', foreign: true, link: q => `https://autoline.bg/-/search?q=${encodeURIComponent(q)}` },
-  truck1:        { name: 'Truck1',        flag: '🇪🇺', foreign: true, link: q => `https://www.truck1.eu/construction-machinery?q=${encodeURIComponent(q)}` },
-  mobilede:      { name: 'Mobile.de',     flag: '🇩🇪', cc: 'DE', foreign: true, link: q => `https://suchen.mobile.de/fahrzeuge/search.html?isSearchRequest=true&vc=ConstructionMachine&s=Construction&q=${encodeURIComponent(q)}` },
+  truck1:        { name: 'Truck1',        flag: '🇪🇺', foreign: true, link: q => `https://www.truck1.eu/construction-machinery?q=${encodeURIComponent(loc(q, 'de'))}` },
+  mobilede:      { name: 'Mobile.de',     flag: '🇩🇪', cc: 'DE', foreign: true, link: q => `https://suchen.mobile.de/fahrzeuge/search.html?isSearchRequest=true&vc=ConstructionMachine&s=Construction&q=${encodeURIComponent(loc(q, 'de'))}` },
   truckscout24:  { name: 'TruckScout24',  flag: '🇩🇪', cc: 'DE', foreign: true, link: q => `https://www.truckscout24.de/baumaschinen?query=${encodeURIComponent(q)}` },
   machinio:      { name: 'Machinio',      flag: '🇪🇺', foreign: true, link: q => `https://www.machinio.com/search?q=${encodeURIComponent(q)}` },
-  olxro:         { name: 'OLX.ro',        flag: '🇷🇴', cc: 'RO', foreign: true, link: q => `https://www.olx.ro/oferte/q-${encodeURIComponent(q.trim().replace(/\s+/g, '-'))}/` },
+  olxro:         { name: 'OLX.ro',        flag: '🇷🇴', cc: 'RO', foreign: true, link: q => `https://www.olx.ro/oferte/q-${encodeURIComponent(loc(q, 'ro').trim().replace(/\s+/g, '-'))}/` },
   olxpl:         { name: 'OLX.pl',        flag: '🇵🇱', cc: 'PL', foreign: true, link: q => `https://www.olx.pl/oferty/q-${encodeURIComponent(q.trim().replace(/\s+/g, '-'))}/` },
   machineseeker: { name: 'Machineseeker', flag: '🇪🇺', foreign: true, link: q => `https://www.machineseeker.com/mss/${encodeURIComponent(slug(q))}` },
   machinerytrader:{ name: 'MachineryTrader.eu', flag: '🇪🇺', foreign: true, link: q => `https://www.machinerytrader.eu/listings/for-sale/${encodeURIComponent(slug(q))}/machines` },
-  kleinanzeigen: { name: 'Kleinanzeigen', flag: '🇩🇪', cc: 'DE', foreign: true, link: q => `https://www.kleinanzeigen.de/s-${encodeURIComponent(slug(q))}/k0` }
+  kleinanzeigen: { name: 'Kleinanzeigen', flag: '🇩🇪', cc: 'DE', foreign: true, link: q => `https://www.kleinanzeigen.de/s-${encodeURIComponent(slug(loc(q, 'de')))}/k0` },
+  sahibinden:    { name: 'Sahibinden',    flag: '🇹🇷', cc: 'TR', foreign: true, link: q => `https://www.sahibinden.com/is-makineleri?query_text=${encodeURIComponent(loc(q, 'tr'))}` },
+  autovit:       { name: 'Autovit.ro',    flag: '🇷🇴', cc: 'RO', foreign: true, link: q => `https://www.google.com/search?q=${encodeURIComponent('site:autovit.ro ' + loc(q, 'ro'))}` },
+  kupujemprodajem:{ name: 'KupujemProdajem', flag: '🇷🇸', cc: 'RS', foreign: true, link: q => `https://www.kupujemprodajem.com/pretraga?keywords=${encodeURIComponent(loc(q, 'sr'))}` },
+  polovnemasine: { name: 'Polovne mašine', flag: '🇷🇸', cc: 'RS', foreign: true, link: q => `https://www.google.com/search?q=${encodeURIComponent('site:polovnemasine.com ' + loc(q, 'sr'))}` },
+  subito:        { name: 'Subito.it',     flag: '🇮🇹', cc: 'IT', foreign: true, link: q => `https://www.subito.it/annunci-italia/vendita/usato/?q=${encodeURIComponent(loc(q, 'it'))}` },
+  leboncoin:     { name: 'Leboncoin',     flag: '🇫🇷', cc: 'FR', foreign: true, link: q => `https://www.leboncoin.fr/recherche?text=${encodeURIComponent(loc(q, 'fr'))}` },
+  milanuncios:   { name: 'Milanuncios',   flag: '🇪🇸', cc: 'ES', foreign: true, link: q => `https://www.milanuncios.com/anuncios/?s=${encodeURIComponent(loc(q, 'es'))}` }
 };
 const AUTO = ["mobilebg", "bazar", "machineseeker", "kleinanzeigen"];
+const LOCAL = [
+  ['мини комбиниран багер', { tr: 'mini beko loder', ro: 'mini buldoexcavator', sr: 'mini kombinirka', it: 'mini terna', fr: 'mini tractopelle', es: 'mini retrocargadora', de: 'Minibaggerlader' }],
+  ['комбиниран багер',      { tr: 'beko loder', ro: 'buldoexcavator', sr: 'kombinirka', it: 'terna', fr: 'tractopelle', es: 'retrocargadora', de: 'Baggerlader' }],
+  ['багер товарач',         { tr: 'beko loder', ro: 'buldoexcavator', sr: 'kombinirka', it: 'terna', fr: 'tractopelle', es: 'retrocargadora', de: 'Baggerlader' }],
+  ['мини челен товарач',    { tr: 'mini yükleyici', ro: 'miniincarcator', sr: 'mini utovarivač', it: 'minipala', fr: 'mini chargeuse', es: 'minicargadora', de: 'Kompaktlader' }],
+  ['челен товарач',         { tr: 'lastikli yükleyici', ro: 'incarcator frontal', sr: 'utovarivač', it: 'pala gommata', fr: 'chargeuse sur pneus', es: 'pala cargadora', de: 'Radlader' }],
+  ['телескопичен товарач',  { tr: 'manitou', ro: 'manitou', sr: 'manitou', it: 'manitou', fr: 'manitou', es: 'manitou', de: 'Manitou' }],
+  ['мини багер',            { tr: 'mini ekskavatör', ro: 'miniexcavator', sr: 'mini bager', it: 'miniescavatore', fr: 'mini pelle', es: 'miniexcavadora', de: 'Minibagger' }],
+  ['миди багер',            { tr: 'midi ekskavatör', ro: 'midiexcavator', sr: 'midi bager', it: 'midiescavatore', fr: 'pelle midi', es: 'midiexcavadora', de: 'Midibagger' }],
+  ['верижен багер',         { tr: 'paletli ekskavatör', ro: 'excavator senile', sr: 'bager guseničar', it: 'escavatore cingolato', fr: 'pelle sur chenilles', es: 'excavadora de cadenas', de: 'Kettenbagger' }],
+  ['колесен багер',         { tr: 'lastikli ekskavatör', ro: 'excavator pe roti', sr: 'bager točkaš', it: 'escavatore gommato', fr: 'pelle sur pneus', es: 'excavadora de ruedas', de: 'Mobilbagger' }],
+  ['булдозер',              { tr: 'dozer', ro: 'buldozer', sr: 'buldožer', it: 'apripista', fr: 'bouteur', es: 'bulldozer', de: 'Planierraupe' }],
+  ['валяк',                 { tr: 'silindir', ro: 'cilindru compactor', sr: 'valjak', it: 'rullo compattatore', fr: 'rouleau compacteur', es: 'rodillo compactador', de: 'Walze' }],
+  ['самосвал',              { tr: 'damperli kamyon', ro: 'basculanta', sr: 'kiper', it: 'ribaltabile', fr: 'benne', es: 'volquete', de: 'Kipper' }],
+  ['вишка',                 { tr: 'sepetli platform', ro: 'nacela', sr: 'korpa platforma', it: 'piattaforma aerea', fr: 'nacelle', es: 'plataforma elevadora', de: 'Arbeitsbühne' }],
+  ['багер',                 { tr: 'ekskavatör', ro: 'excavator', sr: 'bager', it: 'escavatore', fr: 'pelle', es: 'excavadora', de: 'Bagger' }]
+];
+function loc(q, lang) {
+  if (!lang) return q;
+  const low = q.toLowerCase();
+  for (const [bg, tr] of LOCAL) if (low.includes(bg)) return (low.replace(bg, tr[lang] || bg)).trim();
+  return q;
+}
 function slug(q) { return q.toLowerCase().trim().replace(/\s+/g, '-'); }
 const gsite = (site, extra = '') => q => `https://www.google.com/search?q=${encodeURIComponent(`site:${site} ${q} ${extra}`.trim())}`;
 // Каталог на източниците (само за ръчно отваряне)
@@ -63,7 +94,8 @@ const FB = [
   { name: 'Групи', link: q => `https://www.facebook.com/search/groups/?q=${encodeURIComponent(q)}` }
 ];
 const COUNTRIES = {
-  BG: ['🇧🇬', 'България', /българия|bulgaria|bulgarien/], DE: ['🇩🇪', 'Германия', /germany|deutschland|германия/],
+  BG: ['🇧🇬', 'България', /българия|bulgaria|bulgarien/], TR: ['🇹🇷', 'Турция', /turkey|türkiye|turkiye|турция|türkei/],
+  RS: ['🇷🇸', 'Сърбия', /serbia|srbija|сърбия|србија|serbien/], DE: ['🇩🇪', 'Германия', /germany|deutschland|германия/],
   IT: ['🇮🇹', 'Италия', /italy|italia|италия/], FR: ['🇫🇷', 'Франция', /france|франция/], NL: ['🇳🇱', 'Нидерландия', /netherlands|nederland|холандия|нидерландия/],
   BE: ['🇧🇪', 'Белгия', /belgium|belgique|belgië|белгия/], AT: ['🇦🇹', 'Австрия', /austria|österreich|австрия/], PL: ['🇵🇱', 'Полша', /poland|polska|полша/],
   RO: ['🇷🇴', 'Румъния', /romania|românia|румъния/], CZ: ['🇨🇿', 'Чехия', /czech|česk|чехия/], ES: ['🇪🇸', 'Испания', /spain|españa|испания/],
@@ -99,14 +131,22 @@ const CATS = [
   ['generator',  'Генератори',               /генератор|generator|stromerzeuger|aksa|sdmo/],
   ['compressor', 'Компресори',               /компресор|compressor|kompressor|atmos/]
 ];
+// Подреждане: 0 — комбинирани Hidromek/Komatsu/JCB, 1 — друга земекопна и товарачна техника, 2 — валяци, 3 — останалото
+const TOP_BRANDS = /hidromek|хидромек|komatsu|коматсу|камацу|\bjcb\b|джисиби/i;
+function rank(it) {
+  if ((it._cat === 'backhoe' || it._cat === 'minibackhoe') && TOP_BRANDS.test(it.title + ' ' + (it.desc || ''))) return 0;
+  if (PRIORITY.includes(it._cat)) return 1;
+  if (it._cat === 'roller') return 2;
+  return 3;
+}
 const PRIORITY = ['minibackhoe', 'backhoe', 'mini', 'midi', 'crawler', 'excavator', 'minicl', 'loader', 'telehandler', 'dozer'];
 const PARTS_X = new RegExp('резервн|част(и)? за|(^|\\s)части(\\s|$)|консуматив|филтр|(^|\\s)масл[оа](\\s|$)|гуми за|акумулатор|ersatzteil|spare ?part|zubehör|verschleißteil|\\bfilter\\b|części|piese');
 const TELE_X = new RegExp('(телескоп|telehandler|teleskoplader|ładowarka teleskop|loadall|merlo|\\bjcb 5\\d\\d)');
-const BOATS = /лодк|катер|яхт|джет|jet ?ski|извънбордов|плавателн|понтон|\bboot\b|boat|yacht|schlauchboot|außenborder/;
+const BOATS = /детски|играчк|lego|bruder|spielzeug|modell|siku|1:\d{2}|(^|\s)гуми(\s|$)|джанти|услуги с|изкопни услуги|лодк|катер|яхт|джет|jet ?ski|извънбордов|плавателн|понтон|\bboot\b|boat|yacht|schlauchboot|außenborder/;
 const BRANDS = ['Hidromek', 'JCB', 'Develon', 'Sany', 'Mecalac', 'Wacker Neuson', 'Caterpillar', 'Komatsu', 'Volvo', 'Case', 'New Holland', 'Bobcat', 'Takeuchi', 'Kubota', 'Hitachi', 'Liebherr', 'Doosan', 'Hyundai', 'Terex', 'Manitou', 'Ammann', 'Bomag', 'Dynapac', 'Hamm', 'Wacker', 'FAE', 'Atlas Copco', 'Yanmar', 'Kobelco'];
 const TYPES = { all: 'Всички обяви', wanted: 'Търсят', sale: 'Продават', service: 'Сервиз и ремонт', rent: 'Под наем' };
 const TBADGE = { wanted: 'ТЪРСИ', sale: 'ПРОДАВА', service: 'СЕРВИЗ', rent: 'НАЕМ' };
-const SORTS = { new: 'Най-нови', pasc: 'Цена — възходящо', pdesc: 'Цена — низходящо' };
+const SORTS = { rank: 'Приоритет: комбинирани Hidromek, Komatsu, JCB', new: 'Най-нови', pasc: 'Цена — възходящо', pdesc: 'Цена — низходящо' };
 const NCATS = { all: 'Всички', infra: 'Инфраструктурни проекти', economy: 'Икономика', energy: 'Енергетика', industry: 'Развитие на бранша', machines: 'Техника', knowhow: 'Ноу-хау' };
 const NSHORT = { infra: 'Проекти', economy: 'Икономика', energy: 'Енергетика', industry: 'Бранш', machines: 'Техника', knowhow: 'Ноу-хау' };
 const NTFY_TOPIC = 'stroiradar-ng-c2e7b1bf';
@@ -164,11 +204,11 @@ const store = {
 const S = {
   keywords: store.get('keywords', ['Hidromek', 'Ammann', 'FAE', 'IMEKS', 'Atmos', 'Grundomat', 'мулчер', 'валяк', 'багер товарач', 'хидравличен чук', 'генератор']),
   favs: store.get('favs', {}), disabled: store.get('disabled', []),
-  type: 'all', cat: 'priority', region: 'all', sort: 'new', onlyKw: store.get('onlyKw', false),
+  type: 'all', cat: 'all', region: 'all', sort: 'rank', onlyKw: store.get('onlyKw', false),
   ack: store.get('ack', Date.now() - 864e5),
   notifKw: store.get('notifKw', true), notifWanted: store.get('notifWanted', false), notified: store.get('notified', []),
   liveUrl: store.get('liveUrl', ''), scope: 'all', theme: store.get('theme', ''),
-  custom: store.get('custom', []),
+  custom: store.get('custom', []), show: [], showUpdated: null, sk: 'all',
   items: [], news: [], ncat: 'all', mkCountry: 'all', updated: null, newOnly: false, view: 'feed'
 };
 function save() {
@@ -189,6 +229,7 @@ function prep(it) {
   it._cc = cc || (SOURCES[it.source]?.foreign ? 'EU' : 'BG');
   it._eur = priceEur(it.price);
   it._brand = BRANDS.find(b => t.includes(b.toLowerCase())) || '';
+  it._rank = rank(it);
   return it;
 }
 function priceEur(p) {
@@ -241,7 +282,7 @@ function ddLabel(k) {
   if (k === 'type') return S.type === 'all' ? 'Всички обяви' : TYPES[S.type];
   if (k === 'cat') return S.cat === 'all' ? 'Всички категории' : S.cat === 'priority' ? '★ Багери и товарачи' : CATS.find(c => c[0] === S.cat)?.[1] || 'Друго';
   if (k === 'region') return S.region === 'all' ? 'България и Европа' : S.region === 'bg' ? 'България' : S.region === 'eu' ? 'Европа' : (COUNTRIES[S.region]?.[0] + ' ' + COUNTRIES[S.region]?.[1]);
-  if (k === 'sort') return SORTS[S.sort];
+  if (k === 'sort') return S.sort === 'rank' ? 'Приоритет' : SORTS[S.sort];
 }
 function renderToolbar() {
   $$('#toolbar .dd').forEach(b => {
@@ -263,7 +304,7 @@ function openDD(k) {
   if (k === 'type') openSheet('Вид обява', Object.entries(TYPES).map(([v, label]) => ({ v, label, on: S.type === v, n: v === 'all' ? base.length : base.filter(i => i.type === v).length })), v => { S.type = v; renderFeed(); });
   if (k === 'cat') openSheet('Категория техника', [{ v: 'priority', label: '★ Багери и товарачи (приоритет)', n: base.filter(i => PRIORITY.includes(i._cat)).length }, { v: 'all', label: 'Всички категории', n: base.length }, ...CATS.map(c => ({ v: c[0], label: c[1], n: base.filter(i => i._cat === c[0]).length })).filter(o => o.n), { v: 'other', label: 'Друго', n: base.filter(i => i._cat === 'other').length }].map(o => ({ ...o, on: S.cat === o.v })), v => { S.cat = v; renderFeed(); });
   if (k === 'region') {
-    const ccs = Object.keys(COUNTRIES).map(cc => ({ v: cc, label: COUNTRIES[cc][0] + ' ' + COUNTRIES[cc][1], n: base.filter(i => i._cc === cc).length })).filter(o => o.n).sort((a, b) => b.n - a.n);
+    const ccs = Object.keys(COUNTRIES).map(cc => ({ v: cc, label: COUNTRIES[cc][0] + ' ' + COUNTRIES[cc][1], n: base.filter(i => i._cc === cc).length })).filter(o => o.n || KEY_MARKETS.includes(o.v)).sort((a, b) => (KEY_MARKETS.includes(b.v) - KEY_MARKETS.includes(a.v)) || b.n - a.n);
     openSheet('Пазар', [{ v: 'all', label: 'България и Европа', n: base.length }, { v: 'bg', label: '🇧🇬 Само България', n: base.filter(i => !SOURCES[i.source]?.foreign).length }, { v: 'eu', label: '🇪🇺 Само Европа', n: base.filter(i => SOURCES[i.source]?.foreign).length }, ...ccs].map(o => ({ ...o, on: S.region === o.v })), v => { S.region = v; renderFeed(); });
   }
   if (k === 'sort') openSheet('Подреждане', Object.entries(SORTS).map(([v, label]) => ({ v, label, on: S.sort === v })), v => { S.sort = v; renderFeed(); });
@@ -275,7 +316,8 @@ function visible() {
     (S.type === 'all' || it.type === S.type) && (S.cat === 'all' || (S.cat === 'priority' ? PRIORITY.includes(it._cat) : it._cat === S.cat)) &&
     (S.region === 'all' || (S.region === 'bg' ? !SOURCES[it.source]?.foreign : S.region === 'eu' ? SOURCES[it.source]?.foreign : it._cc === S.region)) &&
     (!S.onlyKw || kwMatch(it)) && (!S.newOnly || isNew(it)));
-  if (S.sort === 'pasc') v = v.filter(i => i._eur).sort((a, b) => a._eur - b._eur);
+  if (S.sort === 'rank') v = v.sort((a, b) => (a._rank - b._rank) || (when(b) - when(a)));
+  else if (S.sort === 'pasc') v = v.filter(i => i._eur).sort((a, b) => a._eur - b._eur);
   else if (S.sort === 'pdesc') v = v.filter(i => i._eur).sort((a, b) => b._eur - a._eur);
   return v;
 }
@@ -309,7 +351,8 @@ function renderBanners() {
   const infra = S.news.filter(n => n.cat === 'infra').length;
   const bn = [
     { c: 'bn-1', h: w ? `${w} души търсят техника` : 'Кой търси техника днес', p: 'Купувачи и наематели от обявите — готови клиенти.', go: 'Виж търсещите', act: () => { S.type = 'wanted'; S.cat = 'all'; renderFeed(); scrollToList(); } },
-    { c: 'bn-2', h: 'Сравни цените в Европа', p: 'Медианни цени по категории — България срещу ЕС.', go: 'Към пазарите', act: () => show('market') },
+    { c: 'bn-2', h: 'Виртуален шоурум', p: 'Машини, подбрани и проверени от Claude.', go: 'Разгледай', act: () => show('show') },
+    { c: 'bn-4', h: 'Сравни цените в Европа', p: 'Медианни цени по категории — България срещу ЕС.', go: 'Към пазарите', act: () => show('market') },
     { c: 'bn-3', h: 'Инфраструктурни проекти', p: infra ? `${infra} нови материала за пътища, ВиК и енергетика.` : 'Пътища, ВиК, енергетика и обществени поръчки.', go: 'Прочети', act: () => { S.ncat = 'infra'; show('news'); } },
     { c: 'bn-4', h: 'Ноу-хау от бранша', p: 'Как да провериш употребявана машина преди покупка.', go: 'Отвори', act: () => show('know') }
   ];
@@ -330,10 +373,13 @@ function renderMarket() {
   const listings = live();
   const byCc = {};
   listings.forEach(i => { (byCc[i._cc] ||= []).push(i); });
-  const ccList = Object.entries(byCc).filter(([cc]) => COUNTRIES[cc]).sort((a, b) => b[1].length - a[1].length);
+  const ccList = [...KEY_MARKETS.map(cc => [cc, byCc[cc] || []]), ...Object.entries(byCc).filter(([cc]) => COUNTRIES[cc] && !KEY_MARKETS.includes(cc)).sort((a, b) => b[1].length - a[1].length)];
   $('#countries').innerHTML = `<button class="ctry ${S.mkCountry === 'all' ? 'on' : ''}" data-mk="all"><b>🇪🇺</b><span>Цяла Европа</span><small>${listings.length} обяви</small></button>` +
-    ccList.map(([cc, arr]) => `<button class="ctry ${S.mkCountry === cc ? 'on' : ''}" data-mk="${cc}"><b>${COUNTRIES[cc][0]}</b><span>${COUNTRIES[cc][1]}</span><small>${arr.length} обяви</small></button>`).join('');
+    ccList.map(([cc, arr]) => `<button class="ctry ${S.mkCountry === cc ? 'on' : ''}" data-mk="${cc}"><b>${COUNTRIES[cc][0]}</b><span>${COUNTRIES[cc][1]}</span><small>${arr.length ? arr.length + ' обяви' : 'търси ръчно'}</small></button>`).join('');
   const pool = S.mkCountry === 'all' ? listings : (byCc[S.mkCountry] || []);
+  const ccSites = Object.values(SOURCES).filter(x => x.cc === S.mkCountry);
+  $('#mkSites').innerHTML = S.mkCountry !== 'all' && ccSites.length ? `<div class="sec"><h2>Сайтове в ${COUNTRIES[S.mkCountry][1]}</h2><p class="sub">Търсене на приоритетната техника на местния език.</p></div>
+    <div class="sites">${ccSites.flatMap(x => ['мини багер', 'комбиниран багер', 'верижен багер', 'челен товарач'].map(q => `<a class="site" href="${esc(x.link(q))}" target="_blank" rel="noopener"><i>${x.flag}</i>${esc(x.name)} · ${esc(q)}</a>`)).join('')}</div>` : '';
   const priced = pool.filter(i => i.type === 'sale' && i._eur && i._eur > 400 && i._eur < 3e6);
   const day = Date.now() - 864e5;
   $('#mkTiles').innerHTML = [
@@ -392,7 +438,7 @@ const inScope = k => S.scope === 'all' || (S.scope === 'foreign' ? !!SOURCES[k]?
 async function doSearch(q) {
   q = q.trim(); if (!q) return;
   const words = norm(q).split(/\s+/);
-  const local = live().filter(it => inScope(it.source) && words.every(w => txt(it).includes(w)));
+  const local = live().filter(it => inScope(it.source) && words.every(w => txt(it).includes(w))).sort((a, b) => (a._rank - b._rank) || (when(b) - when(a)));
   const siteBtns = Object.entries(SOURCES).filter(([k]) => inScope(k)).map(([, s]) => `<a class="site" href="${esc(s.link(q))}" target="_blank" rel="noopener"><i>${s.flag}</i>${esc(s.name)}</a>`).join('');
   const fbBtns = FB.map(f => `<a class="site fb" href="${esc(f.link(q))}" target="_blank" rel="noopener"><i>f</i>${f.name}</a>`).join('');
   $('#sResults').innerHTML = `
@@ -450,6 +496,60 @@ function renderSettings() {
   $('#srcSet').innerHTML = Object.entries(SOURCES).filter(([k]) => AUTO.includes(k)).map(([k, s]) => `<label class="sw"><span>${s.flag} ${esc(s.name)} <span class="st">${S.items.filter(i => i.source === k).length} обяви</span></span><input type="checkbox" data-srcset="${k}" ${S.disabled.includes(k) ? '' : 'checked'}></label>`).join('');
 }
 
+
+// ---------- Виртуален шоурум ----------
+const INBOX_TOPIC = 'bb-showroom-in-319983c2f7';
+const KIND = { member: 'ОТ ЧЛЕН', deal: 'ПОД ПАЗАРА', pick: 'ИЗБРАНО', insight: 'АНАЛИЗ', wanted: 'ТЪРСИ' };
+function showCard(x) {
+  if (x.kind === 'insight') return `<article class="scard insight"><div class="sbody"><span class="cat c-economy">Анализ на пазара</span>
+    ${x.figure ? `<div class="big" style="margin-top:10px">${esc(x.figure)}</div>` : ''}<h3 style="margin-top:6px">${esc(x.title)}</h3>
+    <div class="verdict"><small>Claude</small>${esc(x.summary)}</div>${x.basis ? `<div class="smeta">${esc(x.basis)}</div>` : ''}</div></article>`;
+  const under = x.eur && x.marketMedian ? Math.round((1 - x.eur / x.marketMedian) * 100) : null;
+  const flag = COUNTRIES[x.cc]?.[0] || '';
+  const contact = x.contact ? (/^[+\d\s()-]{7,}$/.test(x.contact) ? `tel:${x.contact.replace(/[^\d+]/g, '')}` : /@/.test(x.contact) ? `mailto:${x.contact}` : '') : '';
+  return `<article class="scard">
+    <a class="hero-img ${x.photo ? '' : 'none'}" ${x.url ? `href="${esc(x.url)}" target="_blank" rel="noopener"` : ''} ${x.photo ? `style="background-image:url('${esc(x.photo)}')"` : ''}>${x.photo ? '' : ICON_MACHINE}<span class="kind k-${esc(x.kind)}">${KIND[x.kind] || ''}</span></a>
+    <div class="sbody">
+      <h3>${esc(x.title)}</h3>
+      <div class="pxrow">${x.price ? `<b>${esc(x.price)}</b>` : ''}${x.marketMedian ? `<span>Пазарна медиана ${fmtEur(x.marketMedian)}</span>` : ''}${under > 0 ? `<span class="under">−${under}%</span>` : ''}</div>
+      <div class="smeta">${flag} ${esc(x.location || '')}${x.source ? ' · ' + esc(x.source) : ''}${x.date ? ' · ' + ago(x.date) : ''}</div>
+      <div class="verdict"><small>Оценка на Claude</small>${esc(x.summary)}</div>
+      ${x.checks?.length ? `<details><summary>Какво да провериш (${x.checks.length})</summary><ul>${x.checks.map(c => `<li>${esc(c)}</li>`).join('')}</ul></details>` : ''}
+      <div class="sfoot">${x.url ? `<a class="btn primary" href="${esc(x.url)}" target="_blank" rel="noopener">Отвори обявата</a>` : ''}${contact ? `<a class="btn ${x.url ? '' : 'primary'}" href="${esc(contact)}">Свържи се</a>` : (x.contact ? `<span class="btn">${esc(x.contact)}</span>` : '')}</div>
+    </div></article>`;
+}
+function renderShow() {
+  const srank = x => x.kind === 'insight' ? 9 : (['backhoe', 'minibackhoe'].includes(x.category) && TOP_BRANDS.test(x.title) ? 0 : PRIORITY.includes(x.category) ? 1 : x.category === 'roller' ? 2 : 3);
+  const list = (S.show || []).filter(x => S.sk === 'all' || x.kind === S.sk || (S.sk === 'member' && x.kind === 'wanted')).sort((a, b) => srank(a) - srank(b));
+  $('#showUpd').textContent = S.showUpdated ? `Последен преглед: ${ago(S.showUpdated)}.` : '';
+  $('#showList').innerHTML = list.length ? list.map(showCard).join('')
+    : `<div class="empty">${ICON_MACHINE}<b>${S.sk === 'member' ? 'Още няма машини от членове' : 'Шоурумът се подготвя'}</b>${S.sk === 'member' ? 'Добави първата — Claude ще я прегледа и публикува.' : 'Claude преглежда новите обяви на няколко часа.'}</div>`;
+}
+function openShowForm() {
+  $('#sheetTitle').textContent = 'Добави в шоурума';
+  $('#sheetBody').onclick = null;
+  $('#sheetBody').innerHTML = `<form class="form" id="shForm" style="padding:0 20px 10px">
+    <label>Какво предлагаш</label><select name="offer"><option>Продавам</option><option>Отдавам под наем</option><option>Демо машина</option><option>Търся машина</option></select>
+    <label>Марка и модел</label><input name="model" required placeholder="напр. Hidromek HMK 102B Alpha">
+    <div class="two"><div><label>Година</label><input name="year" inputmode="numeric" placeholder="2019"></div><div><label>Моточасове</label><input name="hours" inputmode="numeric" placeholder="4200"></div></div>
+    <div class="two"><div><label>Цена, € без ДДС</label><input name="price" inputmode="numeric" placeholder="45000"></div><div><label>Държава / град</label><input name="location" placeholder="България, Русе"></div></div>
+    <label>Описание</label><textarea name="desc" placeholder="Състояние, оборудване, сервизна история…"></textarea>
+    <label>Линк към обява или снимка</label><input name="link" type="url" placeholder="https://…">
+    <div class="two"><div><label>Име / фирма</label><input name="name" required></div><div><label>Телефон или имейл</label><input name="contact" required></div></div>
+    <label class="consent"><input type="checkbox" name="ok" required>Съгласен съм данните да бъдат прегледани и публикувани в шоурума на BuildBench EU.</label>
+    <button class="btn primary" style="width:100%;margin-top:14px">Изпрати за преглед</button></form>`;
+  $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
+  $('#shForm').onsubmit = async e => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(e.target)); delete data.ok; data.sentAt = new Date().toISOString();
+    try {
+      const r = await fetch(`https://ntfy.sh/${INBOX_TOPIC}`, { method: 'POST', body: JSON.stringify(data) });
+      if (!r.ok) throw 0;
+      closeOverlays(); toast('Изпратено. Claude ще го прегледа и публикува до няколко часа.');
+    } catch { toast('Изпращането не успя. Провери връзката и опитай пак.'); }
+  };
+}
+
 // ---------- Навигация ----------
 const HERO = {
   feed:   ['Пазарът на техника в Европа', 'Обяви, цени и проекти от България и Европа — обновява се на всеки 20 минути.'],
@@ -459,6 +559,7 @@ const HERO = {
   know:   ['Ноу-хау', 'Практични насоки за избор, проверка и поддръжка.'],
   fav:    ['Любими', 'Обявите, които следиш.'],
   set:    ['Настройки', 'Ключови думи, известия и сайтове.'],
+  show:   ['Виртуален шоурум', 'Подбрано и проверено от Claude — от потребители и от пазара.'],
   src:    ['Всички източници', 'Пазари, производители, търгове и лизинг на едно място.']
 };
 function show(v) {
@@ -474,6 +575,7 @@ function show(v) {
   if (v === 'fav') renderFavs();
   if (v === 'set') renderSettings();
   if (v === 'src') renderSources();
+  if (v === 'show') renderShow();
   if (v === 'search') setTimeout(() => $('#sQ').focus(), 60);
   closeOverlays();
   window.scrollTo(0, 0);
@@ -492,6 +594,7 @@ document.addEventListener('click', e => {
   else if (d.mk) { S.mkCountry = d.mk; renderMarket(); }
   else if (d.ncat2) { S.ncat = d.ncat2; renderNews(); }
   else if (d.scope) { S.scope = d.scope; $$('#scopeSeg button').forEach(x => x.classList.toggle('on', x === b)); if ($('#sQ').value) doSearch($('#sQ').value); }
+  else if (d.sk) { S.sk = d.sk; $$('#showSeg button').forEach(x => x.classList.toggle('on', x === b)); renderShow(); }
   else if (d.cdel != null) { S.custom.splice(+d.cdel, 1); save(); renderSources(); }
   else if (d.kwdel != null) { S.keywords.splice(+d.kwdel, 1); save(); renderSettings(); renderStats(); }
   else if (d.th != null) { S.theme = d.th; applyTheme(); save(); }
@@ -504,6 +607,7 @@ document.addEventListener('click', e => {
     if (S.view === 'fav') renderFavs();
   }
 });
+$('#addShow').onclick = openShowForm;
 $('#menuBtn').onclick = () => { $('#drawer').classList.add('on'); $('#scrim').classList.add('on'); };
 $('#scrim').onclick = closeOverlays;
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeOverlays(); });
@@ -531,13 +635,15 @@ new IntersectionObserver(([en]) => $('#toolbar').classList.toggle('stuck', !en.i
 // ---------- Данни ----------
 async function load(silent) {
   try {
-    const [r1, r2] = await Promise.allSettled([fetch('data/listings.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/news.json?t=' + Date.now(), { cache: 'no-store' })]);
+    const [r1, r2, r3] = await Promise.allSettled([fetch('data/listings.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/news.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/showroom.json?t=' + Date.now(), { cache: 'no-store' })]);
+    if (r3.status === 'fulfilled' && r3.value.ok) { const j = await r3.value.json(); S.show = j.items || []; S.showUpdated = j.updated; }
     if (r1.status === 'fulfilled' && r1.value.ok) { const j = await r1.value.json(); S.items = (j.items || []).map(prep); S.updated = j.updated; }
     if (r2.status === 'fulfilled' && r2.value.ok) { const j = await r2.value.json(); S.news = j.items || []; }
   } catch {}
   renderBanners(); renderFeed();
   if (S.view !== 'feed' && !silent) show(S.view);
   else if (S.view === 'market') renderMarket();
+  else if (S.view === 'show') renderShow();
   notifyNew();
 }
 async function notifyNew() {

@@ -36,6 +36,7 @@ jobs:
           git config user.name "stroiradar-bot"
           git config user.email "bot@users.noreply.github.com"
           git add docs/data
+          [ -d inbox ] && git add inbox || true
           [ -d debug ] && git add -f debug || true
           git diff --cached --quiet || git commit -m "Обяви $(date -u +%F' '%H:%M)"
           git pull --rebase -X ours || true
