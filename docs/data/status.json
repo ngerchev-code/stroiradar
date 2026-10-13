@@ -1,0 +1,75 @@
+{
+ "updated": "2026-10-13T22:07:55.248Z",
+ "status": {
+  "mobilebg": {
+   "name": "Mobile.bg",
+   "ok": 1,
+   "err": 0,
+   "lastError": "",
+   "at": "2026-10-13T21:58:44.743Z"
+  },
+  "machinio": {
+   "name": "Machinio",
+   "ok": 19,
+   "err": 0,
+   "lastError": "",
+   "at": "2026-10-13T21:58:52.174Z"
+  },
+  "machineryline": {
+   "name": "Machineryline",
+   "ok": 19,
+   "err": 0,
+   "lastError": "",
+   "at": "2026-10-13T21:58:52.248Z"
+  },
+  "truck1": {
+   "name": "Truck1",
+   "ok": 19,
+   "err": 0,
+   "lastError": "",
+   "at": "2026-10-13T21:58:52.748Z"
+  },
+  "mobilede": {
+   "name": "Mobile.de",
+   "ok": 19,
+   "err": 0,
+   "lastError": "",
+   "at": "2026-10-13T21:58:53.094Z"
+  },
+  "truckscout24": {
+   "name": "TruckScout24",
+   "ok": 19,
+   "err": 0,
+   "lastError": "",
+   "at": "2026-10-13T21:58:53.102Z"
+  },
+  "autoline": {
+   "name": "Autoline",
+   "ok": 19,
+   "err": 0,
+   "lastError": "",
+   "at": "2026-10-13T21:58:53.458Z"
+  },
+  "mascus": {
+   "name": "Mascus",
+   "ok": 19,
+   "err": 0,
+   "lastError": "",
+   "at": "2026-10-13T21:58:56.426Z"
+  },
+  "olx": {
+   "name": "OLX.bg",
+   "ok": 0,
+   "err": 63,
+   "lastError": "HTTP 403",
+   "at": "2026-10-13T21:59:04.903Z"
+  },
+  "bazar": {
+   "name": "Bazar.bg",
+   "ok": 63,
+   "err": 0,
+   "lastError": "",
+   "at": "2026-10-13T22:00:01.895Z"
+  }
+ }
+}
