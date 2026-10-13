@@ -73,24 +73,35 @@ const COUNTRIES = {
   LT: ['🇱🇹', 'Литва', /lithuania|lietuva|литва/], CH: ['🇨🇭', 'Швейцария', /switzerland|schweiz|швейцария/]
 };
 const CATS = [
-  ['parts',      'Части и ремонт',          /части|резервн|ремонт|сервиз|ersatzteil|spare part|repair/],
-  ['attach',     'Прикачен инвентар',       /кофа|бързосменник|инвентар|свредел|bucket|quick ?coupler|attachment|tiltrotator|грайфер/],
-  ['breaker',    'Хидравлични чукове',      /хидравличен чук|къртач|\bчук\b|breaker|hydraulikhammer|imeks|hycon/],
-  ['mulcher',    'Мулчери',                 /мулчер|mulcher|forstmulcher|fae /],
-  ['backhoe',    'Багер-товарачи',          /багер[ -]?товарач|комбиниран багер|backhoe|baggerlader|hmk ?\d{2,3} ?b|[34]cx/],
-  ['telehandler','Телескопични товарачи',   /телескоп|telehandler|teleskoplader|manitou|merlo/],
-  ['mini',       'Мини багери',             /мини багер|minibagger|mini excavator|minibag|kompaktbagger/],
-  ['excavator',  'Багери',                  /багер|excavator|bagger|escavatore/],
-  ['loader',     'Товарачи',                /товарач|wheel loader|radlader|skid steer|kompaktlader|bobcat|chargeuse/],
-  ['roller',     'Валяци',                  /валяк|roller|walze|rullo|compactor/],
-  ['compaction', 'Виброплочи и трамбовки',  /виброплоча|трамбовк|пачекрак|plate compactor|rüttelplatte|rammer|stampfer/],
-  ['paver',      'Асфалтова техника',       /асфалт|paver|fertiger|фреза|milling/],
-  ['crusher',    'Трошачки и сита',         /трошачк|сито|crusher|screen|brecher|siebanlage|komplet/],
-  ['drilling',   'Безизкопни технологии',   /къртица|сондаж|grundomat|grundodrill|хоризонтал|directional drill|hdd/],
-  ['generator',  'Генератори',              /генератор|generator|stromerzeuger|aksa|sdmo/],
-  ['compressor', 'Компресори',              /компресор|compressor|kompressor|atmos/]
+  ['minibackhoe','Мини комбинирани багери',  /мини комбиниран|мини багер[ -]?товарач|hmk ?62|\b1 ?cx\b|mini backhoe|minibaggerlader/],
+  ['backhoe',    'Комбинирани багери',       /багер[ -]?товарач|комбиниран багер|backhoe|baggerlader|buldoexcavator|koparko[- ]?ładowark|hmk ?\d{2,3} ?b|\b[34] ?cx\b/],
+  ['telehandler','Телескопични товарачи',    /телескоп|telehandler|teleskoplader|manitou|merlo|ładowarka teleskop/],
+  ['minicl',     'Мини челни товарачи',      /мини челен|бобкат|skid ?steer|kompaktlader|minilader|компактен товарач|\bbobcat\b|bobcat s\d/],
+  ['midi',       'Миди багери',              /миди багер|midibagger|midi excavator|midi-bagger/],
+  ['mini',       'Мини багери',              /мини багер|minibagger|mini excavator|kompaktbagger|minikoparka|mini ?excavator/],
+  ['crawler',    'Верижни багери',           /верижен багер|верижни багер|kettenbagger|crawler excavator|koparka gąsienicowa/],
+  ['dozer',      'Булдозери',                /булдозер|bulldozer|\bdozer|planierraupe|spycharka/],
+  ['excavator',  'Колесни и други багери',   /багер|excavator|bagger|koparka|escavatore/],
+  ['loader',     'Челни товарачи',           /челен товарач|колесен товарач|товарач|wheel loader|radlader|ładowarka|incarcator|chargeuse/],
+  ['tipper',     'Самосвали (с кран, тристранни)', /самосвал|тристран|кран[- ]?манипулатор|kipper|dreiseiten|tipper|dump truck|wywrotka/],
+  ['garbage',    'Сметосъбиращи камиони',    /сметосъбира|боклукчийск|müllwagen|garbage truck|refuse (truck|collector)|śmieciarka/],
+  ['aerial',     'Вишки',                    /вишка|автовишка|arbeitsbühne|hubarbeitsbühne|aerial|boom lift|scissor lift|podnośnik/],
+  ['asphaltrec', 'Рециклатори за асфалт',    /рециклатор|рециклиране на асфалт|термоконтейнер|asphalt recycler|asphaltrecycler|hot box/],
+  ['parts',      'Части и ремонт',           /части|резервн|ремонт|сервиз|ersatzteil|spare part|repair/],
+  ['attach',     'Прикачен инвентар',        /кофа|бързосменник|инвентар|свредел|bucket|quick ?coupler|attachment|tiltrotator|грайфер|schnellwechsler|löffel/],
+  ['breaker',    'Хидравлични чукове',       /хидравличен чук|къртач|\bчук\b|breaker|hydraulikhammer|imeks|hycon/],
+  ['mulcher',    'Мулчери',                  /мулчер|mulcher|forstmulcher|\bfae\b/],
+  ['roller',     'Валяци',                   /валяк|roller|walze|rullo|compactor|walec/],
+  ['compaction', 'Виброплочи и трамбовки',   /виброплоча|трамбовк|пачекрак|plate compactor|rüttelplatte|rammer|stampfer/],
+  ['paver',      'Асфалтова техника',        /асфалт|paver|fertiger|фреза|milling/],
+  ['crusher',    'Трошачки и сита',          /трошачк|сито|crusher|screen|brecher|siebanlage|komplet/],
+  ['drilling',   'Безизкопни технологии',    /къртица|сондаж|grundomat|grundodrill|хоризонтал|directional drill|hdd/],
+  ['generator',  'Генератори',               /генератор|generator|stromerzeuger|aksa|sdmo/],
+  ['compressor', 'Компресори',               /компресор|compressor|kompressor|atmos/]
 ];
-const BRANDS = ['Hidromek', 'JCB', 'Caterpillar', 'Komatsu', 'Volvo', 'Case', 'New Holland', 'Bobcat', 'Takeuchi', 'Kubota', 'Hitachi', 'Liebherr', 'Doosan', 'Hyundai', 'Terex', 'Manitou', 'Ammann', 'Bomag', 'Dynapac', 'Hamm', 'Wacker', 'FAE', 'Atlas Copco', 'Yanmar', 'Kobelco'];
+const PRIORITY = ['minibackhoe', 'backhoe', 'mini', 'midi', 'crawler', 'excavator', 'minicl', 'loader', 'telehandler', 'dozer'];
+const BOATS = /лодк|катер|яхт|джет|jet ?ski|извънбордов|плавателн|понтон|\bboot\b|boat|yacht|schlauchboot|außenborder/;
+const BRANDS = ['Hidromek', 'JCB', 'Develon', 'Merlo', 'Sany', 'Mecalac', 'Wacker Neuson', 'Caterpillar', 'Komatsu', 'Volvo', 'Case', 'New Holland', 'Bobcat', 'Takeuchi', 'Kubota', 'Hitachi', 'Liebherr', 'Doosan', 'Hyundai', 'Terex', 'Manitou', 'Ammann', 'Bomag', 'Dynapac', 'Hamm', 'Wacker', 'FAE', 'Atlas Copco', 'Yanmar', 'Kobelco'];
 const TYPES = { all: 'Всички обяви', wanted: 'Търсят', sale: 'Продават', service: 'Сервиз и части', rent: 'Под наем' };
 const TBADGE = { wanted: 'ТЪРСИ', sale: 'ПРОДАВА', service: 'СЕРВИЗ', rent: 'НАЕМ' };
 const SORTS = { new: 'Най-нови', pasc: 'Цена — възходящо', pdesc: 'Цена — низходящо' };
@@ -151,7 +162,7 @@ const store = {
 const S = {
   keywords: store.get('keywords', ['Hidromek', 'Ammann', 'FAE', 'IMEKS', 'Atmos', 'Grundomat', 'мулчер', 'валяк', 'багер товарач', 'хидравличен чук', 'генератор']),
   favs: store.get('favs', {}), disabled: store.get('disabled', []),
-  type: 'all', cat: 'all', region: 'all', sort: 'new', onlyKw: store.get('onlyKw', false),
+  type: 'all', cat: 'priority', region: 'all', sort: 'new', onlyKw: store.get('onlyKw', false),
   ack: store.get('ack', Date.now() - 864e5),
   notifKw: store.get('notifKw', true), notifWanted: store.get('notifWanted', false), notified: store.get('notified', []),
   liveUrl: store.get('liveUrl', ''), scope: 'all', theme: store.get('theme', ''),
@@ -170,6 +181,7 @@ const txt = it => norm(it.title + ' ' + (it.desc || '') + ' ' + (it.location || 
 function prep(it) {
   const t = txt(it);
   it._cat = (CATS.find(c => c[2].test(t)) || ['other'])[0];
+  it._boat = BOATS.test(t);
   let cc = SOURCES[it.source]?.cc;
   if (!cc || SOURCES[it.source]?.foreign) { const m = Object.entries(COUNTRIES).find(([, v]) => v[2].test(t)); if (m) cc = m[0]; }
   it._cc = cc || (SOURCES[it.source]?.foreign ? 'EU' : 'BG');
@@ -196,7 +208,7 @@ const kwMatch = it => { const t = txt(it); return S.keywords.some(k => t.include
 const when = it => new Date(it.firstSeen || it.date).getTime();
 const isNew = it => when(it) > S.ack;
 const wantsNotify = it => (!S.notifKw || kwMatch(it)) && (!S.notifWanted || it.type === 'wanted');
-const live = () => S.items.filter(i => !S.disabled.includes(i.source));
+const live = () => S.items.filter(i => !S.disabled.includes(i.source) && !i._boat);
 function ago(d) {
   const m = Math.round((Date.now() - new Date(d)) / 6e4);
   if (m < 1) return 'току-що'; if (m < 60) return `преди ${m} мин`;
@@ -225,14 +237,14 @@ function card(it) {
 // ---------- Падащи филтри ----------
 function ddLabel(k) {
   if (k === 'type') return S.type === 'all' ? 'Всички обяви' : TYPES[S.type];
-  if (k === 'cat') return S.cat === 'all' ? 'Категория' : CATS.find(c => c[0] === S.cat)?.[1] || 'Друго';
+  if (k === 'cat') return S.cat === 'all' ? 'Всички категории' : S.cat === 'priority' ? '★ Багери и товарачи' : CATS.find(c => c[0] === S.cat)?.[1] || 'Друго';
   if (k === 'region') return S.region === 'all' ? 'България и Европа' : S.region === 'bg' ? 'България' : S.region === 'eu' ? 'Европа' : (COUNTRIES[S.region]?.[0] + ' ' + COUNTRIES[S.region]?.[1]);
   if (k === 'sort') return SORTS[S.sort];
 }
 function renderToolbar() {
   $$('#toolbar .dd').forEach(b => {
     const k = b.dataset.dd;
-    const set = (k === 'type' && S.type !== 'all') || (k === 'cat' && S.cat !== 'all') || (k === 'region' && S.region !== 'all');
+    const set = (k === 'type' && S.type !== 'all') || (k === 'cat' && S.cat !== 'all' && S.cat !== 'priority') || (k === 'region' && S.region !== 'all');
     b.classList.toggle('set', set);
     b.innerHTML = esc(ddLabel(k)) + ICON_DOWN;
   });
@@ -247,7 +259,7 @@ function closeOverlays() { $('#sheet').classList.remove('on'); $('#drawer').clas
 function openDD(k) {
   const base = live();
   if (k === 'type') openSheet('Вид обява', Object.entries(TYPES).map(([v, label]) => ({ v, label, on: S.type === v, n: v === 'all' ? base.length : base.filter(i => i.type === v).length })), v => { S.type = v; renderFeed(); });
-  if (k === 'cat') openSheet('Категория техника', [{ v: 'all', label: 'Всички категории', n: base.length }, ...CATS.map(c => ({ v: c[0], label: c[1], n: base.filter(i => i._cat === c[0]).length })).filter(o => o.n), { v: 'other', label: 'Друго', n: base.filter(i => i._cat === 'other').length }].map(o => ({ ...o, on: S.cat === o.v })), v => { S.cat = v; renderFeed(); });
+  if (k === 'cat') openSheet('Категория техника', [{ v: 'priority', label: '★ Багери и товарачи (приоритет)', n: base.filter(i => PRIORITY.includes(i._cat)).length }, { v: 'all', label: 'Всички категории', n: base.length }, ...CATS.map(c => ({ v: c[0], label: c[1], n: base.filter(i => i._cat === c[0]).length })).filter(o => o.n), { v: 'other', label: 'Друго', n: base.filter(i => i._cat === 'other').length }].map(o => ({ ...o, on: S.cat === o.v })), v => { S.cat = v; renderFeed(); });
   if (k === 'region') {
     const ccs = Object.keys(COUNTRIES).map(cc => ({ v: cc, label: COUNTRIES[cc][0] + ' ' + COUNTRIES[cc][1], n: base.filter(i => i._cc === cc).length })).filter(o => o.n).sort((a, b) => b.n - a.n);
     openSheet('Пазар', [{ v: 'all', label: 'България и Европа', n: base.length }, { v: 'bg', label: '🇧🇬 Само България', n: base.filter(i => !SOURCES[i.source]?.foreign).length }, { v: 'eu', label: '🇪🇺 Само Европа', n: base.filter(i => SOURCES[i.source]?.foreign).length }, ...ccs].map(o => ({ ...o, on: S.region === o.v })), v => { S.region = v; renderFeed(); });
@@ -258,7 +270,7 @@ function openDD(k) {
 // ---------- Обяви ----------
 function visible() {
   let v = live().filter(it =>
-    (S.type === 'all' || it.type === S.type) && (S.cat === 'all' || it._cat === S.cat) &&
+    (S.type === 'all' || it.type === S.type) && (S.cat === 'all' || (S.cat === 'priority' ? PRIORITY.includes(it._cat) : it._cat === S.cat)) &&
     (S.region === 'all' || (S.region === 'bg' ? !SOURCES[it.source]?.foreign : S.region === 'eu' ? SOURCES[it.source]?.foreign : it._cc === S.region)) &&
     (!S.onlyKw || kwMatch(it)) && (!S.newOnly || isNew(it)));
   if (S.sort === 'pasc') v = v.filter(i => i._eur).sort((a, b) => a._eur - b._eur);

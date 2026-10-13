@@ -10,10 +10,11 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 let old = [];
 try { old = JSON.parse(await readFile(new URL('listings.json', ROOT), 'utf8')).items || []; } catch {}
-old = old.filter(i => RELEVANT.test(i.title + ' ' + (i.desc || '') + ' ' + i.url));
+old = old.filter(i => RELEVANT.test(i.title + ' ' + (i.desc || '') + ' ' + i.url) && !new RegExp(config.excludePattern || '^$', 'i').test(i.title + ' ' + i.url));
 const known = new Map(old.map(i => [i.id, i]));
 const firstRun = old.length === 0;
 
+const EXCL = new RegExp(config.excludePattern || '^$', 'i');
 const found = new Map();
 // Диагностика: записва първата страница от всеки сайт
 if (process.env.DEBUG_HTML) {
@@ -32,7 +33,7 @@ async function runSource(key, src, terms) {
       const q = queue.shift();
       try {
         const items = await searchSource(key, src, q, { enrichDetails: false });
-        for (const it of items) { it.matched = q; if (!RELEVANT.test(it.title + ' ' + (it.desc || '') + ' ' + it.url)) continue; if (!found.has(it.id)) found.set(it.id, it); }
+        for (const it of items) { it.matched = q; if (!RELEVANT.test(it.title + ' ' + (it.desc || '') + ' ' + it.url) || EXCL.test(it.title + ' ' + it.url)) continue; if (!found.has(it.id)) found.set(it.id, it); }
         ok++;
       } catch (e) { err++; last = e.message; }
       await sleep(700);
@@ -56,6 +57,7 @@ for (let i = 0; i < fresh.length; i += 6) {
   await Promise.all(fresh.slice(i, i + 6).map(async it => {
     if (it.source !== 'olx' && !it.desc) await enrich(it);
     it.type = classify(it.title + ' ' + it.desc);
+    if (EXCL.test(it.title + ' ' + (it.desc || ''))) found.delete(it.id);
     it.firstSeen = new Date().toISOString();
   }));
 }
