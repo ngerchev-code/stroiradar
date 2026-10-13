@@ -140,7 +140,7 @@ function rank(it) {
   return 3;
 }
 const PRIORITY = ['minibackhoe', 'backhoe', 'mini', 'midi', 'crawler', 'excavator', 'minicl', 'loader', 'telehandler', 'dozer'];
-const PARTS_X = new RegExp('резервн|част(и)? за|(^|\\s)части(\\s|$)|консуматив|филтр|(^|\\s)масл[оа](\\s|$)|гуми за|акумулатор|ersatzteil|spare ?part|zubehör|verschleißteil|\\bfilter\\b|części|piese');
+const PARTS_X = new RegExp('пиньон|корона за|зъбн\\w* колел|лагер|уплътнен|семеринг|стъкло за|седалка за|помпа за|хидравлична помпа|двигател за|радиатор|ремъ[кц]|втулк|щифтове|джойстик за|ключ за|стартер|алтернатор|турбо(компресор)? за|верига за|вериги за|ролк[аи] за|зъб(и)? за кофа|резервн|част(и)? за|(^|\\s)части(\\s|$)|консуматив|филтр|(^|\\s)масл[оа](\\s|$)|гуми за|акумулатор|ersatzteil|spare ?part|zubehör|verschleißteil|\\bfilter\\b|części|piese');
 const TELE_X = new RegExp('(телескоп|telehandler|teleskoplader|ładowarka teleskop|loadall|merlo|\\bjcb 5\\d\\d)');
 const BOATS = /детски|играчк|lego|bruder|spielzeug|modell|siku|1:\d{2}|(^|\s)гуми(\s|$)|джанти|услуги с|изкопни услуги|лодк|катер|яхт|джет|jet ?ski|извънбордов|плавателн|понтон|\bboot\b|boat|yacht|schlauchboot|außenborder/;
 const BRANDS = ['Hidromek', 'JCB', 'Develon', 'Sany', 'Mecalac', 'Wacker Neuson', 'Caterpillar', 'Komatsu', 'Volvo', 'Case', 'New Holland', 'Bobcat', 'Takeuchi', 'Kubota', 'Hitachi', 'Liebherr', 'Doosan', 'Hyundai', 'Terex', 'Manitou', 'Ammann', 'Bomag', 'Dynapac', 'Hamm', 'Wacker', 'FAE', 'Atlas Copco', 'Yanmar', 'Kobelco'];
@@ -208,11 +208,11 @@ const S = {
   ack: store.get('ack', Date.now() - 864e5),
   notifKw: store.get('notifKw', true), notifWanted: store.get('notifWanted', false), notified: store.get('notified', []),
   liveUrl: store.get('liveUrl', ''), scope: 'all', theme: store.get('theme', ''),
-  custom: store.get('custom', []), show: [], showUpdated: null, sk: 'all',
+  custom: store.get('custom', []), alarmOn: store.get('alarmOn', true), alarmed: store.get('alarmed', []), show: [], showUpdated: null, sk: 'all',
   items: [], news: [], ncat: 'all', mkCountry: 'all', updated: null, newOnly: false, view: 'feed'
 };
 function save() {
-  ['keywords', 'favs', 'disabled', 'onlyKw', 'ack', 'notifKw', 'notifWanted', 'liveUrl', 'theme', 'custom'].forEach(k => store.set(k, S[k]));
+  ['keywords', 'favs', 'disabled', 'onlyKw', 'ack', 'notifKw', 'notifWanted', 'liveUrl', 'theme', 'custom', 'alarmOn'].forEach(k => store.set(k, S[k]));
   store.set('notified', S.notified.slice(-800));
   syncPrefsToSW();
 }
@@ -220,7 +220,16 @@ function save() {
 // ---------- Обработка на обява ----------
 const norm = s => (s || '').toLowerCase();
 const txt = it => norm(it.title + ' ' + (it.desc || '') + ' ' + (it.location || ''));
+function cleanTitle(it) {
+  if (it._clean) return;
+  let t = it.title || '';
+  const m = /\s+в\s+[^|]*?\s+в\s+(гр\.|с\.)\s*([^-|]+?)\s*(-\s*ID\d+)?\s*(\|\s*Bazar\.bg)?\s*$/i.exec(t);
+  if (m) { t = t.slice(0, m.index); if (!it.location) it.location = (m[1] + ' ' + m[2]).trim(); }
+  it.title = t.replace(/\s*\|\s*(Bazar\.bg|kleinanzeigen(\.de)?|Mobile\.bg)\s*$/i, '').trim();
+  it._clean = true;
+}
 function prep(it) {
+  cleanTitle(it);
   const t = txt(it);
   it._cat = (CATS.find(c => c[2].test(t)) || ['other'])[0];
   it._boat = BOATS.test(t) || PARTS_X.test(t) || (TELE_X.test(t) && !/manitou/.test(t));
@@ -488,6 +497,7 @@ function renderFavs() {
 }
 function renderSettings() {
   $('#kwList').innerHTML = S.keywords.map((k, i) => `<span class="kwc">${esc(k)}<button data-kwdel="${i}" aria-label="Премахни">✕</button></span>`).join('') || '<span class="st">Няма добавени думи.</span>';
+  $('#alarmOn').checked = S.alarmOn;
   $('#notifKw').checked = S.notifKw; $('#notifWanted').checked = S.notifWanted; $('#onlyKw').checked = S.onlyKw; $('#liveUrl').value = S.liveUrl;
   const perm = 'Notification' in window ? Notification.permission : 'unsupported';
   $('#notifBtn').textContent = perm === 'granted' ? 'Включени' : perm === 'denied' ? 'Блокирани' : 'Разреши';
@@ -548,6 +558,63 @@ function openShowForm() {
       closeOverlays(); toast('Изпратено. Claude ще го прегледа и публикува до няколко часа.');
     } catch { toast('Изпращането не успя. Провери връзката и опитай пак.'); }
   };
+}
+
+
+// ---------- Аларма: Hidromek ----------
+const ALARM_RX = /hidromek|хидромек|\bhmk ?\d{2,3}/i;
+let audioCtx = null;
+function unlockAudio() { try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); } catch {} }
+['pointerdown', 'keydown', 'touchstart'].forEach(ev => document.addEventListener(ev, unlockAudio, { passive: true }));
+function siren() {
+  try {
+    unlockAudio(); if (!audioCtx) return;
+    const t0 = audioCtx.currentTime;
+    for (let i = 0; i < 3; i++) {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = 'square'; o.connect(g); g.connect(audioCtx.destination);
+      const t = t0 + i * 0.55;
+      o.frequency.setValueAtTime(880, t); o.frequency.linearRampToValueAtTime(1320, t + 0.22); o.frequency.linearRampToValueAtTime(880, t + 0.44);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.25, t + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.48);
+      o.start(t); o.stop(t + 0.5);
+    }
+  } catch {}
+  try { navigator.vibrate?.([300, 120, 300, 120, 500]); } catch {}
+}
+let alarmQueue = [];
+function showAlarm() {
+  const it = alarmQueue.shift();
+  if (!it) { $('#alarmBg').classList.remove('on'); return; }
+  const src = SOURCES[it.source] || { name: it.source, flag: '' };
+  const left = alarmQueue.length;
+  $('#alarmBox').innerHTML = `<div class="alarm-top"><span class="siren">🚨</span><span id="alarmTitle">HIDROMEK — ${TBADGE[it.type] || 'НОВА ОБЯВА'}</span><small>${left ? `още ${left}` : ''}</small></div>
+    <div class="alarm-img" ${it.photo ? `style="background-image:url('${esc(it.photo)}')"` : ''}>${it.photo ? '' : ICON_MACHINE}</div>
+    <div class="alarm-body"><h3>${esc(it.title)}</h3>${it.price ? `<div class="cprice">${esc(it.price)}</div>` : ''}
+      <div class="cmeta"><span>${src.flag} ${esc(src.name)}</span>${it.location ? `<span>📍 ${esc(it.location)}</span>` : ''}<span>${ago(it.firstSeen || it.date)}</span></div>
+      <div class="alarm-act"><a class="btn primary" href="${esc(it.url)}" target="_blank" rel="noopener" id="alarmOpen">Отвори обявата</a><button class="btn" id="alarmNext">${left ? 'Следваща' : 'Затвори'}</button></div></div>`;
+  $('#alarmBg').classList.add('on');
+  $('#alarmNext').onclick = showAlarm;
+  $('#alarmOpen').onclick = () => setTimeout(showAlarm, 300);
+  siren();
+}
+function checkAlarm() {
+  if (!S.alarmOn || !S.items.length) return;
+  if (!store.get('alarmInit', false)) {   // първо пускане: старите обяви не алармират
+    S.alarmed = S.items.filter(i => ALARM_RX.test(i.title + ' ' + (i.desc || ''))).map(i => i.id);
+    store.set('alarmed', S.alarmed); store.set('alarmInit', true); return;
+  }
+  const seen = new Set(S.alarmed);
+  const fresh = live().filter(i => ALARM_RX.test(i.title + ' ' + (i.desc || '')) && !seen.has(i.id) && isNew(i));
+  if (!fresh.length) return;
+  S.alarmed = [...S.alarmed, ...fresh.map(i => i.id)].slice(-1000); store.set('alarmed', S.alarmed);
+  const wasOpen = $('#alarmBg').classList.contains('on');
+  alarmQueue.push(...fresh);
+  if (!wasOpen) showAlarm();
+  if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
+    navigator.serviceWorker?.ready.then(reg => fresh.slice(0, 3).forEach(it => reg.showNotification('🚨 HIDROMEK — нова обява', {
+      body: `${it.title}${it.price ? '\n' + it.price : ''}`, icon: 'icons/icon-192.png', badge: 'icons/badge-96.png', image: it.photo || undefined,
+      tag: 'alarm-' + it.id, requireInteraction: true, renotify: true, vibrate: [300, 120, 300, 120, 500], data: { url: it.url } })));
+  }
 }
 
 // ---------- Навигация ----------
@@ -618,6 +685,8 @@ $('#bell').onclick = () => {
 };
 $('#count').onclick = () => { if (S.newOnly) { S.newOnly = false; S.ack = Date.now(); save(); renderFeed(); } };
 $('#onlyKw').onchange = e => { S.onlyKw = e.target.checked; save(); renderFeed(); };
+$('#alarmOn').onchange = e => { S.alarmOn = e.target.checked; save(); };
+$('#alarmTest').onclick = () => { const it = live().find(i => ALARM_RX.test(i.title)) || { id: 'test', title: 'Hidromek HMK 102B Alpha — пробна аларма', price: '€45 000', source: 'bazar', type: 'sale', url: '#', date: new Date().toISOString() }; alarmQueue.push(it); showAlarm(); };
 $('#notifKw').onchange = e => { S.notifKw = e.target.checked; save(); renderStats(); };
 $('#notifWanted').onchange = e => { S.notifWanted = e.target.checked; save(); renderStats(); };
 $('#srcSet').onchange = e => { const k = e.target.dataset.srcset; if (!k) return; S.disabled = e.target.checked ? S.disabled.filter(x => x !== k) : [...S.disabled, k]; save(); renderFeed(); };
@@ -645,6 +714,7 @@ async function load(silent) {
   else if (S.view === 'market') renderMarket();
   else if (S.view === 'show') renderShow();
   notifyNew();
+  checkAlarm();
 }
 async function notifyNew() {
   const fresh = live().filter(i => isNew(i) && wantsNotify(i) && !S.notified.includes(i.id));
@@ -677,6 +747,7 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && !S.
 
 applyTheme();
 registerSW();
+
 const v0 = new URLSearchParams(location.search).get('v');
 load().then(() => { if (v0 && HERO[v0]) show(v0); setTimeout(() => $('#splash').classList.add('out'), 500); });
 setInterval(() => load(true), 5 * 60 * 1000);

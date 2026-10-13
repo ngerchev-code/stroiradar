@@ -1,5 +1,5 @@
-// СтройРадар — service worker: офлайн, известия, проверка във фона
-const V = 'bb-v10';
+// ECOBenchmark — service worker: офлайн, известия, проверка във фона
+const V = 'bb-v11';
 const SHELL = ['./', 'index.html', 'app.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/badge-96.png'];
 
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL))); self.skipWaiting(); });
@@ -28,6 +28,10 @@ async function check() {
   const r = await fetch('data/listings.json?t=' + Date.now(), { cache: 'no-store' });
   const { items = [] } = await r.json();
   const kw = (p.keywords || []).map(k => k.toLowerCase());
+  const ALARM = /hidromek|хидромек|\bhmk ?\d{2,3}/i;
+  const alarm = items.filter(it => ALARM.test(it.title + ' ' + (it.desc || '')) && !(p.notified || []).includes(it.id) && new Date(it.firstSeen || it.date).getTime() > p.ack);
+  for (const it of alarm.slice(0, 5)) await self.registration.showNotification('🚨 HIDROMEK — нова обява', { body: `${it.title}${it.price ? '\n' + it.price : ''}`, icon: 'icons/icon-192.png', badge: 'icons/badge-96.png', image: it.photo || undefined, tag: 'alarm-' + it.id, requireInteraction: true, renotify: true, vibrate: [300, 120, 300, 120, 500], data: { url: it.url } });
+  p.notified = [...(p.notified || []), ...alarm.map(i => i.id)];
   const fresh = items.filter(it => {
     if (p.disabled?.includes(it.source) || p.notified?.includes(it.id)) return false;
     if (new Date(it.firstSeen || it.date).getTime() <= p.ack) return false;

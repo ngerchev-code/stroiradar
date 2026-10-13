@@ -89,21 +89,31 @@ await writeFile(new URL('status.json', ROOT), JSON.stringify({ updated: new Date
 // Push известия (ntfy) — само за нови, не при първо пускане
 if (NTFY && !firstRun && fresh.length) {
   const icon = { wanted: '🔴 ТЪРСИ', sale: '🟢 ПРОДАВА', service: '🛠 СЕРВИЗ', rent: '🔵 НАЕМ' };
-  const send = async (title, body, click, tags) => {
+  const ALARM = new RegExp(config.alarmPattern || 'hidromek|хидромек', 'i');
+  const send = async (title, body, click, tags, priority = 4) => {
     try {
       await fetch('https://ntfy.sh/', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic: NTFY, title, message: body, click, tags: tags.split(','), priority: 4 }) });
+        body: JSON.stringify({ topic: NTFY, title, message: body, click, tags: tags.split(','), priority }) });
     } catch {}
   };
-  const top = fresh.slice(0, 8);
+  // 1) Аларма: всяка нова обява за Hidromek — спешен приоритет (звук и изскачащо известие)
+  const alarm = fresh.filter(it => ALARM.test(it.title + ' ' + (it.desc || '')));
+  for (const it of alarm) {
+    const src = config.sources[it.source] || {};
+    await send(`🚨 HIDROMEK · ${icon[it.type] || 'НОВА ОБЯВА'}`,
+      `${it.title}${it.price ? '\n💰 ' + it.price : ''}${it.location ? '\n📍 ' + it.location : ''}\n${src.flag || ''} ${src.name || ''}`,
+      it.url, 'rotating_light,construction', 5);
+    await sleep(400);
+  }
+  // 2) Останалите нови обяви — обичаен приоритет
+  const rest = fresh.filter(it => !alarm.includes(it));
+  const top = rest.slice(0, 8);
   for (const it of top) {
-    const src = config.sources[it.source];
-    await send(`${icon[it.type] || '🔔'} · ${src.flag} ${src.name}`,
+    const src = config.sources[it.source] || {};
+    await send(`${icon[it.type] || '🔔'} · ${src.flag || ''} ${src.name || ''}`,
       `${it.title}${it.price ? '\n💰 ' + it.price : ''}${it.location ? '\n📍 ' + it.location : ''}`,
       it.url, it.type === 'wanted' ? 'rotating_light,construction' : 'bell,construction');
     await sleep(400);
   }
-  if (fresh.length > top.length) {
-    await send(`🔔 Още ${fresh.length - top.length} нови обяви`, 'Отвори СтройРадар, за да ги видиш.', config.appUrl || 'https://ntfy.sh', 'bell');
-  }
+  if (rest.length > top.length) await send(`🔔 Още ${rest.length - top.length} нови обяви`, 'Отвори ECOBenchmark, за да ги видиш.', config.appUrl || 'https://ngerchev-code.github.io/stroiradar/', 'bell');
 }

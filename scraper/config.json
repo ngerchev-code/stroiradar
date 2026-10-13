@@ -232,7 +232,9 @@
   "mulcher",
   "imeks"
  ],
- "excludePattern": "лодк|катер|яхт|джет|jet ?ski|водн\\w* (мотор|колело|ски)|извънбордов|плавателн|понтон|boot|boat|yacht|schlauchboot|außenborder|ponton|резервн|част(и)? за|(^|\\s)части(\\s|$)|консуматив|филтр|(^|\\s)масл[оа](\\s|$)|гуми за|акумулатор|ersatzteil|spare ?part|zubehör|verschleißteil|\\bfilter\\b|części|piese|(^|\\s)гуми(\\s|$)|джанти|(^|\\s)reifen(\\s|$)",
+ "excludePattern": "лодк|катер|яхт|джет|jet ?ski|водн\\w* (мотор|колело|ски)|извънбордов|плавателн|понтон|boot|boat|yacht|schlauchboot|außenborder|ponton|резервн|част(и)? за|(^|\\s)части(\\s|$)|консуматив|филтр|(^|\\s)масл[оа](\\s|$)|гуми за|акумулатор|ersatzteil|spare ?part|zubehör|verschleißteil|\\bfilter\\b|części|piese|(^|\\s)гуми(\\s|$)|джанти|(^|\\s)reifen(\\s|$)|пиньон|корона за|зъбн\\w* колел|лагер|уплътнен|семеринг|стъкло за|седалка за|помпа за|хидравлична помпа|двигател за|радиатор|ремъ[кц]|втулк|щифтове|джойстик за|ключ за|стартер|алтернатор|турбо(компресор)? за|верига за|вериги за|ролк[аи] за|зъб(и)? за кофа",
  "telehandlerPattern": "(телескоп|telehandler|teleskoplader|ładowarka teleskop|loadall|merlo|\\bjcb 5\\d\\d)",
- "inboxTopic": "bb-showroom-in-319983c2f7"
+ "inboxTopic": "bb-showroom-in-319983c2f7",
+ "alarmPattern": "hidromek|хидромек|hmk ?\\d{2,3}",
+ "appUrl": "https://ngerchev-code.github.io/stroiradar/"
 }
