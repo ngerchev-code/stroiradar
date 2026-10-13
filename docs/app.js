@@ -1,5 +1,5 @@
 'use strict';
-// ===== ECOBench =====
+// ===== ECOBenchmark =====
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -341,7 +341,7 @@ function renderStats() {
   $('#bellCnt').textContent = nNew > 99 ? '99+' : nNew;
   $('#dNew').textContent = nNew ? nNew + ' нови' : ''; $('#dNew').style.display = nNew ? '' : 'none';
   if ('setAppBadge' in navigator) { try { nNew ? navigator.setAppBadge(nNew) : navigator.clearAppBadge(); } catch {} }
-  document.title = nNew ? `(${nNew}) ECOBench` : 'ECOBench';
+  document.title = nNew ? `(${nNew}) ECOBenchmark` : 'ECOBenchmark';
 }
 
 // ---------- Банери ----------
@@ -536,7 +536,7 @@ function openShowForm() {
     <label>Описание</label><textarea name="desc" placeholder="Състояние, оборудване, сервизна история…"></textarea>
     <label>Линк към обява или снимка</label><input name="link" type="url" placeholder="https://…">
     <div class="two"><div><label>Име / фирма</label><input name="name" required></div><div><label>Телефон или имейл</label><input name="contact" required></div></div>
-    <label class="consent"><input type="checkbox" name="ok" required>Съгласен съм данните да бъдат прегледани и публикувани в шоурума на ECOBench.</label>
+    <label class="consent"><input type="checkbox" name="ok" required>Съгласен съм данните да бъдат прегледани и публикувани в шоурума на ECOBenchmark.</label>
     <button class="btn primary" style="width:100%;margin-top:14px">Изпрати за преглед</button></form>`;
   $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
   $('#shForm').onsubmit = async e => {
@@ -627,7 +627,7 @@ $('#liveSave').onclick = () => { S.liveUrl = $('#liveUrl').value.trim(); save();
 $('#notifBtn').onclick = async () => {
   if (!('Notification' in window)) return toast('Устройството не поддържа известия тук');
   const p = await Notification.requestPermission();
-  if (p === 'granted') { await registerSW(); (await navigator.serviceWorker.ready).showNotification('ECOBench', { body: 'Известията са включени. Ще те алармираме при нова обява.', icon: 'icons/icon-192.png' }); }
+  if (p === 'granted') { await registerSW(); (await navigator.serviceWorker.ready).showNotification('ECOBenchmark', { body: 'Известията са включени. Ще те алармираме при нова обява.', icon: 'icons/icon-192.png' }); }
   renderSettings();
 };
 new IntersectionObserver(([en]) => $('#toolbar').classList.toggle('stuck', !en.isIntersecting), { threshold: 0 }).observe($('#bdots'));

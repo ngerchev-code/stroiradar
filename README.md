@@ -1,4 +1,4 @@
-# ECOBench
+# ECOBenchmark
 
 Euro Construction Benchmark — машини, енергия, инфраструктура — обяви, пазарни цени, инфраструктурни проекти, новини и ноу-хау.
 
@@ -10,4 +10,4 @@ Euro Construction Benchmark — машини, енергия, инфрастру
 1. GitHub → Settings → Pages → Branch `main`, папка `/docs`.
 2. Actions → „Събиране на обяви“ → Run workflow (първо пускане).
 3. Отвори `https://ngerchev-code.github.io/stroiradar/` в Chrome на телефона → „Инсталирай“.
-4. Моментални push известия: приложението „ntfy“ от Google Play → абонамент за темата от Настройки в ECOBench.
+4. Моментални push известия: приложението „ntfy“ от Google Play → абонамент за темата от Настройки в ECOBenchmark.
