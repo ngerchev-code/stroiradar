@@ -1,5 +1,5 @@
 // ECOBenchmark — service worker: офлайн, известия, проверка във фона
-const V = 'bb-v14';
+const V = 'bb-v15';
 const SHELL = ['./', 'index.html', 'app.js', 'manifest.webmanifest', 'icons/icon-192-eb2.png', 'icons/icon-512-eb2.png', 'icons/badge-96-eb2.png'];
 
 // Инсталиране: взимаме файловете директно от мрежата (без HTTP кеша), за да не запишем стара версия
@@ -13,7 +13,7 @@ self.addEventListener('fetch', e => {
   const u = new URL(e.request.url);
   if (e.request.method !== 'GET' || u.origin !== location.origin) return;
   // Всичко от приложението: първо мрежата (винаги най-новото), кешът е само за офлайн
-  e.respondWith(fetch(e.request, { cache: 'no-cache' }).then(r => {
+  e.respondWith(fetch(u.href, { cache: 'no-cache' }).then(r => {
     if (r.ok) { const c = r.clone(); caches.open(V).then(x => x.put(e.request, c)); }
     return r;
   }).catch(() => caches.match(e.request).then(r => r || caches.match('index.html'))));
