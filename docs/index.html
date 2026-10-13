@@ -59,9 +59,9 @@ a{color:inherit;text-decoration:none}
 .hero{position:relative;padding:4px 18px 16px;min-height:178px}
 .hero h1{position:relative;font-family:var(--display);font-weight:700;font-size:30px;line-height:1.02;margin:6px 0 6px;max-width:11ch;letter-spacing:-.2px}
 .hero p{position:relative;margin:0;color:#c9d8ec;font-size:13.5px;max-width:30ch}
-.drawing{position:absolute;right:-16px;top:-8px;width:196px;height:149px;pointer-events:none;opacity:.5}
-@media(min-width:520px){.drawing{width:260px;height:198px;opacity:.85}}
-.drawing .ln{fill:none;stroke:#cfe0f5;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+.drawing{position:absolute;right:-12px;top:-18px;width:232px;height:138px;pointer-events:none;opacity:.55}
+@media(min-width:520px){.drawing{width:330px;height:196px;opacity:.9}}
+.drawing .ln{fill:none;stroke:#cfe0f5;stroke-width:1.3;stroke-linejoin:round;stroke-linecap:round}
 .drawing .thin{fill:none;stroke:var(--blue-line);stroke-width:1;stroke-dasharray:4 3}
 .drawing .dim{fill:none;stroke:var(--signal);stroke-width:1.1}
 .drawing text{fill:var(--signal);font:600 9px var(--display);letter-spacing:.4px}
@@ -326,26 +326,69 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
   </div>
 
   <div class="hero" id="hero">
-    <svg class="drawing" viewBox="0 0 250 190" aria-hidden="true">
-      <!-- технически чертеж: верижен багер, страничен изглед -->
-      <path class="thin" d="M8 160h236"/>
-      <path class="ln draw" d="M40 150h108a14 14 0 0 1 0 28H40a14 14 0 0 1 0-28z"/>
-      <circle class="ln" cx="42" cy="164" r="7"/><circle class="ln" cx="94" cy="164" r="7"/><circle class="ln" cx="146" cy="164" r="7"/>
-      <path class="ln draw" d="M50 146h96v-30H50z"/>
-      <path class="ln draw" d="M64 116V82h40l14 34"/>
-      <path class="ln" d="M70 88h28l9 22H70z"/>
-      <path class="ln draw" d="M138 124 196 66l12 10-52 52"/>
-      <path class="ln draw" d="M196 66l30 18-8 12-24-13"/>
-      <path class="ln draw" d="M222 90c18 6 16 34 4 44l-26-6c10-12 10-24 2-30"/>
-      <circle class="ln" cx="140" cy="124" r="3"/><circle class="ln" cx="202" cy="72" r="3"/><circle class="ln" cx="222" cy="90" r="3"/>
-      <path class="ln" d="M150 112l34-28"/>
-      <!-- оразмерителни линии -->
-      <path class="dim" d="M26 186h134M26 182v8M160 182v8"/>
-      <text x="74" y="184" text-anchor="middle" dy="-3">3 420</text>
-      <path class="dim" d="M244 160V52M240 52h8M240 160h8"/>
-      <text x="238" y="108" text-anchor="end">4 850</text>
-      <path class="thin" d="M140 124l60-40"/>
-    </svg>
+    <svg class="drawing" viewBox="0 0 320 190" aria-hidden="true">
+  <!-- Комбиниран багер (багер-товарач), страничен изглед, мащаб ~30 px/м -->
+  <g class="ln">
+    <!-- задно колело Ø1350 -->
+    <circle cx="152" cy="147" r="21"/><circle cx="152" cy="147" r="12"/><circle cx="152" cy="147" r="3"/>
+    <!-- предно колело Ø1000 -->
+    <circle cx="86" cy="152" r="16"/><circle cx="86" cy="152" r="9"/><circle cx="86" cy="152" r="2.5"/>
+    <!-- калници -->
+    <path d="M128 140 A25 25 0 0 1 176 140"/>
+    <path d="M68 145 A19 19 0 0 1 104 145"/>
+    <!-- шаси -->
+    <path class="draw" d="M58 140 H202 V128 H170"/>
+    <!-- двигателен капак -->
+    <path class="draw" d="M58 140 V121 Q59 114 66 113 H119 V140"/>
+    <path d="M70 113 V109 H76 V113"/>
+    <path d="M64 120 H112 M64 126 H112"/>
+    <!-- кабина ROPS -->
+    <path class="draw" d="M119 140 V96 L125 82 H170 L173 88 V128"/>
+    <path d="M118 80 H176"/>
+    <path d="M125 90 L128 85 H146 V120 H124 Z"/>
+    <path d="M150 85 H166 L169 90 V120 H150 Z"/>
+    <path d="M146 85 V120"/>
+    <!-- задна рама и въртяща кула -->
+    <path class="draw" d="M173 112 H200 L206 120 V134 H202"/>
+    <path d="M200 118 H212 V136 H204"/>
+    <!-- стабилизатор -->
+    <path class="draw" d="M206 128 L214 160"/>
+    <path d="M210 126 L219 158"/>
+    <path d="M208 160 H224 V164 H208 Z"/>
+    <!-- челни рамена -->
+    <path class="draw" d="M126 112 L92 122 L50 138"/>
+    <path d="M126 117 L94 127 L54 142"/>
+    <circle cx="126" cy="114" r="2.5"/>
+    <!-- цилиндър за повдигане -->
+    <path d="M112 134 L82 126"/><path d="M112 136 L96 131"/>
+    <!-- челна кофа -->
+    <path class="draw" d="M52 132 L28 133 Q18 140 16 160 L20 166 H50 L54 150 Z"/>
+    <path d="M20 166 L14 167"/>
+    <!-- задна стрела (boom) -->
+    <path class="draw" d="M210 124 C 220 96 234 76 256 66 L262 74 C 244 84 230 102 218 130 Z"/>
+    <!-- рамо (dipper) -->
+    <path class="draw" d="M254 62 L266 58 L297 136 L286 140 Z"/>
+    <!-- кофа на багера -->
+    <path class="draw" d="M286 138 C 300 140 308 152 302 166 L287 165 C 293 157 291 150 283 147 Z"/>
+    <path d="M302 166 L306 168 M296 166 L299 168 M290 165 L293 167"/>
+    <!-- хидравлични цилиндри -->
+    <path d="M214 140 L240 84"/><path d="M216 140 L230 112"/>
+    <path d="M246 78 L262 54"/><path d="M248 79 L256 66"/>
+    <path d="M272 70 L290 128"/>
+    <circle cx="214" cy="140" r="2"/><circle cx="262" cy="55" r="2"/><circle cx="259" cy="68" r="2.5"/><circle cx="291" cy="138" r="2"/>
+  </g>
+  <!-- земя -->
+  <path class="thin" d="M0 168 H320"/>
+  <!-- оразмеряване -->
+  <g class="dim">
+    <path d="M14 182 H306 M14 178 V186 M306 178 V186"/>
+    <path d="M86 174 V178 M152 174 V178 M86 176 H152"/>
+    <path d="M6 80 V168 M2 80 H10 M2 168 H10"/>
+  </g>
+  <text x="236" y="180" text-anchor="middle">5 900</text>
+  <text x="119" y="173" text-anchor="middle">2 200</text>
+  <text x="11" y="128" transform="rotate(-90 11 128)" text-anchor="middle">2 900</text>
+</svg>
     <h1 id="heroTitle">Пазарът на техника в Европа</h1>
     <p id="heroSub">Обяви, цени и проекти от България и Европа — обновява се на всеки 20 минути.</p>
     <div class="stats">
