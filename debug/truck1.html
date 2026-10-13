@@ -1,0 +1,66 @@
+<!-- https://www.truck1.eu/construction-machinery?q=hidromek -->
+
+         <html>
+         <head>
+            <title>Truck1</title>
+            <script type=text/javascript src="/__v2013/js/__do.js?v=1791929907361"></script>
+            <script>
+               if ('localStorage' in window) {
+                  if (document.cookie.indexOf('_t1_session_history') === -1) {
+                     localStorage.removeItem('_t1_session_history');
+                     document.cookie = "_t1_session_history=1; domain="+window.location.host.replace('www', '')+"; path=/; Secure";      
+                  }
+                  let history = JSON.parse(localStorage.getItem('_t1_session_history') || '[]');
+                  if (!history.length) {
+                     history.push(document.referrer || 'no referrer');
+                  }
+                  history.push(location.href);
+                  localStorage.setItem('_t1_session_history', JSON.stringify(history));
+                  localStorage.setItem('challenge_ref', document.referrer);
+               }
+               const isOurDomainAsReferrer = document.referrer.match(/^https?:\/\/(www\.)?(truck1|alle-lkw)/);
+               if (!isOurDomainAsReferrer) {
+                  const value = document.referrer || 'DIRECT';
+                  document.cookie = "_referrer=" + encodeURIComponent(value) + "; domain=" + window.location.host.replace('www', '') + "; path=/; Secure";
+               }
+            </script>            
+         </head>
+         <body>
+            
+            <script async defer src="/__v2013/js/altcha.min.js" type="module"></script>
+            <div style="display:flex; flex-direction: column; align-items: center; justify-content: center; height:100vh;">
+               <img src="https://www.truck1.eu/__v2013/img/truck1.eu.black.png" style="max-width:150px; margin-bottom:10px;">
+               <div id="altcha-container"></div>
+            </div>
+            <script>
+            window.addEventListener('load', () => {
+
+               setTimeout(() => {
+                  const container = document.getElementById('altcha-container');
+                  container.innerHTML = `<altcha-widget id='altcha' challengejson='{"algorithm":"SHA-256","challenge":"eb96a80465204b4bc528c19ce7ac0d81a2a02e07f684ff0be85b28a0e69fe4f4","salt":"000000285469","signature":"3c5e6604c26b51259ce136804b29139869522b8af0ee48b41b21d920f645a8d9","maxnumber":300000}'></altcha-widget>`;
+
+                  document.querySelector('#altcha').addEventListener('statechange', (ev) => {
+                    if (ev.detail.state === 'verified') {
+                        (async () => {
+                           let t = await fetch('?verify_challenge='+encodeURIComponent(ev.detail.payload)+'&v='+1791929907361);
+                           t = await t.text();
+                           if (t) {
+                              document.cookie = "challengeToken="+t+"; domain="+window.location.hostname.replace('www', '')+"; path=/;secure";
+                              setTimeout(() => {window.location.href=window.location.href.replace(/#.*/,'');}, 0);
+                           }
+                        })();
+                    }
+                  });
+                  
+               }, 1000);
+
+            });
+            </script>
+            <!--
+            20.84.158.21
+            US
+            -->
+         
+         </body>
+         </html>
+      
