@@ -1,6 +1,6 @@
 {
- "name": "BuildBench EU — бенчмарк клубът на строителния бранш",
- "short_name": "BuildBench EU",
+ "name": "EcoBench — Euro Construction Benchmark",
+ "short_name": "EcoBench",
  "description": "Обяви за строителна техника от България и Европа, пазарни цени, инфраструктурни проекти, новини и ноу-хау.",
  "lang": "bg",
  "start_url": "./?src=app",
