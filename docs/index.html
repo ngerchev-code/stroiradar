@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>СтройРадар</title>
+<meta name="theme-color" content="#16181d">
+<meta name="description" content="Всички обяви за строителна техника и сервиз — от България и чужбина, на едно място.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,700;8..144,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f4f1; --surface:#fff; --surface2:#ececE7; --text:#16181d; --muted:#666a73; --line:#dcdcd5;
+  --brand:#f5b400; --brand-ink:#1b1400; --red:#e5372e; --green:#1f9d55; --blue:#2266d6; --violet:#7a4fd1;
+  --radius:16px; --shadow:0 1px 2px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0f1114;--surface:#191c21;--surface2:#23272e;--text:#eef0f3;--muted:#9aa0aa;--line:#2b3038;--shadow:none}
+}
+:root[data-theme="dark"]{--bg:#0f1114;--surface:#191c21;--surface2:#23272e;--text:#eef0f3;--muted:#9aa0aa;--line:#2b3038;--shadow:none}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Roboto Flex",Roboto,system-ui,sans-serif;font-size:15px}
+body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+button,input{font:inherit;color:inherit}
+a{color:inherit;text-decoration:none}
+
+/* Горна лента */
+.top{position:sticky;top:0;z-index:20;background:var(--bg);padding:calc(10px + env(safe-area-inset-top)) 16px 8px}
+.bar{display:flex;align-items:center;gap:12px}
+.logo{width:36px;height:36px;border-radius:10px;flex:none}
+.bar h1{font-size:21px;font-weight:800;margin:0;letter-spacing:-.3px;flex:1}
+.bar h1 small{display:block;font-size:12px;font-weight:500;color:var(--muted);letter-spacing:0}
+.bell{position:relative;width:44px;height:44px;border-radius:50%;border:0;background:var(--surface);box-shadow:var(--shadow);font-size:22px;cursor:pointer}
+.bell .cnt{position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--red);color:#fff;font-size:11px;font-weight:700;display:none;align-items:center;justify-content:center}
+.bell.on .cnt{display:flex}
+.bell.on{animation:ring 1.2s ease-in-out infinite}
+.bell.on::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--brand);animation:pulse 1.2s ease-out infinite}
+@keyframes ring{0%,60%,100%{transform:rotate(0)}10%{transform:rotate(16deg)}20%{transform:rotate(-14deg)}30%{transform:rotate(10deg)}40%{transform:rotate(-8deg)}}
+@keyframes pulse{0%{opacity:.9;transform:scale(.9)}100%{opacity:0;transform:scale(1.35)}}
+
+.chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0 4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap}
+.chip.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.chip .n{opacity:.6;margin-left:4px;font-size:12px}
+
+.info{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);padding:4px 2px 0}
+.toggle{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+
+/* Карти */
+main{padding:6px 16px 16px;max-width:760px;margin:0 auto}
+.list{display:grid;gap:12px}
+@media(min-width:620px){.list{grid-template-columns:1fr 1fr}}
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;position:relative;border:1px solid transparent}
+.card.new{border-color:var(--brand)}
+.ph{aspect-ratio:16/10;background:var(--surface2) center/cover no-repeat;position:relative}
+.ph.none{aspect-ratio:16/5;display:flex;align-items:center;justify-content:center;font-size:44px}
+.badge{position:absolute;top:10px;left:10px;padding:4px 9px;border-radius:8px;font-size:12px;font-weight:700;color:#fff}
+.b-wanted{background:var(--red)} .b-sale{background:var(--green)} .b-service{background:var(--violet)} .b-rent{background:var(--blue)}
+.newtag{position:absolute;top:10px;right:10px;background:var(--brand);color:var(--brand-ink);font-size:11px;font-weight:800;padding:3px 8px;border-radius:8px;animation:blink 1s step-start infinite}
+@keyframes blink{50%{opacity:.35}}
+.body{padding:12px 14px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
+.title{font-weight:600;font-size:15px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.price{font-weight:800;font-size:17px}
+.meta{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:12.5px;align-items:center}
+.actions{display:flex;gap:8px;margin-top:4px}
+.btn{border:0;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;background:var(--surface2)}
+.btn.primary{background:var(--brand);color:var(--brand-ink);flex:1;text-align:center}
+.star{width:44px;font-size:18px}
+.star.on{color:var(--brand)}
+
+.empty{text-align:center;color:var(--muted);padding:50px 20px}
+.empty b{display:block;font-size:40px;margin-bottom:8px}
+
+/* Търсачка */
+.searchbox{display:flex;gap:8px;background:var(--surface);border-radius:999px;padding:6px 6px 6px 16px;box-shadow:var(--shadow);align-items:center;border:1px solid var(--line)}
+.searchbox input{flex:1;border:0;background:transparent;outline:none;font-size:16px;padding:8px 0;min-width:0}
+.searchbox button{border:0;background:var(--brand);color:var(--brand-ink);border-radius:999px;padding:10px 18px;font-weight:800;cursor:pointer}
+.sect{margin:20px 0 10px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+.sites{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.site{background:var(--surface);border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);font-weight:600;font-size:14px}
+.site span{font-size:20px}
+.site.fb{background:#1877f2;color:#fff}
+.note{font-size:13px;color:var(--muted);line-height:1.45;background:var(--surface);border-radius:12px;padding:12px 14px;border:1px dashed var(--line)}
+
+/* Настройки */
+.panel{background:var(--surface);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
+.panel h3{margin:0 0 4px;font-size:16px}
+.panel p{margin:0 0 10px;color:var(--muted);font-size:13px;line-height:1.4}
+.kw{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.kw .chip{padding:6px 10px 6px 12px;background:var(--surface2);border:0}
+.kw .chip i{font-style:normal;margin-left:6px;opacity:.6}
+.row{display:flex;gap:8px}
+.row input{flex:1;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:10px 12px;min-width:0}
+.sw{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--line);gap:10px}
+.sw:first-of-type{border-top:0}
+.sw input{width:22px;height:22px;accent-color:var(--brand)}
+.st{font-size:12px;color:var(--muted)}
+
+/* Долна навигация */
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+nav button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;font-weight:600;color:var(--muted);padding:4px 0;cursor:pointer}
+nav button .ic{width:56px;height:30px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:19px}
+nav button.on{color:var(--text)}
+nav button.on .ic{background:color-mix(in srgb,var(--brand) 35%,transparent)}
+.view{display:none}.view.on{display:block}
+
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:.25s;z-index:50;pointer-events:none;max-width:90vw}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.install{display:none;margin:0 0 12px;background:var(--text);color:var(--bg);border-radius:var(--radius);padding:12px 14px;align-items:center;gap:12px}
+.install.on{display:flex}
+.install img{width:44px;height:44px;border-radius:12px}
+.install div{flex:1;font-size:13px}.install b{display:block;font-size:15px}
+.spin{display:inline-block;animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="bar">
+    <img class="logo" src="icons/icon-192.png" alt="">
+    <h1 id="hTitle">СтройРадар<small id="upd">Зареждане…</small></h1>
+    <button class="bell" id="bell" aria-label="Нови обяви">🔔<span class="cnt" id="bellCnt">0</span></button>
+  </div>
+  <div id="feedFilters">
+    <div class="chips" id="typeChips"></div>
+    <div class="chips" id="srcChips"></div>
+    <div class="info"><label class="toggle"><input type="checkbox" id="onlyKw"> Само по моите ключови думи</label><span id="count"></span></div>
+  </div>
+</header>
+
+<main>
+  <!-- Радар -->
+  <section class="view on" id="v-feed">
+    <div class="install" id="installBar"><img src="icons/icon-192.png" alt=""><div><b>Инсталирай СтройРадар</b>Иконка на телефона и известия</div><button class="btn primary" id="installBtn" style="flex:none">Инсталирай</button></div>
+    <div class="list" id="feed"></div>
+  </section>
+
+  <!-- Търсачка -->
+  <section class="view" id="v-search">
+    <form class="searchbox" id="sForm"><span>🔎</span><input id="sQ" placeholder="Какво търсиш? напр. Hidromek 102B" autocomplete="off" enterkeyhint="search"><button>Търси</button></form>
+    <div class="chips" id="scopeChips"></div>
+    <div id="sResults"></div>
+  </section>
+
+  <!-- Любими -->
+  <section class="view" id="v-fav"><div class="list" id="favList"></div></section>
+
+  <!-- Настройки -->
+  <section class="view" id="v-set">
+    <div class="panel">
+      <h3>🔑 Моите ключови думи</h3>
+      <p>Обявите, които съдържат някоя от тези думи, се маркират и за тях получаваш известие.</p>
+      <div class="kw" id="kwList"></div>
+      <form class="row" id="kwForm"><input id="kwIn" placeholder="Добави дума, напр. HMK 102B"><button class="btn primary" style="flex:none">Добави</button></form>
+    </div>
+    <div class="panel">
+      <h3>🔔 Известия</h3>
+      <div class="sw"><span>Известия на телефона</span><button class="btn" id="notifBtn">Разреши</button></div>
+      <div class="sw"><span>Само за моите ключови думи</span><input type="checkbox" id="notifKw"></div>
+      <div class="sw"><span>Само „Търсят“ (потенциални клиенти)</span><input type="checkbox" id="notifWanted"></div>
+      <div class="sw"><span>Моментални push известия (ntfy)</span><a class="btn" id="ntfyBtn" target="_blank" rel="noopener">Абонирай</a></div>
+      <p class="st" id="ntfyNote"></p>
+    </div>
+    <div class="panel">
+      <h3>🌐 Сайтове</h3>
+      <div id="srcSet"></div>
+    </div>
+    <div class="panel">
+      <h3>⚡ Търсачка на живо</h3>
+      <p>Адрес на услугата за търсене във всички сайтове в реално време (по желание).</p>
+      <div class="row"><input id="liveUrl" placeholder="https://stroiradar-search.….workers.dev"><button class="btn primary" id="liveSave" style="flex:none">Запази</button></div>
+    </div>
+    <div class="panel">
+      <div class="sw"><span>Тема</span><span><button class="btn" data-th="light">☀️</button> <button class="btn" data-th="dark">🌙</button> <button class="btn" data-th="">Авто</button></span></div>
+    </div>
+  </section>
+</main>
+
+<nav>
+  <button class="on" data-v="feed"><span class="ic">📡</span>Радар</button>
+  <button data-v="search"><span class="ic">🔎</span>Търси</button>
+  <button data-v="fav"><span class="ic">★</span>Любими</button>
+  <button data-v="set"><span class="ic">⚙️</span>Настройки</button>
+</nav>
+<div class="toast" id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>

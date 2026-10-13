@@ -1,0 +1,42 @@
+{
+  "ntfyTopic": "stroiradar-ng-c2e7b1bf",
+  "maxAgeDays": 21,
+  "maxListings": 1500,
+  "searchTerms": [
+    "hidromek", "ammann", "fae мулчер", "imeks", "hycon", "atmos компресор", "grundomat", "rioned",
+    "komatsu", "jcb", "cat багер", "caterpillar", "volvo багер", "case багер", "bobcat", "takeuchi", "kubota багер",
+    "hitachi багер", "liebherr", "doosan", "hyundai багер", "new holland багер", "terex", "manitou", "bomag", "dynapac", "hamm валяк",
+    "багер товарач", "комбиниран багер", "мини багер", "верижен багер", "колесен багер", "челен товарач", "мини челен товарач",
+    "валяк", "виброплоча", "трамбовка", "пачекрак", "хидравличен чук", "къртач", "мулчер", "асфалтополагач", "фреза асфалт",
+    "трошачка", "сито", "генератор", "компресор", "телескопичен товарач", "булдозер", "грейдер", "къртица", "сондаж",
+    "прикачен инвентар", "кофа багер", "бързосменник",
+    "ремонт багер", "сервиз строителна техника", "ремонт хидравлика", "резервни части багер",
+    "търся багер", "купувам багер", "търся валяк", "под наем багер"
+  ],
+  "foreignTerms": [
+    "hidromek", "ammann", "fae mulcher", "imeks", "komatsu", "jcb", "caterpillar", "volvo", "case", "bobcat",
+    "takeuchi", "kubota", "hitachi", "liebherr", "doosan", "manitou", "bomag", "dynapac", "hamm"
+  ],
+  "sources": {
+    "olx":           { "name": "OLX.bg",        "flag": "🇧🇬", "enabled": true },
+    "mobilebg":      { "name": "Mobile.bg",     "flag": "🇧🇬", "enabled": true,
+                       "pages": ["https://www.mobile.bg/obiavi/industrialni", "https://www.mobile.bg/obiavi/industrialni/stroitelna-tehnika"],
+                       "linkPattern": "/obiava-\\d+", "encoding": "auto" },
+    "bazar":         { "name": "Bazar.bg",      "flag": "🇧🇬", "enabled": true,
+                       "search": "https://bazar.bg/obiavi?q={q}", "linkPattern": "/obiava-?/?\\d+|/obiava/\\d+" },
+    "mascus":        { "name": "Mascus",        "flag": "🌍", "enabled": true, "foreign": true,
+                       "search": "https://www.mascus.bg/+/{q},1,relevance,search.html", "linkPattern": "/[a-z0-9-]+/[a-z0-9-]+/[a-z0-9]{6,}\\.html" },
+    "machineryline": { "name": "Machineryline", "flag": "🌍", "enabled": true, "foreign": true,
+                       "search": "https://machineryline.bg/-/search?q={q}", "linkPattern": "/-/[^\\s\"']+--\\d+\\.html" },
+    "autoline":      { "name": "Autoline",      "flag": "🌍", "enabled": true, "foreign": true,
+                       "search": "https://autoline.bg/-/search?q={q}", "linkPattern": "/-/[^\\s\"']+--\\d+\\.html" },
+    "truck1":        { "name": "Truck1",        "flag": "🌍", "enabled": true, "foreign": true,
+                       "search": "https://www.truck1.eu/construction-machinery?q={q}", "linkPattern": "-a\\d{5,}\\.html" },
+    "mobilede":      { "name": "Mobile.de",     "flag": "🇩🇪", "enabled": true, "foreign": true,
+                       "search": "https://suchen.mobile.de/fahrzeuge/search.html?isSearchRequest=true&vc=ConstructionMachine&s=Construction&q={q}", "linkPattern": "details\\.html\\?id=\\d+" },
+    "truckscout24":  { "name": "TruckScout24",  "flag": "🇩🇪", "enabled": true, "foreign": true,
+                       "search": "https://www.truckscout24.de/baumaschinen?query={q}", "linkPattern": "/angebote/[^\\s\"']+/\\d+" },
+    "machinio":      { "name": "Machinio",      "flag": "🌍", "enabled": true, "foreign": true,
+                       "search": "https://www.machinio.com/search?q={q}", "linkPattern": "/listings/\\d+" }
+  }
+}
