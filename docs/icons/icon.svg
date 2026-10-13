@@ -23,5 +23,5 @@
     <path d="M356 240 q34 10 30 52 l-40 -6 q10 -26 -6 -36 z"/>
   </g>
   <!-- сигнална точка -->
-  <circle cx="392" cy="150" r="24" fill="#e5372e"/><circle cx="392" cy="150" r="40" fill="none" stroke="#e5372e" stroke-width="6" stroke-opacity=".5"/>
+  <circle cx="392" cy="150" r="24" fill="#2fd27a"/><circle cx="392" cy="150" r="40" fill="none" stroke="#2fd27a" stroke-width="6" stroke-opacity=".5"/>
 </svg>

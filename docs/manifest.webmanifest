@@ -1,6 +1,6 @@
 {
- "name": "EcoBench — Euro Construction Benchmark",
- "short_name": "EcoBench",
+ "name": "ECOBench — Euro Construction Benchmark",
+ "short_name": "ECOBench",
  "description": "Обяви за строителна техника от България и Европа, пазарни цени, инфраструктурни проекти, новини и ноу-хау.",
  "lang": "bg",
  "start_url": "./?src=app",
