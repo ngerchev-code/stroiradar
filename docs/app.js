@@ -75,7 +75,7 @@ const COUNTRIES = {
 const CATS = [
   ['minibackhoe','Мини комбинирани багери',  /мини комбиниран|мини багер[ -]?товарач|hmk ?62|\b1 ?cx\b|mini backhoe|minibaggerlader/],
   ['backhoe',    'Комбинирани багери',       /багер[ -]?товарач|комбиниран багер|backhoe|baggerlader|buldoexcavator|koparko[- ]?ładowark|hmk ?\d{2,3} ?b|\b[34] ?cx\b/],
-  ['telehandler','Телескопични товарачи',    /телескоп|telehandler|teleskoplader|manitou|merlo|ładowarka teleskop/],
+  ['telehandler','Телескопични товарачи Manitou', /manitou/],
   ['minicl',     'Мини челни товарачи',      /мини челен|бобкат|skid ?steer|kompaktlader|minilader|компактен товарач|\bbobcat\b|bobcat s\d/],
   ['midi',       'Миди багери',              /миди багер|midibagger|midi excavator|midi-bagger/],
   ['mini',       'Мини багери',              /мини багер|minibagger|mini excavator|kompaktbagger|minikoparka|mini ?excavator/],
@@ -87,7 +87,7 @@ const CATS = [
   ['garbage',    'Сметосъбиращи камиони',    /сметосъбира|боклукчийск|müllwagen|garbage truck|refuse (truck|collector)|śmieciarka/],
   ['aerial',     'Вишки',                    /вишка|автовишка|arbeitsbühne|hubarbeitsbühne|aerial|boom lift|scissor lift|podnośnik/],
   ['asphaltrec', 'Рециклатори за асфалт',    /рециклатор|рециклиране на асфалт|термоконтейнер|asphalt recycler|asphaltrecycler|hot box/],
-  ['parts',      'Части и ремонт',           /части|резервн|ремонт|сервиз|ersatzteil|spare part|repair/],
+  ['parts',      'Сервиз и ремонт',          /ремонт|сервиз|repair|werkstatt/],
   ['attach',     'Прикачен инвентар',        /кофа|бързосменник|инвентар|свредел|bucket|quick ?coupler|attachment|tiltrotator|грайфер|schnellwechsler|löffel/],
   ['breaker',    'Хидравлични чукове',       /хидравличен чук|къртач|\bчук\b|breaker|hydraulikhammer|imeks|hycon/],
   ['mulcher',    'Мулчери',                  /мулчер|mulcher|forstmulcher|\bfae\b/],
@@ -100,9 +100,11 @@ const CATS = [
   ['compressor', 'Компресори',               /компресор|compressor|kompressor|atmos/]
 ];
 const PRIORITY = ['minibackhoe', 'backhoe', 'mini', 'midi', 'crawler', 'excavator', 'minicl', 'loader', 'telehandler', 'dozer'];
+const PARTS_X = new RegExp('резервн|част(и)? за|(^|\\s)части(\\s|$)|консуматив|филтр|(^|\\s)масл[оа](\\s|$)|гуми за|акумулатор|ersatzteil|spare ?part|zubehör|verschleißteil|\\bfilter\\b|części|piese');
+const TELE_X = new RegExp('(телескоп|telehandler|teleskoplader|ładowarka teleskop|loadall|merlo|\\bjcb 5\\d\\d)');
 const BOATS = /лодк|катер|яхт|джет|jet ?ski|извънбордов|плавателн|понтон|\bboot\b|boat|yacht|schlauchboot|außenborder/;
-const BRANDS = ['Hidromek', 'JCB', 'Develon', 'Merlo', 'Sany', 'Mecalac', 'Wacker Neuson', 'Caterpillar', 'Komatsu', 'Volvo', 'Case', 'New Holland', 'Bobcat', 'Takeuchi', 'Kubota', 'Hitachi', 'Liebherr', 'Doosan', 'Hyundai', 'Terex', 'Manitou', 'Ammann', 'Bomag', 'Dynapac', 'Hamm', 'Wacker', 'FAE', 'Atlas Copco', 'Yanmar', 'Kobelco'];
-const TYPES = { all: 'Всички обяви', wanted: 'Търсят', sale: 'Продават', service: 'Сервиз и части', rent: 'Под наем' };
+const BRANDS = ['Hidromek', 'JCB', 'Develon', 'Sany', 'Mecalac', 'Wacker Neuson', 'Caterpillar', 'Komatsu', 'Volvo', 'Case', 'New Holland', 'Bobcat', 'Takeuchi', 'Kubota', 'Hitachi', 'Liebherr', 'Doosan', 'Hyundai', 'Terex', 'Manitou', 'Ammann', 'Bomag', 'Dynapac', 'Hamm', 'Wacker', 'FAE', 'Atlas Copco', 'Yanmar', 'Kobelco'];
+const TYPES = { all: 'Всички обяви', wanted: 'Търсят', sale: 'Продават', service: 'Сервиз и ремонт', rent: 'Под наем' };
 const TBADGE = { wanted: 'ТЪРСИ', sale: 'ПРОДАВА', service: 'СЕРВИЗ', rent: 'НАЕМ' };
 const SORTS = { new: 'Най-нови', pasc: 'Цена — възходящо', pdesc: 'Цена — низходящо' };
 const NCATS = { all: 'Всички', infra: 'Инфраструктурни проекти', economy: 'Икономика', energy: 'Енергетика', industry: 'Развитие на бранша', machines: 'Техника', knowhow: 'Ноу-хау' };
@@ -181,7 +183,7 @@ const txt = it => norm(it.title + ' ' + (it.desc || '') + ' ' + (it.location || 
 function prep(it) {
   const t = txt(it);
   it._cat = (CATS.find(c => c[2].test(t)) || ['other'])[0];
-  it._boat = BOATS.test(t);
+  it._boat = BOATS.test(t) || PARTS_X.test(t) || (TELE_X.test(t) && !/manitou/.test(t));
   let cc = SOURCES[it.source]?.cc;
   if (!cc || SOURCES[it.source]?.foreign) { const m = Object.entries(COUNTRIES).find(([, v]) => v[2].test(t)); if (m) cc = m[0]; }
   it._cc = cc || (SOURCES[it.source]?.foreign ? 'EU' : 'BG');

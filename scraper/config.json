@@ -18,7 +18,6 @@
   "бобкат",
   "челен товарач",
   "колесен товарач",
-  "телескопичен товарач",
   "manitou",
   "булдозер",
   "komatsu",
@@ -59,7 +58,6 @@
   "бързосменник",
   "ремонт багер",
   "сервиз строителна техника",
-  "резервни части багер",
   "търся багер",
   "купувам багер",
   "под наем багер"
@@ -74,7 +72,6 @@
   "jcb 1cx",
   "kompaktlader",
   "radlader",
-  "teleskoplader",
   "manitou",
   "planierraupe",
   "komatsu",
@@ -235,5 +232,6 @@
   "mulcher",
   "imeks"
  ],
- "excludePattern": "лодк|катер|яхт|джет|jet ?ski|водн\\w* (мотор|колело|ски)|извънбордов|плавателн|понтон|boot|boat|yacht|schlauchboot|außenborder|ponton"
+ "excludePattern": "лодк|катер|яхт|джет|jet ?ski|водн\\w* (мотор|колело|ски)|извънбордов|плавателн|понтон|boot|boat|yacht|schlauchboot|außenborder|ponton|резервн|част(и)? за|(^|\\s)части(\\s|$)|консуматив|филтр|(^|\\s)масл[оа](\\s|$)|гуми за|акумулатор|ersatzteil|spare ?part|zubehör|verschleißteil|\\bfilter\\b|części|piese",
+ "telehandlerPattern": "(телескоп|telehandler|teleskoplader|ładowarka teleskop|loadall|merlo|\\bjcb 5\\d\\d)"
 }

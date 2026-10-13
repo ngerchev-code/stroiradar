@@ -10,11 +10,15 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 let old = [];
 try { old = JSON.parse(await readFile(new URL('listings.json', ROOT), 'utf8')).items || []; } catch {}
-old = old.filter(i => RELEVANT.test(i.title + ' ' + (i.desc || '') + ' ' + i.url) && !new RegExp(config.excludePattern || '^$', 'i').test(i.title + ' ' + i.url));
+const EXCLX = t => new RegExp(config.excludePattern || '^$', 'i').test(t) || (new RegExp(config.telehandlerPattern || '^$', 'i').test(t) && !/manitou/i.test(t));
+old = old.filter(i => RELEVANT.test(i.title + ' ' + (i.desc || '') + ' ' + i.url) && !EXCLX(i.title + ' ' + i.url));
 const known = new Map(old.map(i => [i.id, i]));
 const firstRun = old.length === 0;
 
-const EXCL = new RegExp(config.excludePattern || '^$', 'i');
+const EXCL0 = new RegExp(config.excludePattern || '^$', 'i');
+const TELE = new RegExp(config.telehandlerPattern || '^$', 'i');
+// Изключени: лодки, части и консумативи, телескопични товарачи извън Manitou
+const EXCL = { test: t => EXCL0.test(t) || (TELE.test(t) && !/manitou/i.test(t)) };
 const found = new Map();
 // Диагностика: записва първата страница от всеки сайт
 if (process.env.DEBUG_HTML) {
