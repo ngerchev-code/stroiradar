@@ -1,6 +1,6 @@
 // СтройРадар — периодично събиране на обяви (пуска се от GitHub Actions на всеки 20 мин).
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { searchSource, enrich, classify } from './core.mjs';
+import { searchSource, enrich, classify, RELEVANT } from './core.mjs';
 import { collectNews } from './news.mjs';
 
 const ROOT = new URL('../docs/data/', import.meta.url);
@@ -10,10 +10,18 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 let old = [];
 try { old = JSON.parse(await readFile(new URL('listings.json', ROOT), 'utf8')).items || []; } catch {}
+old = old.filter(i => RELEVANT.test(i.title + ' ' + (i.desc || '')));
 const known = new Map(old.map(i => [i.id, i]));
 const firstRun = old.length === 0;
 
 const found = new Map();
+// Диагностика: записва първата страница от всеки сайт
+if (process.env.DEBUG_HTML) {
+  const { writeFileSync, mkdirSync } = await import('node:fs');
+  mkdirSync(new URL('../debug/', import.meta.url), { recursive: true });
+  const seen = new Set();
+  globalThis.__debugDump = (key, u, html) => { if (seen.has(key)) return; seen.add(key); writeFileSync(new URL(`../debug/${key}.html`, import.meta.url), `<!-- ${u} -->\n` + html.slice(0, 400000)); };
+}
 const status = {};
 
 async function runSource(key, src, terms) {
@@ -24,7 +32,7 @@ async function runSource(key, src, terms) {
       const q = queue.shift();
       try {
         const items = await searchSource(key, src, q, { enrichDetails: false });
-        for (const it of items) { it.matched = q; if (!found.has(it.id)) found.set(it.id, it); }
+        for (const it of items) { it.matched = q; if (!RELEVANT.test(it.title + ' ' + (it.desc || ''))) continue; if (!found.has(it.id)) found.set(it.id, it); }
         ok++;
       } catch (e) { err++; last = e.message; }
       await sleep(700);

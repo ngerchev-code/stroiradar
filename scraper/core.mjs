@@ -16,6 +16,9 @@ export function classify(text) {
   return 'sale';
 }
 
+// ---------- Филтър по бранша ----------
+export const RELEVANT = /багер|товарач|валяк|виброплоч|трамбовк|пачекрак|чук|къртач|мулчер|асфалт|фреза|трошачк|сито|генератор|компресор|телескоп|булдозер|грейдер|къртиц|сондаж|бобкат|самосвал|кран|вишка|челен|верижен|кофа|бързосменник|инвентар|строителн|земни работи|изкоп|хидравли|excavator|loader|backhoe|roller|compactor|breaker|mulcher|paver|crusher|screen|generator|compressor|telehandler|dozer|grader|bagger|lader|walze|platte|hammer|koparka|ładowark|excavator|buldoexcavator|încărcător|cilindru|hidromek|ammann|jcb|caterpillar|\bcat\b|komatsu|volvo|case|bobcat|takeuchi|kubota|hitachi|liebherr|doosan|develon|hyundai|new holland|terex|manitou|merlo|bomag|dynapac|hamm|wacker|fae|imeks|hycon|atmos|grundomat|tracto|rioned|komplet|yanmar|kobelco|sany|xcmg|liugong|mecalac|kramer|weidemann|avant|gehl|sdmo|aksa/i;
+
 // ---------- Помощни ----------
 const ENT = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', '#39': "'" };
 export function decode(s) {
@@ -26,11 +29,11 @@ export function decode(s) {
     .replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
-async function getText(url, timeout = 15000) {
+async function getText(url, timeout = 15000, extra = {}) {
   const ctrl = new AbortController();
   const tm = setTimeout(() => ctrl.abort(), timeout);
   try {
-    const r = await fetch(url, { headers: { 'User-Agent': UA, 'Accept-Language': 'bg,en;q=0.8,de;q=0.6' }, signal: ctrl.signal, redirect: 'follow' });
+    const r = await fetch(url, { headers: { 'User-Agent': UA, 'Accept': 'text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8', 'Accept-Language': 'bg,en;q=0.8,de;q=0.6', ...extra }, signal: ctrl.signal, redirect: 'follow' });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const buf = new Uint8Array(await r.arrayBuffer());
     const ct = r.headers.get('content-type') || '';
@@ -58,7 +61,7 @@ function priceFrom(text) {
 // ---------- OLX.bg (публичен JSON) ----------
 async function searchOlx(q, domain = 'www.olx.bg') {
   const url = `https://${domain}/api/v1/offers/?offset=0&limit=40&sort_by=created_at:desc&query=${encodeURIComponent(q)}`;
-  const j = JSON.parse(await getText(url));
+  const j = JSON.parse(await getText(url, 15000, { Accept: 'application/json', Referer: `https://${domain}/` }));
   return (j.data || []).map(o => {
     const price = (o.params || []).find(p => p.key === 'price')?.value;
     const photo = o.photos?.[0]?.link?.replace('{width}', '640').replace('{height}', '480') || '';
@@ -79,25 +82,26 @@ function extractLinks(html, baseUrl, pattern) {
   const host = new URL(baseUrl).host;
   const pat = pattern === 'auto' ? { test: h => { try { const u = new URL(h, baseUrl); return u.host === host && /\d{5,}/.test(u.pathname + u.search) && !/search|page=|login|register/i.test(u.href); } catch { return false; } } } : new RegExp(pattern, 'i');
   const out = new Map();
+  const hits = [];
   let m;
-  while ((m = re.exec(html))) {
-    let href = m[1];
-    if (!pat.test(href)) continue;
-    try { href = new URL(href, baseUrl).href; } catch { continue; }
-    const text = decode(m[2]);
-    // Картинка в линка
-    const img = /<img[^>]+(?:data-src|data-original|src)=["']([^"']+)["']/i.exec(m[2])?.[1];
-    // Контекст около линка — за цена и място
-    const ctx = decode(html.slice(m.index, m.index + 1500));
+  while ((m = re.exec(html))) { if (pat.test(m[1])) hits.push({ href: m[1], inner: m[2], at: m.index }); }
+  hits.forEach((h, i) => {
+    let href;
+    try { href = new URL(h.href, baseUrl).href; } catch { return; }
+    const text = decode(h.inner);
+    const img = /<img[^>]+(?:data-src|data-original|src)=["']([^"']+)["']/i.exec(h.inner)?.[1];
+    // Контекст: от тази обява до следващата (за цена)
+    let end = h.at + 1500;
+    for (let j = i + 1; j < hits.length; j++) { if (hits[j].href !== h.href) { end = Math.min(end, hits[j].at); break; } }
+    const ctx = decode(html.slice(h.at, end));
     const prev = out.get(href);
-    if (!prev || (text.length > prev.title.length)) {
-      out.set(href, {
-        url: href, title: text.length > 8 ? text : (prev?.title || ''),
-        photo: img ? new URL(img, baseUrl).href : (prev?.photo || ''),
-        price: priceFrom(ctx) || prev?.price || ''
-      });
-    }
-  }
+    out.set(href, {
+      url: href,
+      title: text.length > (prev?.title.length || 8) ? text : (prev?.title || ''),
+      photo: prev?.photo || (img && !img.startsWith('data:') ? new URL(img, baseUrl).href : ''),
+      price: prev?.price || priceFrom(ctx) || ''
+    });
+  });
   return [...out.values()];
 }
 
@@ -108,7 +112,10 @@ export async function enrich(item) {
     item.title = meta(html, 'og:title') || item.title || decode(/<title>([\s\S]*?)<\/title>/i.exec(html)?.[1]);
     item.photo = meta(html, 'og:image') || item.photo;
     item.desc = (meta(html, 'og:description') || meta(html, 'description')).slice(0, 400);
-    if (!item.price) item.price = priceFrom(meta(html, 'og:description')) || priceFrom(decode(html.slice(0, 60000)));
+    const amt = meta(html, 'product:price:amount') || meta(html, 'og:price:amount');
+    const cur = meta(html, 'product:price:currency') || meta(html, 'og:price:currency');
+    if (amt) item.price = `${amt} ${cur || ''}`.trim();
+    else if (!item.price) item.price = priceFrom(meta(html, 'og:description')) || priceFrom(decode(html.slice(0, 60000)));
   } catch { /* ок — остава каквото е намерено в списъка */ }
   return item;
 }
@@ -116,13 +123,15 @@ export async function enrich(item) {
 async function searchHtml(key, src, q, { enrichDetails = true } = {}) {
   const slug = (q || '').toLowerCase().trim().replace(/\s+/g, '-');
   const urls = q && src.search ? [src.search.replace('{q}', encodeURIComponent(q)).replace('{slug}', encodeURIComponent(slug).replace(/%2D/g, '-'))] : (src.pages || []);
-  let items = [];
+  let items = [], fails = 0, lastErr = '';
   for (const u of urls) {
     try {
       const html = await getText(u);
+      if (globalThis.__debugDump) globalThis.__debugDump(key, u, html);
       items.push(...extractLinks(html, u, src.linkPattern));
-    } catch (e) { items.__err = e.message; }
+    } catch (e) { fails++; lastErr = e.message; }
   }
+  if (urls.length && fails === urls.length) throw new Error(lastErr || 'няма отговор');
   // Mobile.bg няма стабилно търсене по URL — филтрираме по заглавие
   if (q && !src.search) {
     const words = q.toLowerCase().split(/\s+/).filter(Boolean);
