@@ -1,7 +1,7 @@
 {
  "ntfyTopic": "stroiradar-ng-c2e7b1bf",
  "maxAgeDays": 21,
- "maxListings": 1500,
+ "maxListings": 4000,
  "searchTerms": [
   "hidromek",
   "ammann",
@@ -92,7 +92,7 @@
   "olx": {
    "name": "OLX.bg",
    "flag": "🇧🇬",
-   "enabled": true,
+   "enabled": false,
    "domain": "www.olx.bg",
    "olx": true
   },
@@ -102,7 +102,9 @@
    "enabled": true,
    "pages": [
     "https://www.mobile.bg/obiavi/industrialni",
-    "https://www.mobile.bg/obiavi/industrialni/stroitelna-tehnika"
+    "https://www.mobile.bg/obiavi/industrialni/p-2",
+    "https://www.mobile.bg/obiavi/industrialni/p-3",
+    "https://www.mobile.bg/obiavi/kupuva/industrialni"
    ],
    "linkPattern": "/obiava-\\d+",
    "encoding": "auto"
@@ -117,7 +119,7 @@
   "mascus": {
    "name": "Mascus",
    "flag": "🌍",
-   "enabled": true,
+   "enabled": false,
    "foreign": true,
    "search": "https://www.mascus.bg/+/{q},1,relevance,search.html",
    "linkPattern": "/[a-z0-9-]+/[a-z0-9-]+/[a-z0-9]{6,}\\.html"
@@ -125,7 +127,7 @@
   "machineryline": {
    "name": "Machineryline",
    "flag": "🌍",
-   "enabled": true,
+   "enabled": false,
    "foreign": true,
    "search": "https://machineryline.bg/-/search?q={q}",
    "linkPattern": "/-/[^\\s\"']+--\\d+\\.html"
@@ -133,7 +135,7 @@
   "autoline": {
    "name": "Autoline",
    "flag": "🌍",
-   "enabled": true,
+   "enabled": false,
    "foreign": true,
    "search": "https://autoline.bg/-/search?q={q}",
    "linkPattern": "/-/[^\\s\"']+--\\d+\\.html"
@@ -141,7 +143,7 @@
   "truck1": {
    "name": "Truck1",
    "flag": "🌍",
-   "enabled": true,
+   "enabled": false,
    "foreign": true,
    "search": "https://www.truck1.eu/construction-machinery?q={q}",
    "linkPattern": "-a\\d{5,}\\.html"
@@ -149,7 +151,7 @@
   "mobilede": {
    "name": "Mobile.de",
    "flag": "🇩🇪",
-   "enabled": true,
+   "enabled": false,
    "foreign": true,
    "search": "https://suchen.mobile.de/fahrzeuge/search.html?isSearchRequest=true&vc=ConstructionMachine&s=Construction&q={q}",
    "linkPattern": "details\\.html\\?id=\\d+"
@@ -157,7 +159,7 @@
   "truckscout24": {
    "name": "TruckScout24",
    "flag": "🇪🇺",
-   "enabled": true,
+   "enabled": false,
    "foreign": true,
    "search": "https://www.truckscout24.com/construction-machines/used/all/{slug}",
    "linkPattern": "auto"
@@ -165,7 +167,7 @@
   "machinio": {
    "name": "Machinio",
    "flag": "🌍",
-   "enabled": true,
+   "enabled": false,
    "foreign": true,
    "search": "https://www.machinio.com/search?q={q}",
    "linkPattern": "/listings/\\d+"
@@ -174,7 +176,7 @@
    "name": "OLX.ro",
    "flag": "🇷🇴",
    "cc": "RO",
-   "enabled": true,
+   "enabled": false,
    "foreign": true,
    "olx": true,
    "domain": "www.olx.ro"
@@ -183,7 +185,7 @@
    "name": "OLX.pl",
    "flag": "🇵🇱",
    "cc": "PL",
-   "enabled": true,
+   "enabled": false,
    "foreign": true,
    "olx": true,
    "domain": "www.olx.pl"
@@ -199,7 +201,7 @@
   "machinerytrader": {
    "name": "MachineryTrader.eu",
    "flag": "🇪🇺",
-   "enabled": true,
+   "enabled": false,
    "foreign": true,
    "search": "https://www.machinerytrader.eu/listings/for-sale/{slug}/machines",
    "linkPattern": "/listing/|/listings/for-sale/[^/]+/\\d+"

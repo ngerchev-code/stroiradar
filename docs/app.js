@@ -23,6 +23,7 @@ const SOURCES = {
   machinerytrader:{ name: 'MachineryTrader.eu', flag: '🇪🇺', foreign: true, link: q => `https://www.machinerytrader.eu/listings/for-sale/${encodeURIComponent(slug(q))}/machines` },
   kleinanzeigen: { name: 'Kleinanzeigen', flag: '🇩🇪', cc: 'DE', foreign: true, link: q => `https://www.kleinanzeigen.de/s-${encodeURIComponent(slug(q))}/k0` }
 };
+const AUTO = ["mobilebg", "bazar", "machineseeker", "kleinanzeigen"];
 function slug(q) { return q.toLowerCase().trim().replace(/\s+/g, '-'); }
 const gsite = (site, extra = '') => q => `https://www.google.com/search?q=${encodeURIComponent(`site:${site} ${q} ${extra}`.trim())}`;
 // Каталог на източниците (само за ръчно отваряне)
@@ -407,10 +408,12 @@ function dirRow(x, q) {
 }
 function renderSources() {
   const q = ($('#dirQ').value || '').trim();
-  const auto = Object.entries(SOURCES).map(([k, s]) => ({ name: `${s.flag} ${s.name}`, note: `Следи се автоматично · ${S.items.filter(i => i.source === k).length} обяви`, home: s.link(''), link: s.link }));
+  const auto = Object.entries(SOURCES).filter(([k]) => AUTO.includes(k)).map(([k, s]) => ({ name: `${s.flag} ${s.name}`, note: `Следи се автоматично · ${S.items.filter(i => i.source === k).length} обяви`, home: s.link(''), link: s.link }));
+  const manual = Object.entries(SOURCES).filter(([k]) => !AUTO.includes(k)).map(([k, s]) => ({ name: `${s.flag} ${s.name}`, note: 'Търсене с едно докосване', home: s.link(''), link: s.link }));
   const mine = S.custom.map((c, i) => ({ name: c.name, note: c.url, home: c.url, link: gsite(c.url.replace(/^https?:\/\//, '').replace(/\/.*$/, '')), i }));
   $('#dirList').innerHTML =
     `<div class="sec"><h2>Следени автоматично</h2><p class="sub">Обявите от тези сайтове идват в приложението на всеки 20 минути.</p></div><div class="news">${auto.map(x => dirRow(x, q)).join('')}</div>` +
+    `<div class="sec"><h2>Големи пазари</h2><p class="sub">Тези сайтове не позволяват автоматично събиране — отварят търсенето ти директно.</p></div><div class="news">${manual.map(x => dirRow(x, q)).join('')}</div>` +
     DIRECTORY.map(d => `<div class="sec"><h2>${esc(d.g)}</h2></div><div class="news">${d.items.map(x => dirRow(x, q)).join('')}</div>`).join('') +
     `<div class="sec"><h2>Моите източници</h2><p class="sub">Дилъри и сайтове, които следиш ти.</p></div>` +
     (mine.length ? `<div class="news">${mine.map(x => `<div class="nitem" style="display:flex;align-items:center;gap:8px"><a href="${esc(q ? x.link(q) : x.home)}" target="_blank" rel="noopener" style="flex:1;min-width:0"><div class="nt">${esc(x.name)}</div><div class="nm" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.note)}</div></a><button class="star" data-cdel="${x.i}" aria-label="Премахни">✕</button></div>`).join('')}</div>` : '') +
@@ -430,12 +433,12 @@ function renderSettings() {
   $('#notifBtn').textContent = perm === 'granted' ? 'Включени' : perm === 'denied' ? 'Блокирани' : 'Разреши';
   $('#ntfyBtn').href = `https://ntfy.sh/${NTFY_TOPIC}`;
   $('#ntfyNote').textContent = `За известия при затворено приложение: инсталирай „ntfy“ от Google Play и се абонирай за „${NTFY_TOPIC}“.`;
-  $('#srcSet').innerHTML = Object.entries(SOURCES).map(([k, s]) => `<label class="sw"><span>${s.flag} ${esc(s.name)} <span class="st">${S.items.filter(i => i.source === k).length} обяви</span></span><input type="checkbox" data-srcset="${k}" ${S.disabled.includes(k) ? '' : 'checked'}></label>`).join('');
+  $('#srcSet').innerHTML = Object.entries(SOURCES).filter(([k]) => AUTO.includes(k)).map(([k, s]) => `<label class="sw"><span>${s.flag} ${esc(s.name)} <span class="st">${S.items.filter(i => i.source === k).length} обяви</span></span><input type="checkbox" data-srcset="${k}" ${S.disabled.includes(k) ? '' : 'checked'}></label>`).join('');
 }
 
 // ---------- Навигация ----------
 const HERO = {
-  feed:   ['Пазарът на техника в Европа', 'Обяви, цени и проекти от 15 сайта — обновява се на всеки 20 минути.'],
+  feed:   ['Пазарът на техника в Европа', 'Обяви, цени и проекти от България и Европа — обновява се на всеки 20 минути.'],
   market: ['Европейски пазари', 'Сравни цените на техниката в България и Европа.'],
   search: ['Търсачка', 'Намери конкретна машина във всички сайтове наведнъж.'],
   news:   ['Новини от бранша', 'Инфраструктура, икономика, енергетика и техника.'],
