@@ -737,7 +737,11 @@ async function syncPrefsToSW() {
 async function registerSW() {
   if (!('serviceWorker' in navigator)) return;
   try {
-    const reg = await navigator.serviceWorker.register('sw.js');
+    const reg = await navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' });
+    reg.update().catch(() => {});
+    // нова версия → презареди веднъж
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (!reloaded) { reloaded = true; location.reload(); } });
     if ('periodicSync' in reg) { try { const st = await navigator.permissions.query({ name: 'periodic-background-sync' }); if (st.state === 'granted') await reg.periodicSync.register('check-listings', { minInterval: 30 * 60 * 1000 }); } catch {} }
     navigator.serviceWorker.addEventListener('message', e => { if (e.data?.notified) { S.notified = [...new Set([...S.notified, ...e.data.notified])]; store.set('notified', S.notified.slice(-800)); } });
   } catch {}

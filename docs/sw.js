@@ -1,8 +1,9 @@
 // ECOBenchmark — service worker: офлайн, известия, проверка във фона
-const V = 'bb-v13';
+const V = 'bb-v14';
 const SHELL = ['./', 'index.html', 'app.js', 'manifest.webmanifest', 'icons/icon-192-eb2.png', 'icons/icon-512-eb2.png', 'icons/badge-96-eb2.png'];
 
-self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL))); self.skipWaiting(); });
+// Инсталиране: взимаме файловете директно от мрежата (без HTTP кеша), за да не запишем стара версия
+self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => Promise.all(SHELL.map(u => fetch(u, { cache: 'reload' }).then(r => r.ok && c.put(u, r)).catch(() => {}))))); self.skipWaiting(); });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V && k !== 'sr-prefs').map(k => caches.delete(k)))));
   self.clients.claim();
@@ -11,13 +12,11 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const u = new URL(e.request.url);
   if (e.request.method !== 'GET' || u.origin !== location.origin) return;
-  if (u.pathname.includes('/data/')) {
-    // Данни: първо мрежа, после кеш
-    e.respondWith(fetch(e.request).then(r => { const c = r.clone(); caches.open(V).then(x => x.put(u.pathname, c)); return r; })
-      .catch(() => caches.match(u.pathname)));
-  } else {
-    e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
-  }
+  // Всичко от приложението: първо мрежата (винаги най-новото), кешът е само за офлайн
+  e.respondWith(fetch(e.request, { cache: 'no-cache' }).then(r => {
+    if (r.ok) { const c = r.clone(); caches.open(V).then(x => x.put(e.request, c)); }
+    return r;
+  }).catch(() => caches.match(e.request).then(r => r || caches.match('index.html'))));
 });
 
 // Проверка за нови обяви във фона (Android Chrome, инсталирано приложение)
