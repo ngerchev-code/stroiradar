@@ -56,8 +56,8 @@ function priceFrom(text) {
 }
 
 // ---------- OLX.bg (публичен JSON) ----------
-async function searchOlx(q) {
-  const url = `https://www.olx.bg/api/v1/offers/?offset=0&limit=40&sort_by=created_at:desc&query=${encodeURIComponent(q)}`;
+async function searchOlx(q, domain = 'www.olx.bg') {
+  const url = `https://${domain}/api/v1/offers/?offset=0&limit=40&sort_by=created_at:desc&query=${encodeURIComponent(q)}`;
   const j = JSON.parse(await getText(url));
   return (j.data || []).map(o => {
     const price = (o.params || []).find(p => p.key === 'price')?.value;
@@ -75,7 +75,9 @@ async function searchOlx(q) {
 // ---------- Общ HTML търсач (Mobile.bg, Bazar, чужди сайтове) ----------
 function extractLinks(html, baseUrl, pattern) {
   const re = /<a\b[^>]*href=["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi;
-  const pat = new RegExp(pattern, 'i');
+  // auto: линкове към същия сайт с дълъг номер на обява
+  const host = new URL(baseUrl).host;
+  const pat = pattern === 'auto' ? { test: h => { try { const u = new URL(h, baseUrl); return u.host === host && /\d{5,}/.test(u.pathname + u.search) && !/search|page=|login|register/i.test(u.href); } catch { return false; } } } : new RegExp(pattern, 'i');
   const out = new Map();
   let m;
   while ((m = re.exec(html))) {
@@ -112,7 +114,8 @@ export async function enrich(item) {
 }
 
 async function searchHtml(key, src, q, { enrichDetails = true } = {}) {
-  const urls = q && src.search ? [src.search.replace('{q}', encodeURIComponent(q))] : (src.pages || []);
+  const slug = (q || '').toLowerCase().trim().replace(/\s+/g, '-');
+  const urls = q && src.search ? [src.search.replace('{q}', encodeURIComponent(q)).replace('{slug}', encodeURIComponent(slug).replace(/%2D/g, '-'))] : (src.pages || []);
   let items = [];
   for (const u of urls) {
     try {
@@ -143,7 +146,7 @@ export function hash(s) {
 
 // ---------- Публичен вход ----------
 export async function searchSource(key, src, q, opts) {
-  const items = key === 'olx' ? await searchOlx(q || 'строителна техника') : await searchHtml(key, src, q, opts);
+  const items = src.olx ? (await searchOlx(q || 'строителна техника', src.domain)).map(i => ({ ...i, id: i.id.replace(/^olx-/, key + '-'), source: key })) : await searchHtml(key, src, q, opts);
   for (const it of items) {
     it.type = classify(it.title + ' ' + it.desc);
     it.foreign = !!src.foreign;

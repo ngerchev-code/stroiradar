@@ -1,5 +1,5 @@
 // СтройРадар — service worker: офлайн, известия, проверка във фона
-const V = 'sr-v1';
+const V = 'bb-v2';
 const SHELL = ['./', 'index.html', 'app.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/badge-96.png'];
 
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL))); self.skipWaiting(); });
@@ -38,7 +38,7 @@ async function check() {
   });
   if (!fresh.length) return;
   for (const it of fresh.slice(0, 4)) {
-    await self.registration.showNotification(it.type === 'wanted' ? '🔴 ТЪРСИ — нов клиент' : '🔔 Нова обява', {
+    await self.registration.showNotification(it.type === 'wanted' ? 'Търсят техника' : 'Нова обява', {
       body: `${it.title}${it.price ? '\n💰 ' + it.price : ''}`, icon: 'icons/icon-192.png', badge: 'icons/badge-96.png',
       image: it.photo || undefined, tag: it.id, data: { url: it.url }, vibrate: [200, 100, 200]
     });

@@ -1,6 +1,7 @@
 // СтройРадар — периодично събиране на обяви (пуска се от GitHub Actions на всеки 20 мин).
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { searchSource, enrich, classify } from './core.mjs';
+import { collectNews } from './news.mjs';
 
 const ROOT = new URL('../docs/data/', import.meta.url);
 const config = JSON.parse(await readFile(new URL('./config.json', import.meta.url), 'utf8'));
@@ -35,7 +36,7 @@ async function runSource(key, src, terms) {
 }
 
 const jobs = Object.entries(config.sources).filter(([, s]) => s.enabled).map(([k, s]) => {
-  const terms = k === 'mobilebg' ? [] : (s.foreign ? config.foreignTerms : config.searchTerms);
+  const terms = k === 'mobilebg' ? [] : (s.olx && s.foreign) ? config.olxForeignTerms : (s.foreign ? config.foreignTerms : config.searchTerms);
   return runSource(k, s, terms);
 });
 await Promise.all(jobs);
@@ -65,6 +66,7 @@ const items = [...merged.values()]
 
 await mkdir(ROOT, { recursive: true });
 await writeFile(new URL('listings.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), items }));
+try { const news = await collectNews(); if (news.length) await writeFile(new URL('news.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), items: news })); console.log('Новини:', news.length); } catch (e) { console.log('Новини:', e.message); }
 await writeFile(new URL('status.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), status }, null, 1));
 
 // Push известия (ntfy) — само за нови, не при първо пускане

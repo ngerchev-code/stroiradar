@@ -3,188 +3,439 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>СтройРадар</title>
-<meta name="theme-color" content="#16181d">
-<meta name="description" content="Всички обяви за строителна техника и сервиз — от България и чужбина, на едно място.">
+<title>BuildBench EU</title>
+<meta name="theme-color" content="#0b1f38">
+<meta name="description" content="Бенчмарк клубът на строителния бранш в Европа — обяви, пазарни цени, инфраструктурни проекти, новини и ноу-хау.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,700;8..144,800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@500;600;700;800&family=Fira+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f4f4f1; --surface:#fff; --surface2:#ececE7; --text:#16181d; --muted:#666a73; --line:#dcdcd5;
-  --brand:#f5b400; --brand-ink:#1b1400; --red:#e5372e; --green:#1f9d55; --blue:#2266d6; --violet:#7a4fd1;
-  --radius:16px; --shadow:0 1px 2px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.06);
+  --navy:#0b1f38; --navy2:#12305a; --blue-line:#7fa8d8; --signal:#f5b400; --signal-ink:#1d1500;
+  --paper:#f3f5f8; --card:#ffffff; --ink:#0f1a2a; --muted:#5d6878; --rule:#dde3eb; --soft:#e9eef4;
+  --red:#d9412f; --green:#1d955a; --violet:#6c4bc9; --blue:#2463c9;
+  --r-lg:18px; --r-md:12px; --r-sm:8px;
+  --lift:0 1px 0 rgba(15,26,42,.04),0 6px 20px -8px rgba(15,26,42,.18);
+  --display:"Fira Sans Condensed","Fira Sans",system-ui,sans-serif;
+  --body:"Fira Sans",system-ui,sans-serif;
 }
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){--bg:#0f1114;--surface:#191c21;--surface2:#23272e;--text:#eef0f3;--muted:#9aa0aa;--line:#2b3038;--shadow:none}
-}
-:root[data-theme="dark"]{--bg:#0f1114;--surface:#191c21;--surface2:#23272e;--text:#eef0f3;--muted:#9aa0aa;--line:#2b3038;--shadow:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#081526;--card:#0f2138;--ink:#e8eef6;--muted:#93a3b8;--rule:#1d3352;--soft:#152a46;--lift:none}}
+:root[data-theme="dark"]{--paper:#081526;--card:#0f2138;--ink:#e8eef6;--muted:#93a3b8;--rule:#1d3352;--soft:#152a46;--lift:none}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Roboto Flex",Roboto,system-ui,sans-serif;font-size:15px}
-body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
-button,input{font:inherit;color:inherit}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45}
+body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
+button,input,select{font:inherit;color:inherit}
 a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+.hidden{display:none!important}
 
-/* Горна лента */
-.top{position:sticky;top:0;z-index:20;background:var(--bg);padding:calc(10px + env(safe-area-inset-top)) 16px 8px}
-.bar{display:flex;align-items:center;gap:12px}
-.logo{width:36px;height:36px;border-radius:10px;flex:none}
-.bar h1{font-size:21px;font-weight:800;margin:0;letter-spacing:-.3px;flex:1}
-.bar h1 small{display:block;font-size:12px;font-weight:500;color:var(--muted);letter-spacing:0}
-.bell{position:relative;width:44px;height:44px;border-radius:50%;border:0;background:var(--surface);box-shadow:var(--shadow);font-size:22px;cursor:pointer}
-.bell .cnt{position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--red);color:#fff;font-size:11px;font-weight:700;display:none;align-items:center;justify-content:center}
-.bell.on .cnt{display:flex}
-.bell.on{animation:ring 1.2s ease-in-out infinite}
-.bell.on::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--brand);animation:pulse 1.2s ease-out infinite}
-@keyframes ring{0%,60%,100%{transform:rotate(0)}10%{transform:rotate(16deg)}20%{transform:rotate(-14deg)}30%{transform:rotate(10deg)}40%{transform:rotate(-8deg)}}
-@keyframes pulse{0%{opacity:.9;transform:scale(.9)}100%{opacity:0;transform:scale(1.35)}}
+/* ---------- Чертеж (хедър) ---------- */
+.blueprint{position:relative;background:var(--navy);color:#fff;overflow:hidden;
+  background-image:
+    linear-gradient(rgba(127,168,216,.10) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(127,168,216,.10) 1px,transparent 1px),
+    linear-gradient(rgba(127,168,216,.22) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(127,168,216,.22) 1px,transparent 1px);
+  background-size:12px 12px,12px 12px,60px 60px,60px 60px;
+  background-position:-1px -1px}
+.appbar{position:relative;z-index:3;display:flex;align-items:center;gap:6px;padding:calc(8px + env(safe-area-inset-top)) 8px 4px}
+.ib{width:44px;height:44px;border:0;border-radius:50%;background:transparent;color:inherit;display:grid;place-items:center;cursor:pointer;position:relative}
+.ib:active{background:rgba(255,255,255,.12)}
+.ib svg{width:24px;height:24px}
+.brand{flex:1;display:flex;align-items:center;gap:9px;min-width:0}
+.brand img{width:30px;height:30px;border-radius:8px}
+.brand b{font-family:var(--display);font-size:21px;font-weight:700;letter-spacing:.2px;white-space:nowrap}
+.brand b span{color:var(--signal)}
+.bell .dot{position:absolute;top:6px;right:5px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--red);color:#fff;font-size:10.5px;font-weight:700;display:none;place-items:center;border:2px solid var(--navy)}
+.bell.on .dot{display:grid}
+.bell.on svg{animation:ring 1.4s ease-in-out infinite;transform-origin:50% 10%}
+@keyframes ring{0%,55%,100%{transform:rotate(0)}8%{transform:rotate(18deg)}16%{transform:rotate(-15deg)}24%{transform:rotate(10deg)}32%{transform:rotate(-6deg)}}
 
-.chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0 4px;scrollbar-width:none}
-.chips::-webkit-scrollbar{display:none}
-.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap}
-.chip.on{background:var(--text);color:var(--bg);border-color:var(--text)}
-.chip .n{opacity:.6;margin-left:4px;font-size:12px}
+.hero{position:relative;padding:4px 18px 16px;min-height:178px}
+.hero h1{position:relative;font-family:var(--display);font-weight:700;font-size:30px;line-height:1.02;margin:6px 0 6px;max-width:11ch;letter-spacing:-.2px}
+.hero p{position:relative;margin:0;color:#c9d8ec;font-size:13.5px;max-width:30ch}
+.drawing{position:absolute;right:-16px;top:-8px;width:196px;height:149px;pointer-events:none;opacity:.5}
+@media(min-width:520px){.drawing{width:260px;height:198px;opacity:.85}}
+.drawing .ln{fill:none;stroke:#cfe0f5;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+.drawing .thin{fill:none;stroke:var(--blue-line);stroke-width:1;stroke-dasharray:4 3}
+.drawing .dim{fill:none;stroke:var(--signal);stroke-width:1.1}
+.drawing text{fill:var(--signal);font:600 9px var(--display);letter-spacing:.4px}
+.drawing .draw{stroke-dasharray:900;stroke-dashoffset:900;animation:draw 2.2s .15s cubic-bezier(.6,.1,.2,1) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){.drawing .draw{animation:none;stroke-dashoffset:0}.bell.on svg{animation:none}}
+.stats{position:relative;z-index:2;display:flex;gap:18px;margin-top:14px}
+.stat b{display:block;font-family:var(--display);font-size:24px;font-weight:700;line-height:1;color:#fff}
+.stat small{font-size:11.5px;color:#a9bfdc}
+.stat.hot b{color:var(--signal)}
+.titleblock{position:absolute;left:18px;bottom:10px;font:600 9.5px var(--display);color:#86a6cc;letter-spacing:.6px}
 
-.info{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);padding:4px 2px 0}
-.toggle{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+/* ---------- Подзаглавие при вътрешни екрани ---------- */
+.pagehead{padding:2px 18px 16px}
+.pagehead h1{font-family:var(--display);font-size:27px;font-weight:700;margin:4px 0 2px}
+.pagehead p{margin:0;color:#c9d8ec;font-size:13.5px}
 
-/* Карти */
-main{padding:6px 16px 16px;max-width:760px;margin:0 auto}
-.list{display:grid;gap:12px}
-@media(min-width:620px){.list{grid-template-columns:1fr 1fr}}
-.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;position:relative;border:1px solid transparent}
-.card.new{border-color:var(--brand)}
-.ph{aspect-ratio:16/10;background:var(--surface2) center/cover no-repeat;position:relative}
-.ph.none{aspect-ratio:16/5;display:flex;align-items:center;justify-content:center;font-size:44px}
-.badge{position:absolute;top:10px;left:10px;padding:4px 9px;border-radius:8px;font-size:12px;font-weight:700;color:#fff}
-.b-wanted{background:var(--red)} .b-sale{background:var(--green)} .b-service{background:var(--violet)} .b-rent{background:var(--blue)}
-.newtag{position:absolute;top:10px;right:10px;background:var(--brand);color:var(--brand-ink);font-size:11px;font-weight:800;padding:3px 8px;border-radius:8px;animation:blink 1s step-start infinite}
-@keyframes blink{50%{opacity:.35}}
-.body{padding:12px 14px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
-.title{font-weight:600;font-size:15px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.price{font-weight:800;font-size:17px}
-.meta{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:12.5px;align-items:center}
-.actions{display:flex;gap:8px;margin-top:4px}
-.btn{border:0;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;background:var(--surface2)}
-.btn.primary{background:var(--brand);color:var(--brand-ink);flex:1;text-align:center}
-.star{width:44px;font-size:18px}
-.star.on{color:var(--brand)}
+/* ---------- Банери ---------- */
+.banners{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:14px 16px 2px;scrollbar-width:none}
+.banners::-webkit-scrollbar{display:none}
+.banner{flex:0 0 86%;scroll-snap-align:center;border-radius:var(--r-lg);padding:14px 16px;min-height:96px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;position:relative;overflow:hidden;border:0;text-align:left}
+.banner h3{margin:0;font-family:var(--display);font-size:19px;font-weight:700;line-height:1.1;max-width:20ch}
+.banner p{margin:4px 0 0;font-size:12.5px;opacity:.85;max-width:30ch}
+.banner .go{font-size:12.5px;font-weight:700;margin-top:8px}
+.bn-1{background:var(--signal);color:var(--signal-ink)}
+.bn-2{background:#16325a;color:#fff}
+.bn-3{background:#1d955a;color:#fff}
+.bn-4{background:var(--card);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--rule)}
+.banner svg.deco{position:absolute;right:-10px;bottom:-10px;width:110px;height:110px;opacity:.22}
+.dots{display:flex;justify-content:center;gap:5px;padding:8px 0 0}
+.dots i{width:6px;height:6px;border-radius:3px;background:var(--rule);transition:.2s}
+.dots i.on{width:18px;background:var(--ink)}
 
-.empty{text-align:center;color:var(--muted);padding:50px 20px}
-.empty b{display:block;font-size:40px;margin-bottom:8px}
+/* ---------- Падащи филтри ---------- */
+.toolbar{position:sticky;top:0;z-index:15;background:var(--paper);padding:10px 16px 8px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid transparent}
+.toolbar.stuck{border-bottom-color:var(--rule);padding-top:calc(10px + env(safe-area-inset-top))}
+.toolbar::-webkit-scrollbar{display:none}
+.dd{flex:none;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);background:var(--card);border-radius:10px;padding:8px 10px 8px 12px;font-size:13.5px;font-weight:600;cursor:pointer;white-space:nowrap}
+.dd svg{width:14px;height:14px;opacity:.6}
+.dd.set{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.dd.set svg{opacity:.9}
+.resline{display:flex;justify-content:space-between;align-items:center;padding:4px 18px 8px;font-size:12.5px;color:var(--muted)}
+.resline label{display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+.resline input{accent-color:var(--signal);width:16px;height:16px}
+
+/* Падащо меню (лист) */
+.sheet-bg{position:fixed;inset:0;background:rgba(5,14,28,.45);z-index:60;opacity:0;pointer-events:none;transition:opacity .2s}
+.sheet-bg.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:61;background:var(--card);border-radius:20px 20px 0 0;padding:8px 0 calc(12px + env(safe-area-inset-bottom));max-height:72vh;overflow:auto;transform:translateY(102%);transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.sheet.on{transform:none}
+.sheet .grab{width:38px;height:4px;border-radius:2px;background:var(--rule);margin:2px auto 10px}
+.sheet h4{margin:0 20px 6px;font-family:var(--display);font-size:18px}
+.opt{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;padding:13px 20px;text-align:left;cursor:pointer;font-size:15px}
+.opt:active{background:var(--soft)}
+.opt .n{margin-left:auto;color:var(--muted);font-size:13px}
+.opt .ck{width:20px;height:20px;border-radius:50%;border:2px solid var(--rule);flex:none}
+.opt.on .ck{border:6px solid var(--signal)}
+@media(min-width:700px){.sheet{left:50%;right:auto;width:440px;bottom:auto;top:50%;border-radius:20px;transform:translate(-50%,-46%);opacity:0;pointer-events:none;transition:.2s}.sheet.on{transform:translate(-50%,-50%);opacity:1;pointer-events:auto}}
+
+/* ---------- Обяви ---------- */
+main{max-width:820px;margin:0 auto}
+.list{display:grid;gap:12px;padding:0 16px 16px}
+@media(min-width:640px){.list{grid-template-columns:1fr 1fr}}
+.card{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--lift);overflow:hidden;display:grid;grid-template-columns:118px 1fr;min-height:132px;position:relative}
+.card.fresh{box-shadow:var(--lift),inset 3px 0 0 var(--signal)}
+.thumb{background:var(--soft) center/cover no-repeat;position:relative}
+.thumb.none{display:grid;place-items:center}
+.thumb.none svg{width:54px;height:54px;opacity:.35}
+.flag{position:absolute;left:8px;top:8px;font-size:10.5px;font-weight:700;color:#fff;padding:3px 7px;border-radius:6px;letter-spacing:.2px}
+.t-wanted{background:var(--red)}.t-sale{background:var(--green)}.t-service{background:var(--violet)}.t-rent{background:var(--blue)}
+.cbody{padding:11px 12px 10px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.ctitle{font-weight:600;font-size:14.5px;line-height:1.28;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cprice{font-family:var(--display);font-weight:700;font-size:18px;margin-top:2px}
+.cprice small{font-family:var(--body);font-size:11.5px;font-weight:500;color:var(--muted);margin-left:6px}
+.cmeta{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:auto}
+.cmeta .new{color:var(--signal-ink);background:var(--signal);font-weight:700;padding:0 6px;border-radius:5px;animation:blink 1.1s step-start infinite}
+@keyframes blink{50%{opacity:.4}}
+.cfoot{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.open{font-weight:700;font-size:13px;color:var(--blue)}
+:root[data-theme="dark"] .open{color:#8db6ff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .open{color:#8db6ff}}
+.star{border:0;background:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:var(--muted)}
+.star svg{width:20px;height:20px}
+.star.on{color:var(--signal)}
+.star.on svg{fill:currentColor}
+
+.empty{text-align:center;color:var(--muted);padding:44px 26px}
+.empty svg{width:64px;height:64px;opacity:.4;margin-bottom:6px}
+.empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:700;cursor:pointer;background:var(--soft);font-size:14px}
+.btn.primary{background:var(--signal);color:var(--signal-ink)}
+.btn.dark{background:var(--ink);color:var(--paper)}
+
+/* ---------- Секции ---------- */
+.sec{padding:18px 16px 8px}
+.sec h2{font-family:var(--display);font-size:21px;font-weight:700;margin:0 0 2px}
+.sec .sub{color:var(--muted);font-size:13px;margin:0 0 12px}
+.seg{display:flex;background:var(--soft);border-radius:12px;padding:3px;margin:0 16px 10px;gap:2px}
+.seg button{flex:1;border:0;background:none;border-radius:9px;padding:8px 4px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:var(--lift)}
+
+/* Пазари */
+.mkgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px}
+.mk{background:var(--card);border-radius:var(--r-md);padding:12px 13px;box-shadow:var(--lift)}
+.mk .lbl{font-size:12.5px;color:var(--muted);font-weight:500}
+.mk .val{font-family:var(--display);font-size:22px;font-weight:700;line-height:1.15}
+.mk .val small{font-family:var(--body);font-size:12px;color:var(--muted);font-weight:500}
+.bench{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--lift);margin:0 16px 12px;padding:6px 0}
+.brow{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:10px 14px;border-top:1px solid var(--rule)}
+.brow:first-child{border-top:0}
+.brow .nm{font-weight:600;font-size:14px}
+.brow .px{font-family:var(--display);font-weight:700;font-size:16px;text-align:right}
+.brow .bar{grid-column:1/-1;height:6px;border-radius:3px;background:var(--soft);overflow:hidden;display:flex}
+.brow .bar i{display:block;height:100%;background:var(--navy2)}
+:root[data-theme="dark"] .brow .bar i{background:var(--blue-line)}
+.brow .bar i.y{background:var(--signal)}
+.brow .ds{font-size:12px;color:var(--muted)}
+.countries{display:flex;gap:8px;overflow-x:auto;padding:0 16px 12px;scrollbar-width:none}
+.ctry{flex:none;background:var(--card);border-radius:var(--r-md);padding:10px 12px;box-shadow:var(--lift);min-width:104px;cursor:pointer;border:1.5px solid transparent;text-align:left}
+.ctry.on{border-color:var(--signal)}
+.ctry b{display:block;font-size:20px}
+.ctry span{font-size:12.5px;font-weight:600}
+.ctry small{display:block;color:var(--muted);font-size:11.5px}
+.note{font-size:12.5px;color:var(--muted);padding:0 18px 14px}
+
+/* Новини */
+.news{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--lift);margin:0 16px 12px;overflow:hidden}
+.nitem{display:block;padding:13px 14px;border-top:1px solid var(--rule)}
+.nitem:first-child{border-top:0}
+.nitem .nt{font-weight:600;font-size:14.5px;line-height:1.33}
+.nitem .nm{font-size:12px;color:var(--muted);margin-top:4px;display:flex;gap:8px;align-items:center}
+.cat{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--soft);color:var(--ink)}
+.c-infra{background:#ffe9a8;color:#5a4300}.c-economy{background:#d7e6ff;color:#16336a}.c-energy{background:#d6f3e1;color:#0f5a33}
+.c-industry{background:#ece3ff;color:#3d2785}.c-machines{background:#ffe0d8;color:#7a2312}.c-knowhow{background:#e2e8f0;color:#24364f}
+.lead{display:block;margin:0 16px 12px;border-radius:var(--r-lg);background:var(--navy);color:#fff;padding:16px;position:relative;overflow:hidden;
+  background-image:linear-gradient(rgba(127,168,216,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(127,168,216,.14) 1px,transparent 1px);background-size:14px 14px}
+.lead .cat{position:relative}
+.lead .nt{font-family:var(--display);font-size:21px;font-weight:700;line-height:1.15;margin:10px 0 6px}
+.lead .nm{font-size:12px;color:#a9bfdc}
+
+/* Ноу-хау */
+.kh{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--lift);margin:0 16px 10px;overflow:hidden}
+.kh summary{list-style:none;padding:14px 14px;display:flex;gap:12px;align-items:center;cursor:pointer}
+.kh summary::-webkit-details-marker{display:none}
+.kh .ico{width:42px;height:42px;border-radius:12px;background:var(--soft);display:grid;place-items:center;flex:none}
+.kh .ico svg{width:24px;height:24px}
+.kh summary b{display:block;font-size:15px}
+.kh summary small{color:var(--muted);font-size:12.5px}
+.kh ul{margin:0;padding:0 16px 14px 34px;font-size:14px}
+.kh li{margin:5px 0}
 
 /* Търсачка */
-.searchbox{display:flex;gap:8px;background:var(--surface);border-radius:999px;padding:6px 6px 6px 16px;box-shadow:var(--shadow);align-items:center;border:1px solid var(--line)}
-.searchbox input{flex:1;border:0;background:transparent;outline:none;font-size:16px;padding:8px 0;min-width:0}
-.searchbox button{border:0;background:var(--brand);color:var(--brand-ink);border-radius:999px;padding:10px 18px;font-weight:800;cursor:pointer}
-.sect{margin:20px 0 10px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
-.sites{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.site{background:var(--surface);border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);font-weight:600;font-size:14px}
-.site span{font-size:20px}
-.site.fb{background:#1877f2;color:#fff}
-.note{font-size:13px;color:var(--muted);line-height:1.45;background:var(--surface);border-radius:12px;padding:12px 14px;border:1px dashed var(--line)}
+.searchbox{display:flex;gap:6px;background:var(--card);border-radius:14px;padding:5px 5px 5px 14px;align-items:center;margin:14px 16px 10px;box-shadow:var(--lift)}
+.searchbox input{flex:1;border:0;background:transparent;outline:none;font-size:16px;padding:9px 0;min-width:0}
+.searchbox svg{width:20px;height:20px;opacity:.5}
+.sites{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px}
+.site{background:var(--card);border-radius:12px;padding:11px 12px;display:flex;align-items:center;gap:9px;box-shadow:var(--lift);font-weight:600;font-size:13.5px}
+.site i{font-style:normal;font-size:18px}
+.site.fb{background:#1877f2;color:#fff;box-shadow:none}
 
 /* Настройки */
-.panel{background:var(--surface);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
+.panel{background:var(--card);border-radius:var(--r-lg);padding:14px;box-shadow:var(--lift);margin:0 16px 12px}
 .panel h3{margin:0 0 4px;font-size:16px}
-.panel p{margin:0 0 10px;color:var(--muted);font-size:13px;line-height:1.4}
+.panel p{margin:0 0 10px;color:var(--muted);font-size:13px}
 .kw{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
-.kw .chip{padding:6px 10px 6px 12px;background:var(--surface2);border:0}
-.kw .chip i{font-style:normal;margin-left:6px;opacity:.6}
+.kwc{display:inline-flex;align-items:center;gap:4px;background:var(--soft);border-radius:8px;padding:6px 6px 6px 10px;font-size:13.5px;font-weight:500}
+.kwc button{border:0;background:none;width:22px;height:22px;border-radius:50%;cursor:pointer;color:var(--muted)}
 .row{display:flex;gap:8px}
-.row input{flex:1;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:10px 12px;min-width:0}
-.sw{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--line);gap:10px}
+.row input{flex:1;border:1px solid var(--rule);background:var(--paper);border-radius:12px;padding:10px 12px;min-width:0}
+.sw{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-top:1px solid var(--rule);gap:10px;font-size:14.5px}
 .sw:first-of-type{border-top:0}
-.sw input{width:22px;height:22px;accent-color:var(--brand)}
+.sw input[type=checkbox]{width:22px;height:22px;accent-color:var(--signal);flex:none}
 .st{font-size:12px;color:var(--muted)}
 
-/* Долна навигация */
-nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
-nav button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;font-weight:600;color:var(--muted);padding:4px 0;cursor:pointer}
-nav button .ic{width:56px;height:30px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:19px}
-nav button.on{color:var(--text)}
-nav button.on .ic{background:color-mix(in srgb,var(--brand) 35%,transparent)}
-.view{display:none}.view.on{display:block}
+/* ---------- Странично меню ---------- */
+.drawer{position:fixed;top:0;bottom:0;left:0;width:min(84vw,330px);z-index:62;background:var(--card);transform:translateX(-102%);transition:transform .25s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;overflow:auto}
+.drawer.on{transform:none}
+.dhead{background:var(--navy);color:#fff;padding:calc(22px + env(safe-area-inset-top)) 20px 18px;
+  background-image:linear-gradient(rgba(127,168,216,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(127,168,216,.14) 1px,transparent 1px);background-size:12px 12px}
+.dhead img{width:48px;height:48px;border-radius:12px}
+.dhead b{display:block;font-family:var(--display);font-size:22px;margin-top:10px}
+.dhead b span{color:var(--signal)}
+.dhead small{color:#a9bfdc;font-size:12.5px}
+.dgroup{padding:8px 0;border-bottom:1px solid var(--rule)}
+.dgroup h5{margin:6px 20px 2px;font-size:12px;color:var(--muted);font-weight:600}
+.ditem{display:flex;align-items:center;gap:16px;width:100%;border:0;background:none;padding:12px 20px;font-size:15px;font-weight:500;cursor:pointer;text-align:left}
+.ditem svg{width:22px;height:22px;opacity:.75}
+.ditem.on{background:var(--soft);font-weight:700}
+.ditem .pill{margin-left:auto;background:var(--signal);color:var(--signal-ink);font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px}
+.dfoot{padding:16px 20px;font-size:12px;color:var(--muted);margin-top:auto}
 
-.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:.25s;z-index:50;pointer-events:none;max-width:90vw}
-.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-.install{display:none;margin:0 0 12px;background:var(--text);color:var(--bg);border-radius:var(--radius);padding:12px 14px;align-items:center;gap:12px}
-.install.on{display:flex}
-.install img{width:44px;height:44px;border-radius:12px}
-.install div{flex:1;font-size:13px}.install b{display:block;font-size:15px}
-.spin{display:inline-block;animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+/* ---------- Долна навигация ---------- */
+nav.bottom{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--card);border-top:1px solid var(--rule);display:flex;padding:5px 4px calc(5px + env(safe-area-inset-bottom))}
+nav.bottom button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--muted);padding:3px 0;cursor:pointer}
+nav.bottom .ic{width:54px;height:30px;border-radius:15px;display:grid;place-items:center;transition:background .2s}
+nav.bottom svg{width:22px;height:22px}
+nav.bottom button.on{color:var(--ink)}
+nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transparent)}
+
+.view{display:none}.view.on{display:block}
+.toast{position:fixed;left:50%;bottom:92px;transform:translate(-50%,16px);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:.25s;z-index:80;pointer-events:none;max-width:90vw}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* Начален екран */
+.splash{position:fixed;inset:0;z-index:100;background:var(--navy);display:grid;place-items:center;transition:opacity .4s;
+  background-image:linear-gradient(rgba(127,168,216,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(127,168,216,.12) 1px,transparent 1px);background-size:14px 14px}
+.splash.out{opacity:0;pointer-events:none}
+.splash div{text-align:center;color:#fff}
+.splash img{width:92px;height:92px;border-radius:24px;box-shadow:0 10px 40px rgba(0,0,0,.4)}
+.splash b{display:block;font-family:var(--display);font-size:28px;margin-top:16px}
+.splash b span{color:var(--signal)}
+.splash small{color:#a9bfdc}
 </style>
 </head>
 <body>
 
-<header class="top">
-  <div class="bar">
-    <img class="logo" src="icons/icon-192.png" alt="">
-    <h1 id="hTitle">СтройРадар<small id="upd">Зареждане…</small></h1>
-    <button class="bell" id="bell" aria-label="Нови обяви">🔔<span class="cnt" id="bellCnt">0</span></button>
+<div class="splash" id="splash"><div><img src="icons/icon-512.png" alt=""><b>BuildBench <span>EU</span></b><small>Бенчмарк клубът на строителния бранш</small></div></div>
+
+<!-- Хедър с чертеж -->
+<header class="blueprint" id="top">
+  <div class="appbar">
+    <button class="ib" id="menuBtn" aria-label="Меню"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
+    <div class="brand"><img src="icons/icon-192.png" alt=""><b>BuildBench <span>EU</span></b></div>
+    <button class="ib" data-go="search" aria-label="Търсене"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg></button>
+    <button class="ib bell" id="bell" aria-label="Нови обяви"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg><span class="dot" id="bellCnt">0</span></button>
   </div>
-  <div id="feedFilters">
-    <div class="chips" id="typeChips"></div>
-    <div class="chips" id="srcChips"></div>
-    <div class="info"><label class="toggle"><input type="checkbox" id="onlyKw"> Само по моите ключови думи</label><span id="count"></span></div>
+
+  <div class="hero" id="hero">
+    <svg class="drawing" viewBox="0 0 250 190" aria-hidden="true">
+      <!-- технически чертеж: верижен багер, страничен изглед -->
+      <path class="thin" d="M8 160h236"/>
+      <path class="ln draw" d="M40 150h108a14 14 0 0 1 0 28H40a14 14 0 0 1 0-28z"/>
+      <circle class="ln" cx="42" cy="164" r="7"/><circle class="ln" cx="94" cy="164" r="7"/><circle class="ln" cx="146" cy="164" r="7"/>
+      <path class="ln draw" d="M50 146h96v-30H50z"/>
+      <path class="ln draw" d="M64 116V82h40l14 34"/>
+      <path class="ln" d="M70 88h28l9 22H70z"/>
+      <path class="ln draw" d="M138 124 196 66l12 10-52 52"/>
+      <path class="ln draw" d="M196 66l30 18-8 12-24-13"/>
+      <path class="ln draw" d="M222 90c18 6 16 34 4 44l-26-6c10-12 10-24 2-30"/>
+      <circle class="ln" cx="140" cy="124" r="3"/><circle class="ln" cx="202" cy="72" r="3"/><circle class="ln" cx="222" cy="90" r="3"/>
+      <path class="ln" d="M150 112l34-28"/>
+      <!-- оразмерителни линии -->
+      <path class="dim" d="M26 186h134M26 182v8M160 182v8"/>
+      <text x="74" y="184" text-anchor="middle" dy="-3">3 420</text>
+      <path class="dim" d="M244 160V52M240 52h8M240 160h8"/>
+      <text x="238" y="108" text-anchor="end">4 850</text>
+      <path class="thin" d="M140 124l60-40"/>
+    </svg>
+    <h1 id="heroTitle">Пазарът на техника в Европа</h1>
+    <p id="heroSub">Обяви, цени и проекти от 15 сайта — обновява се на всеки 20 минути.</p>
+    <div class="stats">
+      <div class="stat hot"><b id="stNew">0</b><small>нови днес</small></div>
+      <div class="stat"><b id="stWanted">0</b><small>търсят техника</small></div>
+      <div class="stat"><b id="stAll">0</b><small>активни обяви</small></div>
+    </div>
   </div>
 </header>
 
 <main>
-  <!-- Радар -->
+  <!-- ОБЯВИ -->
   <section class="view on" id="v-feed">
-    <div class="install" id="installBar"><img src="icons/icon-192.png" alt=""><div><b>Инсталирай СтройРадар</b>Иконка на телефона и известия</div><button class="btn primary" id="installBtn" style="flex:none">Инсталирай</button></div>
+    <div class="banners" id="banners"></div>
+    <div class="dots" id="bdots"></div>
+    <div class="toolbar" id="toolbar">
+      <button class="dd" data-dd="type"></button>
+      <button class="dd" data-dd="cat"></button>
+      <button class="dd" data-dd="region"></button>
+      <button class="dd" data-dd="sort"></button>
+    </div>
+    <div class="resline"><label><input type="checkbox" id="onlyKw"> Само по моите ключови думи</label><span id="count"></span></div>
     <div class="list" id="feed"></div>
   </section>
 
-  <!-- Търсачка -->
-  <section class="view" id="v-search">
-    <form class="searchbox" id="sForm"><span>🔎</span><input id="sQ" placeholder="Какво търсиш? напр. Hidromek 102B" autocomplete="off" enterkeyhint="search"><button>Търси</button></form>
-    <div class="chips" id="scopeChips"></div>
-    <div id="sResults"></div>
+  <!-- ПАЗАРИ -->
+  <section class="view" id="v-market">
+    <div class="sec"><h2>Европейски пазари</h2><p class="sub">Средни цени на употребявана техника по държави — от текущите обяви.</p></div>
+    <div class="countries" id="countries"></div>
+    <div class="mkgrid" id="mkTiles"></div>
+    <div class="sec"><h2>Цени по категории</h2><p class="sub" id="benchSub">Медиана в евро, без ДДС където е посочено.</p></div>
+    <div class="bench" id="bench"></div>
+    <div class="sec"><h2>Най-търсени марки</h2><p class="sub">Брой обяви за последните 21 дни.</p></div>
+    <div class="bench" id="brands"></div>
+    <p class="note">Цените са ориентировъчни: изчислени са от обявените цени, лв. са превърнати по фиксирания курс 1,95583.</p>
   </section>
 
-  <!-- Любими -->
-  <section class="view" id="v-fav"><div class="list" id="favList"></div></section>
+  <!-- ТЪРСАЧКА -->
+  <section class="view" id="v-search">
+    <form class="searchbox" id="sForm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><input id="sQ" placeholder="Модел, марка или услуга" autocomplete="off" enterkeyhint="search"><button class="btn primary">Търси</button></form>
+    <div class="seg" id="scopeSeg"><button data-scope="all" class="on">Навсякъде</button><button data-scope="bg">България</button><button data-scope="foreign">Европа</button></div>
+    <div id="sResults"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><b>Намери техника в цяла Европа</b>Напиши модел, например „Hidromek 102B“ или „FAE мулчер“.</div></div>
+  </section>
 
-  <!-- Настройки -->
+  <!-- НОВИНИ -->
+  <section class="view" id="v-news">
+    <div class="toolbar" id="newsBar"></div>
+    <div id="newsList"></div>
+  </section>
+
+  <!-- НОУ-ХАУ -->
+  <section class="view" id="v-know">
+    <div class="sec"><h2>Ноу-хау</h2><p class="sub">Практически насоки от бранша — за избор, проверка и поддръжка на техника.</p></div>
+    <div id="knowList"></div>
+    <div class="sec"><h2>Статии от Европа</h2><p class="sub">Последни материали за поддръжка и добри практики.</p></div>
+    <div id="knowNews"></div>
+  </section>
+
+  <!-- ИЗТОЧНИЦИ -->
+  <section class="view" id="v-src">
+    <form class="searchbox" onsubmit="event.preventDefault();renderSources()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><input id="dirQ" placeholder="Модел за търсене във всички източници" enterkeyhint="search"><button class="btn primary">Приложи</button></form>
+    <div id="dirList"></div>
+  </section>
+
+  <!-- ЛЮБИМИ -->
+  <section class="view" id="v-fav"><div class="sec"><h2>Любими</h2><p class="sub">Запазените обяви остават тук, дори да изчезнат от сайта.</p></div><div class="list" id="favList"></div></section>
+
+  <!-- НАСТРОЙКИ -->
   <section class="view" id="v-set">
+    <div class="sec"><h2>Настройки</h2></div>
     <div class="panel">
-      <h3>🔑 Моите ключови думи</h3>
-      <p>Обявите, които съдържат някоя от тези думи, се маркират и за тях получаваш известие.</p>
+      <h3>Моите ключови думи</h3>
+      <p>Обявите с тези думи се маркират и за тях получаваш сигнал.</p>
       <div class="kw" id="kwList"></div>
-      <form class="row" id="kwForm"><input id="kwIn" placeholder="Добави дума, напр. HMK 102B"><button class="btn primary" style="flex:none">Добави</button></form>
+      <form class="row" id="kwForm"><input id="kwIn" placeholder="Например HMK 102B"><button class="btn primary">Добави</button></form>
     </div>
     <div class="panel">
-      <h3>🔔 Известия</h3>
+      <h3>Известия</h3>
       <div class="sw"><span>Известия на телефона</span><button class="btn" id="notifBtn">Разреши</button></div>
       <div class="sw"><span>Само за моите ключови думи</span><input type="checkbox" id="notifKw"></div>
-      <div class="sw"><span>Само „Търсят“ (потенциални клиенти)</span><input type="checkbox" id="notifWanted"></div>
-      <div class="sw"><span>Моментални push известия (ntfy)</span><a class="btn" id="ntfyBtn" target="_blank" rel="noopener">Абонирай</a></div>
-      <p class="st" id="ntfyNote"></p>
+      <div class="sw"><span>Само когато някой търси техника</span><input type="checkbox" id="notifWanted"></div>
+      <div class="sw"><span>Моментални известия (ntfy)</span><a class="btn" id="ntfyBtn" target="_blank" rel="noopener">Абонирай се</a></div>
+      <p class="st" id="ntfyNote" style="margin-top:6px"></p>
     </div>
+    <div class="panel"><h3>Сайтове</h3><div id="srcSet"></div></div>
     <div class="panel">
-      <h3>🌐 Сайтове</h3>
-      <div id="srcSet"></div>
+      <h3>Търсачка на живо</h3>
+      <p>Адрес на услугата за търсене в реално време (по желание).</p>
+      <div class="row"><input id="liveUrl" placeholder="https://…workers.dev"><button class="btn primary" id="liveSave">Запази</button></div>
     </div>
-    <div class="panel">
-      <h3>⚡ Търсачка на живо</h3>
-      <p>Адрес на услугата за търсене във всички сайтове в реално време (по желание).</p>
-      <div class="row"><input id="liveUrl" placeholder="https://stroiradar-search.….workers.dev"><button class="btn primary" id="liveSave" style="flex:none">Запази</button></div>
-    </div>
-    <div class="panel">
-      <div class="sw"><span>Тема</span><span><button class="btn" data-th="light">☀️</button> <button class="btn" data-th="dark">🌙</button> <button class="btn" data-th="">Авто</button></span></div>
-    </div>
+    <div class="panel"><div class="sw"><span>Тема</span><span><button class="btn" data-th="light">Светла</button> <button class="btn" data-th="dark">Тъмна</button> <button class="btn" data-th="">Авто</button></span></div></div>
   </section>
 </main>
 
-<nav>
-  <button class="on" data-v="feed"><span class="ic">📡</span>Радар</button>
-  <button data-v="search"><span class="ic">🔎</span>Търси</button>
-  <button data-v="fav"><span class="ic">★</span>Любими</button>
-  <button data-v="set"><span class="ic">⚙️</span>Настройки</button>
+<!-- Странично меню -->
+<aside class="drawer" id="drawer" aria-label="Меню">
+  <div class="dhead"><img src="icons/icon-192.png" alt=""><b>BuildBench <span>EU</span></b><small>Бенчмарк клубът на строителния бранш</small></div>
+  <div class="dgroup">
+    <button class="ditem" data-go="feed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18"/></svg>Обяви<span class="pill" id="dNew"></span></button>
+    <button class="ditem" data-go="feed" data-type="wanted"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg>Търсят техника</button>
+    <button class="ditem" data-go="market"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Европейски пазари</button>
+    <button class="ditem" data-go="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>Търсачка</button>
+    <button class="ditem" data-go="src"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="1.5"/><circle cx="14" cy="12" r="1.5"/><circle cx="10" cy="18" r="1.5"/></svg>Всички източници</button>
+  </div>
+  <div class="dgroup">
+    <h5>Новини и знание</h5>
+    <button class="ditem" data-go="news" data-ncat="infra"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 18h20M5 18V9l7-5 7 5v9M9 18v-5h6v5"/></svg>Инфраструктурни проекти</button>
+    <button class="ditem" data-go="news" data-ncat="economy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 17 6-6 4 4 8-8M15 7h6v6"/></svg>Икономика</button>
+    <button class="ditem" data-go="news" data-ncat="energy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Енергетика</button>
+    <button class="ditem" data-go="news" data-ncat="industry"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V10l6 3V9l6 3V5l6 3v13z"/></svg>Развитие на бранша</button>
+    <button class="ditem" data-go="know"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 7h6"/></svg>Ноу-хау</button>
+  </div>
+  <div class="dgroup">
+    <button class="ditem" data-go="fav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 2.8 5.6 6.2.9-4.5 4.4 1 6.1L12 17l-5.5 3 1-6.1L3 9.5l6.2-.9z"/></svg>Любими</button>
+    <button class="ditem" data-go="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7 7 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg>Настройки</button>
+  </div>
+  <div class="dfoot" id="dfoot">BuildBench EU · версия 1.1</div>
+</aside>
+
+<div class="sheet-bg" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog"><div class="grab"></div><h4 id="sheetTitle"></h4><div id="sheetBody"></div></div>
+
+<nav class="bottom">
+  <button class="on" data-go="feed"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18"/></svg></span>Обяви</button>
+  <button data-go="market"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>Пазари</button>
+  <button data-go="search"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg></span>Търси</button>
+  <button data-go="news"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h10M7 17h6"/></svg></span>Новини</button>
+  <button data-go="know"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 7h6"/></svg></span>Ноу-хау</button>
 </nav>
 <div class="toast" id="toast"></div>
 <script src="app.js"></script>

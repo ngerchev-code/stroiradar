@@ -1,21 +1,67 @@
 {
-  "name": "СтройРадар — обяви за строителна техника",
-  "short_name": "СтройРадар",
-  "description": "Всички обяви за строителна техника, части и сервиз от България и чужбина — с филтри и известия.",
-  "lang": "bg",
-  "start_url": "./?src=app",
-  "scope": "./",
-  "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#14171c",
-  "theme_color": "#16181d",
-  "categories": ["business", "productivity", "shopping"],
-  "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
-  ],
-  "shortcuts": [
-    { "name": "Търсачка", "url": "./?v=search", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
-  ]
+ "name": "BuildBench EU — бенчмарк клубът на строителния бранш",
+ "short_name": "BuildBench EU",
+ "description": "Обяви за строителна техника от България и Европа, пазарни цени, инфраструктурни проекти, новини и ноу-хау.",
+ "lang": "bg",
+ "start_url": "./?src=app",
+ "scope": "./",
+ "display": "standalone",
+ "orientation": "portrait",
+ "background_color": "#0b1f38",
+ "theme_color": "#0b1f38",
+ "categories": [
+  "business",
+  "productivity",
+  "shopping"
+ ],
+ "icons": [
+  {
+   "src": "icons/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icons/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "icons/maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ],
+ "shortcuts": [
+  {
+   "name": "Търсачка",
+   "url": "./?v=search",
+   "icons": [
+    {
+     "src": "icons/icon-192.png",
+     "sizes": "192x192"
+    }
+   ]
+  },
+  {
+   "name": "Пазари",
+   "url": "./?v=market",
+   "icons": [
+    {
+     "src": "icons/icon-192.png",
+     "sizes": "192x192"
+    }
+   ]
+  },
+  {
+   "name": "Новини",
+   "url": "./?v=news",
+   "icons": [
+    {
+     "src": "icons/icon-192.png",
+     "sizes": "192x192"
+    }
+   ]
+  }
+ ]
 }
