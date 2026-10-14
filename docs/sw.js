@@ -1,6 +1,6 @@
 // ECOBenchmark — service worker: офлайн, известия, проверка във фона
-const V = 'bb-v23';
-const SHELL = ['./', 'index.html', 'app.js', 'manifest.webmanifest', 'icons/icon-192-eb2.png', 'icons/icon-512-eb2.png', 'icons/badge-96-eb2.png'];
+const V = 'bb-v24';
+const SHELL = ['./', 'index.html', 'app.js', 'manifest.webmanifest', 'icons/icon-192-eb3.png', 'icons/icon-512-eb3.png', 'icons/badge-96-eb3.png'];
 
 // Инсталиране: взимаме файловете директно от мрежата (без HTTP кеша), за да не запишем стара версия
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => Promise.all(SHELL.map(u => fetch(u, { cache: 'reload' }).then(r => r.ok && c.put(u, r)).catch(() => {}))))); self.skipWaiting(); });
@@ -29,7 +29,7 @@ async function check() {
   const kw = (p.keywords || []).map(k => k.toLowerCase());
   const ALARM = /hidromek|хидромек|\bhmk ?\d{2,3}/i;
   const alarm = items.filter(it => ALARM.test(it.title + ' ' + (it.desc || '')) && !(p.notified || []).includes(it.id) && new Date(it.firstSeen || it.date).getTime() > p.ack);
-  for (const it of alarm.slice(0, 5)) await self.registration.showNotification('🚨 HIDROMEK — нова обява', { body: `${it.title}${it.price ? '\n' + it.price : ''}`, icon: 'icons/icon-192-eb2.png', badge: 'icons/badge-96-eb2.png', image: it.photo || undefined, tag: 'alarm-' + it.id, requireInteraction: true, renotify: true, vibrate: [300, 120, 300, 120, 500], data: { url: it.url } });
+  for (const it of alarm.slice(0, 5)) await self.registration.showNotification('🚨 HIDROMEK — нова обява', { body: `${it.title}${it.price ? '\n' + it.price : ''}`, icon: 'icons/icon-192-eb3.png', badge: 'icons/badge-96-eb3.png', image: it.photo || undefined, tag: 'alarm-' + it.id, requireInteraction: true, renotify: true, vibrate: [300, 120, 300, 120, 500], data: { url: it.url } });
   p.notified = [...(p.notified || []), ...alarm.map(i => i.id)];
   const fresh = items.filter(it => {
     if (p.disabled?.includes(it.source) || p.notified?.includes(it.id)) return false;
@@ -42,11 +42,11 @@ async function check() {
   if (!fresh.length) return;
   for (const it of fresh.slice(0, 4)) {
     await self.registration.showNotification(it.type === 'wanted' ? 'Търсят техника' : 'Нова обява', {
-      body: `${it.title}${it.price ? '\n💰 ' + it.price : ''}`, icon: 'icons/icon-192-eb2.png', badge: 'icons/badge-96-eb2.png',
+      body: `${it.title}${it.price ? '\n💰 ' + it.price : ''}`, icon: 'icons/icon-192-eb3.png', badge: 'icons/badge-96-eb3.png',
       image: it.photo || undefined, tag: it.id, data: { url: it.url }, vibrate: [200, 100, 200]
     });
   }
-  if (fresh.length > 4) await self.registration.showNotification(`🔔 Още ${fresh.length - 4} нови обяви`, { icon: 'icons/icon-192-eb2.png', tag: 'more', data: { url: './' } });
+  if (fresh.length > 4) await self.registration.showNotification(`🔔 Още ${fresh.length - 4} нови обяви`, { icon: 'icons/icon-192-eb3.png', tag: 'more', data: { url: './' } });
   p.notified = [...(p.notified || []), ...fresh.map(i => i.id)].slice(-800);
   await c.put('prefs', new Response(JSON.stringify(p)));
   try { if (self.navigator.setAppBadge) self.navigator.setAppBadge(fresh.length); } catch {}

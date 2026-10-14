@@ -16,17 +16,17 @@
  ],
  "icons": [
   {
-   "src": "icons/icon-192-eb2.png",
+   "src": "icons/icon-192-eb3.png",
    "sizes": "192x192",
    "type": "image/png"
   },
   {
-   "src": "icons/icon-512-eb2.png",
+   "src": "icons/icon-512-eb3.png",
    "sizes": "512x512",
    "type": "image/png"
   },
   {
-   "src": "icons/maskable-512-eb2.png",
+   "src": "icons/maskable-512-eb3.png",
    "sizes": "512x512",
    "type": "image/png",
    "purpose": "maskable"
@@ -38,7 +38,7 @@
    "url": "./?v=search",
    "icons": [
     {
-     "src": "icons/icon-192-eb2.png",
+     "src": "icons/icon-192-eb3.png",
      "sizes": "192x192"
     }
    ]
@@ -48,7 +48,7 @@
    "url": "./?v=market",
    "icons": [
     {
-     "src": "icons/icon-192-eb2.png",
+     "src": "icons/icon-192-eb3.png",
      "sizes": "192x192"
     }
    ]
@@ -58,7 +58,7 @@
    "url": "./?v=news",
    "icons": [
     {
-     "src": "icons/icon-192-eb2.png",
+     "src": "icons/icon-192-eb3.png",
      "sizes": "192x192"
     }
    ]

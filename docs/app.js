@@ -614,7 +614,7 @@ function checkAlarm() {
   if (!wasOpen) showAlarm();
   if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
     navigator.serviceWorker?.ready.then(reg => fresh.slice(0, 3).forEach(it => reg.showNotification('🚨 HIDROMEK — нова обява', {
-      body: `${it.title}${it.price ? '\n' + it.price : ''}`, icon: 'icons/icon-192-eb2.png', badge: 'icons/badge-96-eb2.png', image: it.photo || undefined,
+      body: `${it.title}${it.price ? '\n' + it.price : ''}`, icon: 'icons/icon-192-eb3.png', badge: 'icons/badge-96-eb3.png', image: it.photo || undefined,
       tag: 'alarm-' + it.id, requireInteraction: true, renotify: true, vibrate: [300, 120, 300, 120, 500], data: { url: it.url } })));
   }
 }
@@ -698,7 +698,7 @@ $('#liveSave').onclick = () => { S.liveUrl = $('#liveUrl').value.trim(); save();
 $('#notifBtn').onclick = async () => {
   if (!('Notification' in window)) return toast('Устройството не поддържа известия тук');
   const p = await Notification.requestPermission();
-  if (p === 'granted') { await registerSW(); (await navigator.serviceWorker.ready).showNotification('ECOBenchmark', { body: 'Известията са включени. Ще те алармираме при нова обява.', icon: 'icons/icon-192-eb2.png' }); }
+  if (p === 'granted') { await registerSW(); (await navigator.serviceWorker.ready).showNotification('ECOBenchmark', { body: 'Известията са включени. Ще те алармираме при нова обява.', icon: 'icons/icon-192-eb3.png' }); }
   renderSettings();
 };
 new IntersectionObserver(([en]) => $('#toolbar').classList.toggle('stuck', !en.isIntersecting), { threshold: 0 }).observe($('#bdots'));
@@ -727,11 +727,11 @@ async function notifyNew() {
   for (const it of fresh.slice(0, 5)) {
     const src = SOURCES[it.source] || {};
     reg?.showNotification(`${it.type === 'wanted' ? 'Търсят техника' : 'Нова обява'} · ${src.name || ''}`, {
-      body: `${it.title}${it.price ? '\n' + it.price : ''}`, icon: 'icons/icon-192-eb2.png', badge: 'icons/badge-96-eb2.png',
+      body: `${it.title}${it.price ? '\n' + it.price : ''}`, icon: 'icons/icon-192-eb3.png', badge: 'icons/badge-96-eb3.png',
       image: it.photo || undefined, tag: it.id, data: { url: it.url }, vibrate: [200, 100, 200]
     });
   }
-  if (fresh.length > 5) reg?.showNotification(`Още ${fresh.length - 5} нови обяви`, { icon: 'icons/icon-192-eb2.png', tag: 'more', data: { url: './' } });
+  if (fresh.length > 5) reg?.showNotification(`Още ${fresh.length - 5} нови обяви`, { icon: 'icons/icon-192-eb3.png', tag: 'more', data: { url: './' } });
 }
 async function syncPrefsToSW() {
   try { const c = await caches.open('sr-prefs'); await c.put('prefs', new Response(JSON.stringify({ keywords: S.keywords, notifKw: S.notifKw, notifWanted: S.notifWanted, disabled: S.disabled, ack: S.ack, notified: S.notified.slice(-800) }))); } catch {}
