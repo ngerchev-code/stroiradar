@@ -134,6 +134,27 @@ const CATS = [
   ['generator',  'Генератори',               /генератор|generator|stromerzeuger|aksa|sdmo/],
   ['compressor', 'Компресори',               /компресор|compressor|kompressor|atmos/]
 ];
+
+// Разрешени марки по категория (останалите категории — всички марки)
+const BR = {
+  hidromek: 'hidromek|хидромек|hmk ?\\d', komatsu: 'komatsu|коматсу|комацу|камацу', jcb: '\\bjcb\\b|джисиби|джей си би', case: '\\bcase\\b|кейс', nh: 'new ?holland|ню ?холанд',
+  cat: 'caterpillar|катерпилар|катерпилър|\\bcat\\b', yanmar: 'yanmar|янмар', gehl: '\\bgehl\\b|гел', manitou: 'manitou|маниту', takeuchi: 'takeuchi|такеучи',
+  volvo: 'volvo|волво', hyundai: 'hyundai|хюндай|хюндаи', ammann: 'ammann|аман', bomag: 'bomag|бомаг'
+};
+const brandRx = keys => new RegExp(keys.map(k => BR[k]).join('|'), 'i');
+const ALLOWED = {
+  backhoe:     brandRx(['hidromek', 'komatsu', 'jcb', 'case', 'nh']),
+  minibackhoe: brandRx(['hidromek', 'komatsu', 'jcb', 'case', 'nh']),
+  mini:        brandRx(['jcb', 'komatsu', 'cat', 'yanmar']),
+  minicl:      brandRx(['gehl', 'komatsu', 'manitou', 'case', 'cat', 'takeuchi']),
+  midi:        brandRx(['hidromek', 'cat', 'jcb', 'komatsu', 'volvo', 'hyundai']),
+  crawler:     brandRx(['hidromek', 'cat', 'jcb', 'komatsu', 'volvo', 'hyundai']),
+  excavator:   brandRx(['hidromek', 'cat', 'jcb', 'komatsu', 'volvo', 'hyundai']),
+  roller:      brandRx(['ammann', 'bomag', 'volvo', 'hidromek'])
+};
+// Търсещите (купувачи) се показват винаги — те са клиенти
+const brandOk = it => it.type === 'wanted' || !ALLOWED[it._cat] || ALLOWED[it._cat].test(txt(it));
+
 // Подреждане: 0 — комбинирани Hidromek/Komatsu/JCB, 1 — друга земекопна и товарачна техника, 2 — валяци, 3 — останалото
 const TOP_BRANDS = /hidromek|хидромек|komatsu|коматсу|камацу|\bjcb\b|джисиби/i;
 function rank(it) {
@@ -266,7 +287,7 @@ const kwMatch = it => { const t = txt(it); return S.keywords.some(k => t.include
 const when = it => new Date(it.firstSeen || it.date).getTime();
 const isNew = it => when(it) > S.ack;
 const wantsNotify = it => (!S.notifKw || kwMatch(it)) && (!S.notifWanted || it.type === 'wanted');
-const live = () => S.items.filter(i => !S.disabled.includes(i.source) && !i._boat);
+const live = () => S.items.filter(i => !S.disabled.includes(i.source) && !i._boat && brandOk(i));
 function ago(d) {
   const m = Math.round((Date.now() - new Date(d)) / 6e4);
   if (m < 1) return 'току-що'; if (m < 60) return `преди ${m} мин`;
