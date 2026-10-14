@@ -117,6 +117,7 @@ export async function enrich(item) {
     const html = await getText(item.url, 12000);
     item.title = meta(html, 'og:title') || item.title || decode(/<title>([\s\S]*?)<\/title>/i.exec(html)?.[1]);
     item.photo = meta(html, 'og:image') || item.photo;
+    if (item.photo?.startsWith('//')) item.photo = 'https:' + item.photo;
     item.desc = (meta(html, 'og:description') || meta(html, 'description')).slice(0, 400);
     const amt = meta(html, 'product:price:amount') || meta(html, 'og:price:amount');
     const cur = meta(html, 'product:price:currency') || meta(html, 'og:price:currency');

@@ -72,6 +72,13 @@ for (let i = 0; i < fresh.length; i += 6) {
   }));
 }
 
+// Само обяви с истинска снимка (по-малко данни, по-бързо приложение)
+const BAD_PHOTO = /noimage|no-image|no_photo|nophoto|placeholder|default[-_]?(img|image)|logo|blank\.(gif|png)|spacer|data:image|1x1/i;
+const okPhoto = it => !!it.photo && /^https?:\/\//.test(it.photo) && !BAD_PHOTO.test(it.photo);
+for (const m of [found, known]) for (const it of m.values()) if (it.photo?.startsWith('//')) it.photo = 'https:' + it.photo;
+for (const [id, it] of found) if (!okPhoto(it) && !known.get(id)?.photo) found.delete(id);
+for (const [id, it] of known) if (!okPhoto(it)) known.delete(id);
+
 // Сливане и почистване на стари
 const cutoff = Date.now() - config.maxAgeDays * 864e5;
 const merged = new Map(known);

@@ -155,6 +155,19 @@ const ALLOWED = {
 // Търсещите (купувачи) се показват винаги — те са клиенти
 const brandOk = it => it.type === 'wanted' || !ALLOWED[it._cat] || ALLOWED[it._cat].test(txt(it));
 
+
+// ---------- Критерии за качество ----------
+// Показват се само обяви с истинска снимка; повторенията между сайтовете се махат.
+const BAD_PHOTO = /noimage|no-image|no_photo|nophoto|placeholder|default[-_]?(img|image)|logo|blank\.(gif|png)|spacer|data:image|1x1/i;
+const hasPhoto = it => !!it.photo && /^https?:\/\//.test(it.photo) && !BAD_PHOTO.test(it.photo);
+function dedupe(list) {
+  const seen = new Set();
+  return list.filter(it => {
+    const k = norm(it.title).replace(/[^a-zа-я0-9]+/gi, ' ').trim().slice(0, 60) + '|' + (it._eur || it.price || '');
+    if (seen.has(k)) return false; seen.add(k); return true;
+  });
+}
+
 // Подреждане: 0 — комбинирани Hidromek/Komatsu/JCB, 1 — друга земекопна и товарачна техника, 2 — валяци, 3 — останалото
 const TOP_BRANDS = /hidromek|хидромек|komatsu|коматсу|камацу|\bjcb\b|джисиби/i;
 function rank(it) {
@@ -254,6 +267,7 @@ function cleanTitle(it) {
 }
 const WANT_X = /(^|[\s\/,.;:(!-])(търся|търсим|търси се|купувам|изкупувам|купуваме|wanted|suche|kaufe|ankauf|kupię|kupie|cumpăr|cumpar|compro|cerco|achète|busco)([\s\/,.;:)!-]|$)/i;
 function prep(it) {
+  if (it.photo && it.photo.startsWith('//')) it.photo = 'https:' + it.photo;
   cleanTitle(it);
   if (WANT_X.test(it.title)) it.type = 'wanted';
   const t = txt(it);
@@ -287,7 +301,8 @@ const kwMatch = it => { const t = txt(it); return S.keywords.some(k => t.include
 const when = it => new Date(it.firstSeen || it.date).getTime();
 const isNew = it => when(it) > S.ack;
 const wantsNotify = it => (!S.notifKw || kwMatch(it)) && (!S.notifWanted || it.type === 'wanted');
-const live = () => S.items.filter(i => !S.disabled.includes(i.source) && !i._boat && brandOk(i));
+let _live = null, _liveKey = '';
+const live = () => { const k = S.items.length + '|' + S.disabled.join(','); if (_live && k === _liveKey) return _live; _liveKey = k; return (_live = dedupe(S.items.filter(i => !S.disabled.includes(i.source) && !i._boat && brandOk(i) && hasPhoto(i)))); };
 function ago(d) {
   const m = Math.round((Date.now() - new Date(d)) / 6e4);
   if (m < 1) return 'току-що'; if (m < 60) return `преди ${m} мин`;
@@ -304,7 +319,7 @@ function card(it) {
   const c = COUNTRIES[it._cc];
   const eur = it._eur != null && !/€|eur/i.test(it.price || '') ? `<small>≈ ${fmtEur(it._eur)}</small>` : '';
   return `<article class="card ${isNew(it) ? 'fresh' : ''}">
-    <a class="thumb ${it.photo ? '' : 'none'}" href="${esc(it.url)}" target="_blank" rel="noopener" ${it.photo ? `style="background-image:url('${esc(it.photo)}')"` : ''}>${it.photo ? '' : ICON_MACHINE}<span class="flag t-${esc(it.type || 'sale')}">${TBADGE[it.type] || 'ПРОДАВА'}</span></a>
+    <a class="thumb" href="${esc(it.url)}" target="_blank" rel="noopener"><img src="${esc(it.photo)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.closest('.card').remove()"><span class="flag t-${esc(it.type || 'sale')}">${TBADGE[it.type] || 'ПРОДАВА'}</span></a>
     <div class="cbody">
       <a class="ctitle" href="${esc(it.url)}" target="_blank" rel="noopener">${esc(it.title)}</a>
       ${it.price ? `<div class="cprice">${esc(it.price)}${eur}</div>` : ''}
@@ -557,7 +572,7 @@ function showCard(x) {
 }
 function renderShow() {
   const srank = x => x.kind === 'insight' ? 9 : (['backhoe', 'minibackhoe'].includes(x.category) && TOP_BRANDS.test(x.title) ? 0 : PRIORITY.includes(x.category) ? 1 : x.category === 'roller' ? 2 : 3);
-  const list = (S.show || []).filter(x => S.sk === 'all' || x.kind === S.sk || (S.sk === 'member' && x.kind === 'wanted')).sort((a, b) => srank(a) - srank(b));
+  const list = (S.show || []).filter(x => x.kind === 'insight' || x.kind === 'member' || x.kind === 'wanted' || hasPhoto(x)).filter(x => S.sk === 'all' || x.kind === S.sk || (S.sk === 'member' && x.kind === 'wanted')).sort((a, b) => srank(a) - srank(b));
   $('#showUpd').textContent = S.showUpdated ? `Последен преглед: ${ago(S.showUpdated)}.` : '';
   $('#showList').innerHTML = list.length ? list.map(showCard).join('')
     : `<div class="empty">${ICON_MACHINE}<b>${S.sk === 'member' ? 'Още няма машини от членове' : 'Шоурумът се подготвя'}</b>${S.sk === 'member' ? 'Добави първата — Claude ще я прегледа и публикува.' : 'Claude преглежда новите обяви на няколко часа.'}</div>`;
