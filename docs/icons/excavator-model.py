@@ -2,12 +2,16 @@ import math, sys
 YAW=math.radians(float(sys.argv[1]) if len(sys.argv)>1 else 35)
 PITCH=math.radians(float(sys.argv[2]) if len(sys.argv)>2 else 22)
 S=34.0
+DIST=float(sys.argv[3]) if len(sys.argv)>3 else 0  # 0 = без перспектива
+CX,CZ=2.0,1.8   # център на сцената (м)
 def P(x,y,z):
+    x-=CX; z-=CZ
     X= x*math.cos(YAW) - y*math.sin(YAW)
     D= x*math.sin(YAW) + y*math.cos(YAW)
-    sx= X
-    sy= -(z*math.cos(PITCH) + D*math.sin(PITCH))
-    return (sx*S, sy*S)
+    Zs= z*math.cos(PITCH) + D*math.sin(PITCH)
+    depth= D*math.cos(PITCH) - z*math.sin(PITCH)
+    k= DIST/(DIST+depth) if DIST else 1.0
+    return (X*k*S, -Zs*k*S)
 paths=[]   # (cls, list of 3d points, closed)
 def poly(pts,closed=False,cls='ln'): paths.append((cls,pts,closed))
 def extrude(profile, y0, y1, cls='ln', connect=True, every=1):
@@ -78,11 +82,28 @@ extrude(prof,-0.28,0.28,every=1)
 ac=[(4.75,4.35),(5.05,3.55),(5.45,2.2),(5.7,1.25)]
 prof,n=offset_beam(ac,0,[0.2,0.24,0.2,0.16],[0.2,0.24,0.2,0.16])
 extrude(prof,-0.22,0.22)
-# --- кофа ---
-bk=[(5.55,1.45),(6.25,1.35),(6.6,0.95),(6.55,0.45),(6.05,0.3),(5.75,0.62),(5.6,1.0)]
-extrude(bk,-0.58,0.58)
-for yy in (-0.45,-0.22,0.0,0.22,0.45):
-    poly([(6.05,yy-0.07,0.3),(5.92,yy,0.08),(6.05,yy+0.07,0.3)],False)
+# --- кофа (извита, с отворена уста и зъби) ---
+import math as _m
+back=[]
+for i in range(9):            # извит гръб: от горния шарнир до режещия ръб
+    t=i/8; ang=_m.radians(100-t*170)
+    back.append((6.05+0.72*_m.cos(ang)*(0.9+0.1*t), 0.92+0.62*_m.sin(ang)))
+lip=back[-1]
+mouth=[(lip[0]-0.38,lip[1]+0.08),(5.62,0.82),(5.55,1.32)]
+bk=back+mouth
+for yy in (-0.56,0.56):
+    poly([(x,yy,z) for x,z in bk],True)
+for i,(x,z) in enumerate(back):
+    if i%2==0 or i==len(back)-1: poly([(x,-0.56,z),(x,0.56,z)],False,'ln' if i in (0,len(back)-1) else 'fine')
+poly([(5.55,-0.56,1.32),(5.55,0.56,1.32)],False)
+# режещ ръб и зъби
+for k in range(5):
+    yy=-0.44+0.22*k
+    tx,tz=lip
+    poly([(tx,yy-0.07,tz),(tx-0.05,yy,tz-0.32),(tx,yy+0.07,tz)],True)
+# ушите на кофата (шарнир)
+for yy in (-0.2,0.2):
+    poly([(5.55,yy,1.32),(5.7,yy,1.55),(5.92,yy,1.5),(5.95,yy,1.25)],False)
 # --- хидравлични цилиндри ---
 def cyl(a,b,r=0.11,cls='ln'):
     (x0,z0),(x1,z1)=a,b
