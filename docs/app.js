@@ -4,7 +4,7 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const BGN = 1.95583;
-const KEY_MARKETS = ['BG', 'TR', 'RO', 'RS', 'IT', 'FR', 'ES', 'DE'];
+const KEY_MARKETS = ['BG', 'TR', 'RO', 'RS', 'PL', 'IT', 'FR', 'ES', 'DE'];
 
 // ---------- Справочници ----------
 const SOURCES = {
@@ -19,7 +19,9 @@ const SOURCES = {
   truckscout24:  { name: 'TruckScout24',  flag: '🇩🇪', cc: 'DE', foreign: true, link: q => `https://www.truckscout24.de/baumaschinen?query=${encodeURIComponent(q)}` },
   machinio:      { name: 'Machinio',      flag: '🇪🇺', foreign: true, link: q => `https://www.machinio.com/search?q=${encodeURIComponent(q)}` },
   olxro:         { name: 'OLX.ro',        flag: '🇷🇴', cc: 'RO', foreign: true, link: q => `https://www.olx.ro/oferte/q-${encodeURIComponent(loc(q, 'ro').trim().replace(/\s+/g, '-'))}/` },
-  olxpl:         { name: 'OLX.pl',        flag: '🇵🇱', cc: 'PL', foreign: true, link: q => `https://www.olx.pl/oferty/q-${encodeURIComponent(q.trim().replace(/\s+/g, '-'))}/` },
+  olxpl:         { name: 'OLX.pl',        flag: '🇵🇱', cc: 'PL', foreign: true, link: q => `https://www.olx.pl/oferty/q-${encodeURIComponent(loc(q, 'pl').trim().replace(/\s+/g, '-'))}/` },
+  otomoto:       { name: 'Otomoto',       flag: '🇵🇱', cc: 'PL', foreign: true, link: q => `https://www.otomoto.pl/maszyny-budowlane/q-${encodeURIComponent(loc(q, 'pl').trim().replace(/\s+/g, '-'))}` },
+  allegro:       { name: 'Allegro',       flag: '🇵🇱', cc: 'PL', foreign: true, link: q => `https://allegro.pl/listing?string=${encodeURIComponent(loc(q, 'pl'))}` },
   machineseeker: { name: 'Machineseeker', flag: '🇪🇺', foreign: true, link: q => `https://www.machineseeker.com/mss/${encodeURIComponent(slug(q))}` },
   machinerytrader:{ name: 'MachineryTrader.eu', flag: '🇪🇺', foreign: true, link: q => `https://www.machinerytrader.eu/listings/for-sale/${encodeURIComponent(slug(q))}/machines` },
   kleinanzeigen: { name: 'Kleinanzeigen', flag: '🇩🇪', cc: 'DE', foreign: true, link: q => `https://www.kleinanzeigen.de/s-${encodeURIComponent(slug(loc(q, 'de')))}/k0` },
@@ -33,21 +35,21 @@ const SOURCES = {
 };
 const AUTO = ["mobilebg", "bazar", "machineseeker", "kleinanzeigen"];
 const LOCAL = [
-  ['мини комбиниран багер', { tr: 'mini beko loder', ro: 'mini buldoexcavator', sr: 'mini kombinirka', it: 'mini terna', fr: 'mini tractopelle', es: 'mini retrocargadora', de: 'Minibaggerlader' }],
-  ['комбиниран багер',      { tr: 'beko loder', ro: 'buldoexcavator', sr: 'kombinirka', it: 'terna', fr: 'tractopelle', es: 'retrocargadora', de: 'Baggerlader' }],
-  ['багер товарач',         { tr: 'beko loder', ro: 'buldoexcavator', sr: 'kombinirka', it: 'terna', fr: 'tractopelle', es: 'retrocargadora', de: 'Baggerlader' }],
-  ['мини челен товарач',    { tr: 'mini yükleyici', ro: 'miniincarcator', sr: 'mini utovarivač', it: 'minipala', fr: 'mini chargeuse', es: 'minicargadora', de: 'Kompaktlader' }],
-  ['челен товарач',         { tr: 'lastikli yükleyici', ro: 'incarcator frontal', sr: 'utovarivač', it: 'pala gommata', fr: 'chargeuse sur pneus', es: 'pala cargadora', de: 'Radlader' }],
-  ['телескопичен товарач',  { tr: 'manitou', ro: 'manitou', sr: 'manitou', it: 'manitou', fr: 'manitou', es: 'manitou', de: 'Manitou' }],
-  ['мини багер',            { tr: 'mini ekskavatör', ro: 'miniexcavator', sr: 'mini bager', it: 'miniescavatore', fr: 'mini pelle', es: 'miniexcavadora', de: 'Minibagger' }],
-  ['миди багер',            { tr: 'midi ekskavatör', ro: 'midiexcavator', sr: 'midi bager', it: 'midiescavatore', fr: 'pelle midi', es: 'midiexcavadora', de: 'Midibagger' }],
-  ['верижен багер',         { tr: 'paletli ekskavatör', ro: 'excavator senile', sr: 'bager guseničar', it: 'escavatore cingolato', fr: 'pelle sur chenilles', es: 'excavadora de cadenas', de: 'Kettenbagger' }],
-  ['колесен багер',         { tr: 'lastikli ekskavatör', ro: 'excavator pe roti', sr: 'bager točkaš', it: 'escavatore gommato', fr: 'pelle sur pneus', es: 'excavadora de ruedas', de: 'Mobilbagger' }],
-  ['булдозер',              { tr: 'dozer', ro: 'buldozer', sr: 'buldožer', it: 'apripista', fr: 'bouteur', es: 'bulldozer', de: 'Planierraupe' }],
-  ['валяк',                 { tr: 'silindir', ro: 'cilindru compactor', sr: 'valjak', it: 'rullo compattatore', fr: 'rouleau compacteur', es: 'rodillo compactador', de: 'Walze' }],
-  ['самосвал',              { tr: 'damperli kamyon', ro: 'basculanta', sr: 'kiper', it: 'ribaltabile', fr: 'benne', es: 'volquete', de: 'Kipper' }],
-  ['вишка',                 { tr: 'sepetli platform', ro: 'nacela', sr: 'korpa platforma', it: 'piattaforma aerea', fr: 'nacelle', es: 'plataforma elevadora', de: 'Arbeitsbühne' }],
-  ['багер',                 { tr: 'ekskavatör', ro: 'excavator', sr: 'bager', it: 'escavatore', fr: 'pelle', es: 'excavadora', de: 'Bagger' }]
+  ['мини комбиниран багер', { tr: 'mini beko loder', ro: 'mini buldoexcavator', sr: 'mini kombinirka', it: 'mini terna', fr: 'mini tractopelle', es: 'mini retrocargadora', pl: 'mini koparko-ładowarka', de: 'Minibaggerlader' }],
+  ['комбиниран багер',      { tr: 'beko loder', ro: 'buldoexcavator', sr: 'kombinirka', it: 'terna', fr: 'tractopelle', es: 'retrocargadora', pl: 'koparko-ładowarka', de: 'Baggerlader' }],
+  ['багер товарач',         { tr: 'beko loder', ro: 'buldoexcavator', sr: 'kombinirka', it: 'terna', fr: 'tractopelle', es: 'retrocargadora', pl: 'koparko-ładowarka', de: 'Baggerlader' }],
+  ['мини челен товарач',    { tr: 'mini yükleyici', ro: 'miniincarcator', sr: 'mini utovarivač', it: 'minipala', fr: 'mini chargeuse', es: 'minicargadora', pl: 'miniładowarka', de: 'Kompaktlader' }],
+  ['челен товарач',         { tr: 'lastikli yükleyici', ro: 'incarcator frontal', sr: 'utovarivač', it: 'pala gommata', fr: 'chargeuse sur pneus', es: 'pala cargadora', pl: 'ładowarka kołowa', de: 'Radlader' }],
+  ['телескопичен товарач',  { tr: 'manitou', ro: 'manitou', sr: 'manitou', it: 'manitou', fr: 'manitou', es: 'manitou', pl: 'manitou', de: 'Manitou' }],
+  ['мини багер',            { tr: 'mini ekskavatör', ro: 'miniexcavator', sr: 'mini bager', it: 'miniescavatore', fr: 'mini pelle', es: 'miniexcavadora', pl: 'minikoparka', de: 'Minibagger' }],
+  ['миди багер',            { tr: 'midi ekskavatör', ro: 'midiexcavator', sr: 'midi bager', it: 'midiescavatore', fr: 'pelle midi', es: 'midiexcavadora', pl: 'midikoparka', de: 'Midibagger' }],
+  ['верижен багер',         { tr: 'paletli ekskavatör', ro: 'excavator senile', sr: 'bager guseničar', it: 'escavatore cingolato', fr: 'pelle sur chenilles', es: 'excavadora de cadenas', pl: 'koparka gąsienicowa', de: 'Kettenbagger' }],
+  ['колесен багер',         { tr: 'lastikli ekskavatör', ro: 'excavator pe roti', sr: 'bager točkaš', it: 'escavatore gommato', fr: 'pelle sur pneus', es: 'excavadora de ruedas', pl: 'koparka kołowa', de: 'Mobilbagger' }],
+  ['булдозер',              { tr: 'dozer', ro: 'buldozer', sr: 'buldožer', it: 'apripista', fr: 'bouteur', es: 'bulldozer', pl: 'spycharka', de: 'Planierraupe' }],
+  ['валяк',                 { tr: 'silindir', ro: 'cilindru compactor', sr: 'valjak', it: 'rullo compattatore', fr: 'rouleau compacteur', es: 'rodillo compactador', pl: 'walec drogowy', de: 'Walze' }],
+  ['самосвал',              { tr: 'damperli kamyon', ro: 'basculanta', sr: 'kiper', it: 'ribaltabile', fr: 'benne', es: 'volquete', pl: 'wywrotka', de: 'Kipper' }],
+  ['вишка',                 { tr: 'sepetli platform', ro: 'nacela', sr: 'korpa platforma', it: 'piattaforma aerea', fr: 'nacelle', es: 'plataforma elevadora', pl: 'podnośnik koszowy', de: 'Arbeitsbühne' }],
+  ['багер',                 { tr: 'ekskavatör', ro: 'excavator', sr: 'bager', it: 'escavatore', fr: 'pelle', es: 'excavadora', pl: 'koparka', de: 'Bagger' }]
 ];
 function loc(q, lang) {
   if (!lang) return q;
@@ -97,7 +99,7 @@ const COUNTRIES = {
   BG: ['🇧🇬', 'България', /българия|bulgaria|bulgarien/], TR: ['🇹🇷', 'Турция', /turkey|türkiye|turkiye|турция|türkei/],
   RS: ['🇷🇸', 'Сърбия', /serbia|srbija|сърбия|србија|serbien/], DE: ['🇩🇪', 'Германия', /germany|deutschland|германия/],
   IT: ['🇮🇹', 'Италия', /italy|italia|италия/], FR: ['🇫🇷', 'Франция', /france|франция/], NL: ['🇳🇱', 'Нидерландия', /netherlands|nederland|холандия|нидерландия/],
-  BE: ['🇧🇪', 'Белгия', /belgium|belgique|belgië|белгия/], AT: ['🇦🇹', 'Австрия', /austria|österreich|австрия/], PL: ['🇵🇱', 'Полша', /poland|polska|полша/],
+  BE: ['🇧🇪', 'Белгия', /belgium|belgique|belgië|белгия/], AT: ['🇦🇹', 'Австрия', /austria|österreich|австрия/], PL: ['🇵🇱', 'Полша', /poland|polska|polen|полша|\.pl\b/],
   RO: ['🇷🇴', 'Румъния', /romania|românia|румъния/], CZ: ['🇨🇿', 'Чехия', /czech|česk|чехия/], ES: ['🇪🇸', 'Испания', /spain|españa|испания/],
   DK: ['🇩🇰', 'Дания', /denmark|danmark|дания/], SE: ['🇸🇪', 'Швеция', /sweden|sverige|швеция/], FI: ['🇫🇮', 'Финландия', /finland|suomi|финландия/],
   GR: ['🇬🇷', 'Гърция', /greece|ελλάδα|гърция/], HU: ['🇭🇺', 'Унгария', /hungary|magyar|унгария/], SK: ['🇸🇰', 'Словакия', /slovakia|slovensk|словакия/],
