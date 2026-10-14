@@ -245,11 +245,11 @@ const S = {
   ack: store.get('ack', Date.now() - 864e5),
   notifKw: store.get('notifKw', true), notifWanted: store.get('notifWanted', false), notified: store.get('notified', []),
   liveUrl: store.get('liveUrl', ''), scope: 'all', theme: store.get('theme', ''),
-  custom: store.get('custom', []), alarmOn: store.get('alarmOn', true), alarmed: store.get('alarmed', []), show: [], showUpdated: null, sk: 'all',
+  custom: store.get('custom', []), voiceOn: store.get('voiceOn', true), alarmOn: store.get('alarmOn', true), alarmed: store.get('alarmed', []), show: [], showUpdated: null, sk: 'all',
   items: [], news: [], ncat: 'all', mkCountry: 'all', updated: null, newOnly: false, view: 'feed'
 };
 function save() {
-  ['keywords', 'favs', 'disabled', 'onlyKw', 'ack', 'notifKw', 'notifWanted', 'liveUrl', 'theme', 'custom', 'alarmOn'].forEach(k => store.set(k, S[k]));
+  ['keywords', 'favs', 'disabled', 'onlyKw', 'ack', 'notifKw', 'notifWanted', 'liveUrl', 'theme', 'custom', 'alarmOn', 'voiceOn'].forEach(k => store.set(k, S[k]));
   store.set('notified', S.notified.slice(-800));
   syncPrefsToSW();
 }
@@ -268,6 +268,10 @@ function cleanTitle(it) {
 const WANT_X = /(^|[\s\/,.;:(!-])(търся|търсим|търси се|купувам|изкупувам|купуваме|wanted|suche|kaufe|ankauf|kupię|kupie|cumpăr|cumpar|compro|cerco|achète|busco)([\s\/,.;:)!-]|$)/i;
 function prep(it) {
   if (it.photo && it.photo.startsWith('//')) it.photo = 'https:' + it.photo;
+  // Bazar.bg/Mobile.bg: цената от описанието („Цена ✅ 29 500 €“) е най-надеждна
+  const pd = /Цена[^0-9]{0,6}(\d{1,3}(?:[ .\u00a0]\d{3})*(?:[.,]\d{1,2})?)\s*(€|EUR|лв\.?|BGN)/i.exec(it.desc || '');
+  if (pd) it.price = pd[1] + ' ' + pd[2];
+  else if (/^\d\s\d{2}\s\d{3}\b/.test(it.price || '')) it.price = it.price.replace(/^\d\s/, '');
   cleanTitle(it);
   if (WANT_X.test(it.title)) it.type = 'wanted';
   const t = txt(it);
@@ -294,7 +298,8 @@ function priceEur(p) {
   else if (/\$|usd/.test(s)) n *= 0.92;
   else if (/(^|\s|\d)(tl|try|₺)/.test(s)) { if (!S.rates?.TRY) return null; n /= S.rates.TRY; }
   else if (!/€|eur|евро/.test(s)) return null;
-  return Math.round(n);
+  n = Math.round(n);
+  return n >= 300 && n <= 1500000 ? n : null;   // нереалистични цени (телефони, номера на модели) се игнорират
 }
 const fmtEur = n => n == null ? '—' : '€ ' + Math.round(n).toLocaleString('bg-BG').replace(/,/g, ' ');
 const kwMatch = it => { const t = txt(it); return S.keywords.some(k => t.includes(norm(k))); };
@@ -322,7 +327,7 @@ function card(it) {
     <a class="thumb" href="${esc(it.url)}" target="_blank" rel="noopener"><img src="${esc(it.photo)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.closest('.card').remove()"><span class="flag t-${esc(it.type || 'sale')}">${TBADGE[it.type] || 'ПРОДАВА'}</span></a>
     <div class="cbody">
       <a class="ctitle" href="${esc(it.url)}" target="_blank" rel="noopener">${esc(it.title)}</a>
-      ${it.price ? `<div class="cprice">${esc(it.price)}${eur}</div>` : ''}
+      ${it._eur ? `<div class="cprice">${esc(it.price)}${eur}</div>` : (it.type === 'sale' ? '<div class="cprice" style="font-size:14px;color:var(--muted)">Цена при запитване</div>' : '')}
       <div class="cmeta">${isNew(it) ? '<span class="new">НОВО</span>' : ''}<span>${c ? c[0] : src.flag} ${esc(it.location || (c ? c[1] : 'Европа'))}</span><span>${ago(it.firstSeen || it.date)}</span></div>
       <div class="cfoot"><a class="open" href="${esc(it.url)}" target="_blank" rel="noopener">${esc(src.name)} ›</a><button class="star ${fav ? 'on' : ''}" data-fav="${esc(it.id)}" aria-label="Запази">${ICON_STAR}</button></div>
     </div></article>`;
@@ -540,6 +545,7 @@ function renderFavs() {
 function renderSettings() {
   $('#kwList').innerHTML = S.keywords.map((k, i) => `<span class="kwc">${esc(k)}<button data-kwdel="${i}" aria-label="Премахни">✕</button></span>`).join('') || '<span class="st">Няма добавени думи.</span>';
   $('#alarmOn').checked = S.alarmOn;
+  $('#voiceOn').checked = S.voiceOn;
   $('#notifKw').checked = S.notifKw; $('#notifWanted').checked = S.notifWanted; $('#onlyKw').checked = S.onlyKw; $('#liveUrl').value = S.liveUrl;
   const perm = 'Notification' in window ? Notification.permission : 'unsupported';
   $('#notifBtn').textContent = perm === 'granted' ? 'Включени' : perm === 'denied' ? 'Блокирани' : 'Разреши';
@@ -624,20 +630,67 @@ function siren() {
   try { navigator.vibrate?.([300, 120, 300, 120, 500]); } catch {}
 }
 let alarmQueue = [];
+// Кратко заглавие „Марка Модел“ — четимо с един поглед
+const FILLER = /\b(продавам|продава|спешно|нов внос|внос|като нов|sahibinden|galeriden|satılık|satilik|acil|temiz|makine|model|verkaufe|zu verkaufen|top zustand|in \S+ - .*$)\b/gi;
+function shortTitle(it) {
+  let t = (it.title || '').replace(/İ/g, 'I').replace(/ı/g, 'i').replace(/\s*[·|].*$/, '').replace(FILLER, ' ').replace(/\b4x4\b/gi, ' ').replace(/[!*/]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const isH = /hidromek|хидромек|\bhmk\b/i.test(t);
+  const brand = isH ? 'Hidromek' : (it._brand || '');
+  const rest = brand ? t.replace(new RegExp(brand + '|хидромек', 'ig'), ' ') : t;
+  let model = ((rest.match(/\b(hmk ?\d{2,3}\s?[a-z]{0,3}|[a-z]{1,3} ?\d{1,3}[a-z]{0,3}|[1-4] ?cx|\d{2,3}\s?[a-z]{0,3})\b/i) || [])[0] || '').toUpperCase().replace(/\s+/g, ' ');
+  if (/^(19|20)\d\d$/.test(model)) model = '';
+  if (isH && /^\d/.test(model)) model = 'HMK ' + model;
+  let out = brand ? (brand + ' ' + model).trim() : t.split(' ').slice(0, 5).join(' ');
+  return out.length > 34 ? out.slice(0, 33) + '…' : out;
+}
+const CAT_SHORT = { backhoe: 'Комбиниран багер', minibackhoe: 'Мини комбиниран', mini: 'Мини багер', midi: 'Миди багер', crawler: 'Верижен багер', excavator: 'Багер', loader: 'Челен товарач', minicl: 'Мини челен товарач', roller: 'Валяк', telehandler: 'Телескопичен товарач', dozer: 'Булдозер' };
+function speak(text) {
+  if (!S.voiceOn || !('speechSynthesis' in window)) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    const v = speechSynthesis.getVoices().find(v => /^bg/i.test(v.lang));
+    if (v) u.voice = v; u.lang = 'bg-BG'; u.rate = 1.0;
+    speechSynthesis.speak(u);
+  } catch {}
+}
+const eurWords = n => n >= 1000 ? `${Math.round(n / 1000)} хиляди евро` : `${n} евро`;
+let alarmTimer = null;
 function showAlarm() {
+  clearTimeout(alarmTimer);
   const it = alarmQueue.shift();
   if (!it) { $('#alarmBg').classList.remove('on'); return; }
   const src = SOURCES[it.source] || { name: it.source, flag: '' };
+  const c = COUNTRIES[it._cc];
   const left = alarmQueue.length;
-  $('#alarmBox').innerHTML = `<div class="alarm-top"><span class="siren">🚨</span><span id="alarmTitle">HIDROMEK — ${TBADGE[it.type] || 'НОВА ОБЯВА'}</span><small>${left ? `още ${left}` : ''}</small></div>
-    <div class="alarm-img" ${it.photo ? `style="background-image:url('${esc(it.photo)}')"` : ''}>${it.photo ? '' : ICON_MACHINE}</div>
-    <div class="alarm-body"><h3>${esc(it.title)}</h3>${it.price ? `<div class="cprice">${esc(it.price)}</div>` : ''}
-      <div class="cmeta"><span>${src.flag} ${esc(src.name)}</span>${it.location ? `<span>📍 ${esc(it.location)}</span>` : ''}<span>${ago(it.firstSeen || it.date)}</span></div>
-      <div class="alarm-act"><a class="btn primary" href="${esc(it.url)}" target="_blank" rel="noopener" id="alarmOpen">Отвори обявата</a><button class="btn" id="alarmNext">${left ? 'Следваща' : 'Затвори'}</button></div></div>`;
+  const city = (it.location || (c ? c[1] : '')).replace(/^(гр\.|с\.)\s*/i, '').split(',')[0];
+  const title = shortTitle(it);
+  const price = it._eur ? fmtEur(it._eur) : (it.price || 'Цена при запитване');
+  const kind = it.type === 'wanted' ? 'ТЪРСИ' : it.type === 'rent' ? 'ПОД НАЕМ' : 'ПРОДАВА';
+  $('#alarmBox').innerHTML = `
+    <div class="al-head"><span class="al-dot"></span><b>НОВА ОБЯВА</b><span class="al-kind">${kind}</span>${left ? `<span class="al-more">+${left}</span>` : ''}<button class="al-x" id="alarmClose" aria-label="Затвори">✕</button></div>
+    ${it.photo ? `<div class="al-img"><img src="${esc(it.photo)}" alt="" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></div>` : ''}
+    <div class="al-body">
+      <div class="al-cat">${esc(CAT_SHORT[it._cat] || 'Техника')}</div>
+      <h3 id="alarmTitle">${esc(title)}</h3>
+      <div class="al-price">${esc(price)}</div>
+      <div class="al-meta"><span>${c ? c[0] : src.flag} ${esc(city)}</span><span>${esc(src.name)}</span><span>${ago(it.firstSeen || it.date)}</span></div>
+    </div>
+    <div class="al-act">
+      <a class="al-btn go" href="${esc(it.url)}" target="_blank" rel="noopener" id="alarmOpen">Отвори</a>
+      <button class="al-btn save" id="alarmSave" aria-label="Запази">★</button>
+      ${left ? `<button class="al-btn next" id="alarmNext">Следваща</button>` : ''}
+    </div>
+    <div class="al-timer"><i></i></div>`;
   $('#alarmBg').classList.add('on');
-  $('#alarmNext').onclick = showAlarm;
+  const close = () => { alarmQueue = []; showAlarm(); };
+  $('#alarmClose').onclick = close;
+  if ($('#alarmNext')) $('#alarmNext').onclick = showAlarm;
   $('#alarmOpen').onclick = () => setTimeout(showAlarm, 300);
+  $('#alarmSave').onclick = () => { const { _cat, _cc, _eur, _brand, _rank, ...raw } = it; S.favs[it.id] = { ...raw, savedAt: Date.now() }; save(); toast('★ Запазена в любими'); showAlarm(); };
+  alarmTimer = setTimeout(showAlarm, 40000);
   siren();
+  setTimeout(() => speak(`Нова обява. ${title}. ${it._eur ? eurWords(it._eur) : ''}. ${city}.`), 1700);
 }
 function checkAlarm() {
   if (!S.alarmOn || !S.items.length) return;
@@ -653,8 +706,8 @@ function checkAlarm() {
   alarmQueue.push(...fresh);
   if (!wasOpen) showAlarm();
   if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
-    navigator.serviceWorker?.ready.then(reg => fresh.slice(0, 3).forEach(it => reg.showNotification('🚨 HIDROMEK — нова обява', {
-      body: `${it.title}${it.price ? '\n' + it.price : ''}`, icon: 'icons/icon-192-eb3.png', badge: 'icons/badge-96-eb3.png', image: it.photo || undefined,
+    navigator.serviceWorker?.ready.then(reg => fresh.slice(0, 3).forEach(it => reg.showNotification(`🟢 ${shortTitle(it)}${it._eur ? ' · ' + fmtEur(it._eur) : ''}`, {
+      body: `${(it.location || '').split(',')[0]} · ${(SOURCES[it.source] || {}).name || ''}`, icon: 'icons/icon-192-eb3.png', badge: 'icons/badge-96-eb3.png', image: it.photo || undefined,
       tag: 'alarm-' + it.id, requireInteraction: true, renotify: true, vibrate: [300, 120, 300, 120, 500], data: { url: it.url } })));
   }
 }
@@ -728,6 +781,7 @@ $('#bell').onclick = () => {
 $('#count').onclick = () => { if (S.newOnly) { S.newOnly = false; S.ack = Date.now(); save(); renderFeed(); } };
 $('#onlyKw').onchange = e => { S.onlyKw = e.target.checked; save(); renderFeed(); };
 $('#alarmOn').onchange = e => { S.alarmOn = e.target.checked; save(); };
+$('#voiceOn').onchange = e => { S.voiceOn = e.target.checked; save(); };
 $('#alarmTest').onclick = () => { const it = live().find(i => ALARM_RX.test(i.title)) || { id: 'test', title: 'Hidromek HMK 102B Alpha — пробна аларма', price: '€45 000', source: 'bazar', type: 'sale', url: '#', date: new Date().toISOString() }; alarmQueue.push(it); showAlarm(); };
 $('#notifKw').onchange = e => { S.notifKw = e.target.checked; save(); renderStats(); };
 $('#notifWanted').onchange = e => { S.notifWanted = e.target.checked; save(); renderStats(); };

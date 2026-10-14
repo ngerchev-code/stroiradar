@@ -1,5 +1,5 @@
 // ECOBenchmark — service worker: офлайн, известия, проверка във фона
-const V = 'bb-v29';
+const V = 'bb-v31';
 const SHELL = ['./', 'index.html', 'app.js', 'manifest.webmanifest', 'icons/icon-192-eb3.png', 'icons/icon-512-eb3.png', 'icons/badge-96-eb3.png'];
 
 // Инсталиране: взимаме файловете директно от мрежата (без HTTP кеша), за да не запишем стара версия
@@ -29,7 +29,7 @@ async function check() {
   const kw = (p.keywords || []).map(k => k.toLowerCase());
   const ALARM = /hidromek|хидромек|\bhmk ?\d{2,3}/i;
   const alarm = items.filter(it => ALARM.test(it.title + ' ' + (it.desc || '')) && !(p.notified || []).includes(it.id) && new Date(it.firstSeen || it.date).getTime() > p.ack);
-  for (const it of alarm.slice(0, 5)) await self.registration.showNotification('🚨 HIDROMEK — нова обява', { body: `${it.title}${it.price ? '\n' + it.price : ''}`, icon: 'icons/icon-192-eb3.png', badge: 'icons/badge-96-eb3.png', image: it.photo || undefined, tag: 'alarm-' + it.id, requireInteraction: true, renotify: true, vibrate: [300, 120, 300, 120, 500], data: { url: it.url } });
+  for (const it of alarm.slice(0, 5)) await self.registration.showNotification(`🟢 Hidromek · ${it.price || 'нова обява'}`, { body: `${(it.location || '').split(',')[0] || 'Нова обява'}`, icon: 'icons/icon-192-eb3.png', badge: 'icons/badge-96-eb3.png', image: it.photo || undefined, tag: 'alarm-' + it.id, requireInteraction: true, renotify: true, vibrate: [300, 120, 300, 120, 500], data: { url: it.url } });
   p.notified = [...(p.notified || []), ...alarm.map(i => i.id)];
   const fresh = items.filter(it => {
     if (p.disabled?.includes(it.source) || p.notified?.includes(it.id)) return false;

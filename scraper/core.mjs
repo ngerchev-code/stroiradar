@@ -9,7 +9,7 @@ const SERVICE = /(услуги с|услуги|изкопни услуги|къ�
 const RENT = /(под наем|наем|наемане|rent|miete|vermiet)/i;
 
 export function priceFromDesc(desc) {
-  const m = /Цена[^0-9]{0,6}(\d[\d\s.,]*)\s*(€|EUR|лв\.?|BGN)/i.exec(desc || '');
+  const m = /Цена[^0-9]{0,6}(\d{1,3}(?:[ .\u00a0]\d{3})*(?:[.,]\d{1,2})?)\s*(€|EUR|лв\.?|BGN)/i.exec(desc || '');
   return m ? `${m[1].trim()} ${m[2]}` : '';
 }
 export function classify(text, title) {

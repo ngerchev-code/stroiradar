@@ -14,6 +14,7 @@ try { old = JSON.parse(await readFile(new URL('listings.json', ROOT), 'utf8')).i
 const EXCLX = t => new RegExp(config.excludePattern || '^$', 'i').test(t) || (new RegExp(config.telehandlerPattern || '^$', 'i').test(t) && !/manitou/i.test(t));
 old = old.filter(i => RELEVANT.test(i.title + ' ' + (i.desc || '') + ' ' + i.url) && !EXCLX(i.title + ' ' + i.url) && !NOISE.test(i.title));
 for (const i of old) { i.type = classify(i.title + ' ' + (i.desc || ''), i.title); const pd = priceFromDesc(i.desc); if (pd) i.price = pd; }
+for (const i of old) if (/^\d\s\d{2}\s\d{3}\b/.test(i.price || '')) i.price = i.price.replace(/^\d\s/, '');
 const known = new Map(old.map(i => [i.id, i]));
 const firstRun = old.length === 0;
 
