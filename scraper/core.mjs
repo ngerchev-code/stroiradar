@@ -4,7 +4,7 @@
 const UA = 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Mobile Safari/537.36';
 
 // ---------- Класификация ----------
-const WANT = /(^|\s)(търся|търсим|търси се|купувам|изкупувам|купуваме|нужен|нужна|наемам|wanted|suche|kaufe|ankauf|kupię|kupie|cumpăr|cumpar)(\s|$)/i;
+const WANT = /(^|[\s\/,.;:(!-])(търся|търсим|търси се|купувам|изкупувам|купуваме|нужен|нужна|наемам|wanted|suche|kaufe|ankauf|kupię|kupie|cumpăr|cumpar|compro|cerco|achète|busco)([\s\/,.;:)!-]|$)/i;
 const SERVICE = /(услуги с|услуги|изкопни услуги|кърти, чисти|ремонт|сервиз|сервизн|диагностик|резервн\w* част|части за|хидравли\w* ремонт|сварки|заварки|сервисни услуги|repair|service|ersatzteil|spare part)/i;
 const RENT = /(под наем|наем|наемане|rent|miete|vermiet)/i;
 

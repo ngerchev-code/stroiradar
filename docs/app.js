@@ -228,8 +228,10 @@ function cleanTitle(it) {
   it.title = t.replace(/\s*\|\s*(Bazar\.bg|kleinanzeigen(\.de)?|Mobile\.bg)\s*$/i, '').trim();
   it._clean = true;
 }
+const WANT_X = /(^|[\s\/,.;:(!-])(търся|търсим|търси се|купувам|изкупувам|купуваме|wanted|suche|kaufe|ankauf|kupię|kupie|cumpăr|cumpar|compro|cerco|achète|busco)([\s\/,.;:)!-]|$)/i;
 function prep(it) {
   cleanTitle(it);
+  if (WANT_X.test(it.title)) it.type = 'wanted';
   const t = txt(it);
   it._cat = (CATS.find(c => c[2].test(t)) || ['other'])[0];
   it._boat = BOATS.test(t) || PARTS_X.test(t) || (TELE_X.test(t) && !/manitou/.test(t));

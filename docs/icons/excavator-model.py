@@ -6,7 +6,7 @@ def P(x,y,z):
     X= x*math.cos(YAW) - y*math.sin(YAW)
     D= x*math.sin(YAW) + y*math.cos(YAW)
     sx= X
-    sy= -(z*math.cos(PITCH) - D*math.sin(PITCH))
+    sy= -(z*math.cos(PITCH) + D*math.sin(PITCH))
     return (sx*S, sy*S)
 paths=[]   # (cls, list of 3d points, closed)
 def poly(pts,closed=False,cls='ln'): paths.append((cls,pts,closed))
