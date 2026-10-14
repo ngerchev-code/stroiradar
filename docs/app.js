@@ -710,10 +710,11 @@ new IntersectionObserver(([en]) => $('#toolbar').classList.toggle('stuck', !en.i
 // ---------- Данни ----------
 async function load(silent) {
   try {
-    const [r1, r2, r3] = await Promise.allSettled([fetch('data/listings.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/news.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/showroom.json?t=' + Date.now(), { cache: 'no-store' })]);
+    const [r1, r2, r3, r4] = await Promise.allSettled([fetch('data/listings.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/news.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/showroom.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/turkey.json?t=' + Date.now(), { cache: 'no-store' })]);
     if (r3.status === 'fulfilled' && r3.value.ok) { const j = await r3.value.json(); S.show = j.items || []; S.showUpdated = j.updated; }
     if (r1.status === 'fulfilled' && r1.value.ok) { const j = await r1.value.json(); S.rates = j.rates || {}; S.items = (j.items || []).map(prep); S.updated = j.updated; }
     if (r2.status === 'fulfilled' && r2.value.ok) { const j = await r2.value.json(); S.news = j.items || []; }
+    if (r4.status === 'fulfilled' && r4.value.ok) { try { const j = await r4.value.json(); const have = new Set(S.items.map(i => i.id)); S.items.push(...(j.items || []).filter(i => !have.has(i.id)).map(prep)); } catch {} }
   } catch {}
   renderBanners(); renderFeed();
   if (S.view !== 'feed' && !silent) show(S.view);
