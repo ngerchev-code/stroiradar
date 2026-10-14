@@ -1,5 +1,5 @@
 // ECOBenchmark — service worker: офлайн, известия, проверка във фона
-const V = 'bb-v25';
+const V = 'bb-v26';
 const SHELL = ['./', 'index.html', 'app.js', 'manifest.webmanifest', 'icons/icon-192-eb3.png', 'icons/icon-512-eb3.png', 'icons/badge-96-eb3.png'];
 
 // Инсталиране: взимаме файловете директно от мрежата (без HTTP кеша), за да не запишем стара версия

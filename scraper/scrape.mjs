@@ -21,6 +21,10 @@ const EXCL0 = new RegExp(config.excludePattern || '^$', 'i');
 const TELE = new RegExp(config.telehandlerPattern || '^$', 'i');
 // Изключени: лодки, части и консумативи, телескопични товарачи извън Manitou
 const EXCL = { test: t => EXCL0.test(t) || (TELE.test(t) && !/manitou/i.test(t)) };
+let rates = { TRY: 0 };
+try { const r = await fetch('https://api.frankfurter.app/latest?from=EUR&to=TRY'); const j = await r.json(); if (j.rates?.TRY) rates.TRY = j.rates.TRY; } catch {}
+try { if (!rates.TRY) { const r = await fetch('https://open.er-api.com/v6/latest/EUR'); const j = await r.json(); if (j.rates?.TRY) rates.TRY = j.rates.TRY; } } catch {}
+console.log('Курс EUR/TRY:', rates.TRY);
 const found = new Map();
 // Диагностика: записва първата страница от всеки сайт
 if (process.env.DEBUG_HTML) {
@@ -39,7 +43,7 @@ async function runSource(key, src, terms) {
       const q = queue.shift();
       try {
         const items = await searchSource(key, src, q, { enrichDetails: false });
-        for (const it of items) { it.matched = q; if (!RELEVANT.test(it.title + ' ' + (it.desc || '') + ' ' + it.url) || EXCL.test(it.title + ' ' + it.url) || NOISE.test(it.title)) continue; if (!found.has(it.id)) found.set(it.id, it); }
+        for (const it of items) { it.matched = q; if (!RELEVANT.test(it.title + ' ' + (it.desc || '') + ' ' + it.url + ' ' + (it.hint || '')) || EXCL.test(it.title + ' ' + it.url) || NOISE.test(it.title)) continue; if (!found.has(it.id)) found.set(it.id, it); }
         ok++;
       } catch (e) { err++; last = e.message; }
       await sleep(700);
@@ -81,7 +85,7 @@ const items = [...merged.values()]
   .slice(0, config.maxListings);
 
 await mkdir(ROOT, { recursive: true });
-await writeFile(new URL('listings.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), items }));
+await writeFile(new URL('listings.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), rates, items }));
 try { console.log('Шоурум — нови заявки:', await collectInbox(config.inboxTopic)); } catch (e) { console.log('Шоурум:', e.message); }
 try { const news = await collectNews(); if (news.length) await writeFile(new URL('news.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), items: news })); console.log('Новини:', news.length); } catch (e) { console.log('Новини:', e.message); }
 await writeFile(new URL('status.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), status }, null, 1));

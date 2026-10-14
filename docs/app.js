@@ -25,6 +25,7 @@ const SOURCES = {
   machineseeker: { name: 'Machineseeker', flag: '🇪🇺', foreign: true, link: q => `https://www.machineseeker.com/mss/${encodeURIComponent(slug(q))}` },
   machinerytrader:{ name: 'MachineryTrader.eu', flag: '🇪🇺', foreign: true, link: q => `https://www.machinerytrader.eu/listings/for-sale/${encodeURIComponent(slug(q))}/machines` },
   kleinanzeigen: { name: 'Kleinanzeigen', flag: '🇩🇪', cc: 'DE', foreign: true, link: q => `https://www.kleinanzeigen.de/s-${encodeURIComponent(slug(loc(q, 'de')))}/k0` },
+  arabam:        { name: 'arabam.com',    flag: '🇹🇷', cc: 'TR', foreign: true, link: q => `https://www.arabam.com/ikinci-el/tarim-is-makineleri/is-makineleri?searchText=${encodeURIComponent(loc(q, 'tr'))}` },
   sahibinden:    { name: 'Sahibinden',    flag: '🇹🇷', cc: 'TR', foreign: true, link: q => `https://www.sahibinden.com/is-makineleri?query_text=${encodeURIComponent(loc(q, 'tr'))}` },
   autovit:       { name: 'Autovit.ro',    flag: '🇷🇴', cc: 'RO', foreign: true, link: q => `https://www.google.com/search?q=${encodeURIComponent('site:autovit.ro ' + loc(q, 'ro'))}` },
   kupujemprodajem:{ name: 'KupujemProdajem', flag: '🇷🇸', cc: 'RS', foreign: true, link: q => `https://www.kupujemprodajem.com/pretraga?keywords=${encodeURIComponent(loc(q, 'sr'))}` },
@@ -33,7 +34,7 @@ const SOURCES = {
   leboncoin:     { name: 'Leboncoin',     flag: '🇫🇷', cc: 'FR', foreign: true, link: q => `https://www.leboncoin.fr/recherche?text=${encodeURIComponent(loc(q, 'fr'))}` },
   milanuncios:   { name: 'Milanuncios',   flag: '🇪🇸', cc: 'ES', foreign: true, link: q => `https://www.milanuncios.com/anuncios/?s=${encodeURIComponent(loc(q, 'es'))}` }
 };
-const AUTO = ["mobilebg", "bazar", "machineseeker", "kleinanzeigen"];
+const AUTO = ['arabam', "mobilebg", "bazar", "machineseeker", "kleinanzeigen"];
 const LOCAL = [
   ['мини комбиниран багер', { tr: 'mini beko loder', ro: 'mini buldoexcavator', sr: 'mini kombinirka', it: 'mini terna', fr: 'mini tractopelle', es: 'mini retrocargadora', pl: 'mini koparko-ładowarka', de: 'Minibaggerlader' }],
   ['комбиниран багер',      { tr: 'beko loder', ro: 'buldoexcavator', sr: 'kombinirka', it: 'terna', fr: 'tractopelle', es: 'retrocargadora', pl: 'koparko-ładowarka', de: 'Baggerlader' }],
@@ -108,15 +109,15 @@ const COUNTRIES = {
 };
 const CATS = [
   ['minibackhoe','Мини комбинирани багери',  /мини комбиниран|мини багер[ -]?товарач|hmk ?62|\b1 ?cx\b|mini backhoe|minibaggerlader/],
-  ['backhoe',    'Комбинирани багери',       /багер[ -]?товарач|комбиниран багер|backhoe|baggerlader|buldoexcavator|koparko[- ]?ładowark|hmk ?\d{2,3} ?b|\b[34] ?cx\b/],
+  ['backhoe',    'Комбинирани багери',       /багер[ -]?товарач|комбиниран багер|backhoe|baggerlader|buldoexcavator|koparko[- ]?ładowark|beko ?loder|kaz[ıi]c[ıi] y[üu]kleyici|hmk ?\d{2,3} ?b|\b[34] ?cx\b/],
   ['telehandler','Телескопични товарачи Manitou', /manitou/],
   ['minicl',     'Мини челни товарачи',      /мини челен|бобкат|skid ?steer|kompaktlader|minilader|компактен товарач|\bbobcat\b|bobcat s\d/],
   ['midi',       'Миди багери',              /миди багер|midibagger|midi excavator|midi-bagger/],
   ['mini',       'Мини багери',              /мини багер|minibagger|mini excavator|kompaktbagger|minikoparka|mini ?excavator/],
   ['crawler',    'Верижни багери',           /верижен багер|верижни багер|kettenbagger|crawler excavator|koparka gąsienicowa/],
   ['dozer',      'Булдозери',                /булдозер|bulldozer|\bdozer|planierraupe|spycharka/],
-  ['excavator',  'Колесни и други багери',   /багер|excavator|bagger|koparka|escavatore/],
-  ['loader',     'Челни товарачи',           /челен товарач|колесен товарач|товарач|wheel loader|radlader|ładowarka|incarcator|chargeuse/],
+  ['excavator',  'Колесни и други багери',   /багер|excavator|bagger|koparka|escavatore|ekskavat[öo]r/],
+  ['loader',     'Челни товарачи',           /челен товарач|колесен товарач|товарач|wheel loader|radlader|ładowarka|incarcator|chargeuse|loder y[üu]kleyici|loder/],
   ['tipper',     'Самосвали (с кран, тристранни)', /самосвал|тристран|кран[- ]?манипулатор|kipper|dreiseiten|tipper|dump truck|wywrotka/],
   ['garbage',    'Сметосъбиращи камиони',    /сметосъбира|боклукчийск|müllwagen|garbage truck|refuse (truck|collector)|śmieciarka/],
   ['aerial',     'Вишки',                    /вишка|автовишка|arbeitsbühne|hubarbeitsbühne|aerial|boom lift|scissor lift|podnośnik/],
@@ -125,7 +126,7 @@ const CATS = [
   ['attach',     'Прикачен инвентар',        /кофа|бързосменник|инвентар|свредел|bucket|quick ?coupler|attachment|tiltrotator|грайфер|schnellwechsler|löffel/],
   ['breaker',    'Хидравлични чукове',       /хидравличен чук|къртач|\bчук\b|breaker|hydraulikhammer|imeks|hycon/],
   ['mulcher',    'Мулчери',                  /мулчер|mulcher|forstmulcher|\bfae\b/],
-  ['roller',     'Валяци',                   /валяк|roller|walze|rullo|compactor|walec/],
+  ['roller',     'Валяци',                   /валяк|roller|walze|rullo|compactor|walec|silindir/],
   ['compaction', 'Виброплочи и трамбовки',   /виброплоча|трамбовк|пачекрак|plate compactor|rüttelplatte|rammer|stampfer/],
   ['paver',      'Асфалтова техника',        /асфалт|paver|fertiger|фреза|milling/],
   ['crusher',    'Трошачки и сита',          /трошачк|сито|crusher|screen|brecher|siebanlage|komplet/],
@@ -136,7 +137,7 @@ const CATS = [
 // Подреждане: 0 — комбинирани Hidromek/Komatsu/JCB, 1 — друга земекопна и товарачна техника, 2 — валяци, 3 — останалото
 const TOP_BRANDS = /hidromek|хидромек|komatsu|коматсу|камацу|\bjcb\b|джисиби/i;
 function rank(it) {
-  if ((it._cat === 'backhoe' || it._cat === 'minibackhoe') && TOP_BRANDS.test(it.title + ' ' + (it.desc || ''))) return 0;
+  if ((it._cat === 'backhoe' || it._cat === 'minibackhoe') && TOP_BRANDS.test(txt(it))) return 0;
   if (PRIORITY.includes(it._cat)) return 1;
   if (it._cat === 'roller') return 2;
   return 3;
@@ -221,7 +222,7 @@ function save() {
 
 // ---------- Обработка на обява ----------
 const norm = s => (s || '').toLowerCase();
-const txt = it => norm(it.title + ' ' + (it.desc || '') + ' ' + (it.location || ''));
+const txt = it => norm(it.title + ' ' + (it.desc || '') + ' ' + (it.location || '') + ' ' + (it.hint || '') + ' ' + (it.source === 'arabam' ? decodeURIComponent(it.url || '').replace(/[-/]/g, ' ') : ''));
 function cleanTitle(it) {
   if (it._clean) return;
   let t = it.title || '';
@@ -256,6 +257,7 @@ function priceEur(p) {
   if (!isFinite(n) || n <= 0) return null;
   if (/лв|bgn/.test(s)) n /= BGN;
   else if (/\$|usd/.test(s)) n *= 0.92;
+  else if (/(^|\s|\d)(tl|try|₺)/.test(s)) { if (!S.rates?.TRY) return null; n /= S.rates.TRY; }
   else if (!/€|eur|евро/.test(s)) return null;
   return Math.round(n);
 }
@@ -710,7 +712,7 @@ async function load(silent) {
   try {
     const [r1, r2, r3] = await Promise.allSettled([fetch('data/listings.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/news.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/showroom.json?t=' + Date.now(), { cache: 'no-store' })]);
     if (r3.status === 'fulfilled' && r3.value.ok) { const j = await r3.value.json(); S.show = j.items || []; S.showUpdated = j.updated; }
-    if (r1.status === 'fulfilled' && r1.value.ok) { const j = await r1.value.json(); S.items = (j.items || []).map(prep); S.updated = j.updated; }
+    if (r1.status === 'fulfilled' && r1.value.ok) { const j = await r1.value.json(); S.rates = j.rates || {}; S.items = (j.items || []).map(prep); S.updated = j.updated; }
     if (r2.status === 'fulfilled' && r2.value.ok) { const j = await r2.value.json(); S.news = j.items || []; }
   } catch {}
   renderBanners(); renderFeed();

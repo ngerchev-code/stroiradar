@@ -218,6 +218,26 @@
    "foreign": true,
    "search": "https://www.kleinanzeigen.de/s-{slug}/k0",
    "linkPattern": "/s-anzeige/"
+  },
+  "arabam": {
+   "name": "arabam.com",
+   "flag": "🇹🇷",
+   "cc": "TR",
+   "enabled": true,
+   "foreign": true,
+   "pages": [
+    "https://www.arabam.com/ikinci-el/tarim-is-makineleri/is-makineleri/beko-loder-kazici-yukleyici/hidromek",
+    "https://www.arabam.com/ikinci-el/tarim-is-makineleri/is-makineleri/ekskavator/hidromek",
+    "https://www.arabam.com/ikinci-el/tarim-is-makineleri/is-makineleri/loder-yukleyici/hidromek",
+    "https://www.arabam.com/ikinci-el/tarim-is-makineleri/is-makineleri/silindir/hidromek",
+    "https://www.arabam.com/ikinci-el/tarim-is-makineleri/is-makineleri/greyder/hidromek",
+    "https://www.arabam.com/ikinci-el/tarim-is-makineleri/is-makineleri/beko-loder-kazici-yukleyici",
+    "https://www.arabam.com/ikinci-el/tarim-is-makineleri/is-makineleri/ekskavator",
+    "https://www.arabam.com/ikinci-el/tarim-is-makineleri/is-makineleri/loder-yukleyici",
+    "https://www.arabam.com/ikinci-el/tarim-is-makineleri/is-makineleri/dozer",
+    "https://www.arabam.com/ikinci-el/tarim-is-makineleri/is-makineleri/silindir"
+   ],
+   "linkPattern": "/ilan/[^\"'\\s]+/\\d{6,}"
   }
  },
  "olxForeignTerms": [

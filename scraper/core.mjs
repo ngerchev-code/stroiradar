@@ -144,7 +144,8 @@ async function searchHtml(key, src, q, { enrichDetails = true } = {}) {
     try {
       const html = await getText(u);
       if (globalThis.__debugDump) globalThis.__debugDump(key, u, html);
-      items.push(...extractLinks(html, u, src.linkPattern));
+      const hint = src.pages ? decodeURIComponent(new URL(u).pathname.split('/').filter(Boolean).slice(-2).join(' ')).replace(/-/g, ' ') : '';
+      items.push(...extractLinks(html, u, src.linkPattern).map(i => ({ ...i, hint })));
     } catch (e) { fails++; lastErr = e.message; }
   }
   if (urls.length && fails === urls.length) throw new Error(lastErr || 'няма отговор');
@@ -159,7 +160,7 @@ async function searchHtml(key, src, q, { enrichDetails = true } = {}) {
   }
   return items.filter(i => i.title).map(i => ({
     id: key + '-' + hash(i.url), source: key, url: i.url, title: i.title, price: i.price || '',
-    location: '', photo: i.photo || '', desc: i.desc || '', date: new Date().toISOString()
+    location: '', photo: i.photo || '', desc: i.desc || '', hint: i.hint || '', date: new Date().toISOString()
   }));
 }
 
