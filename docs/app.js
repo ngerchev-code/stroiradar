@@ -621,7 +621,7 @@ function checkAlarm() {
 
 // ---------- Навигация ----------
 const HERO = {
-  feed:   ['Пазарът на техника в Европа', 'Обяви, цени и проекти от България и Европа — обновява се на всеки 20 минути.'],
+  feed:   ['Пазарът на техника в Европа', 'Не продаваме техника.\nНамираме решения за вас.'],
   market: ['Европейски пазари', 'Сравни цените на техниката в България и Европа.'],
   search: ['Търсачка', 'Намери конкретна машина във всички сайтове наведнъж.'],
   news:   ['Новини от бранша', 'Инфраструктура, икономика, енергетика и техника.'],
@@ -636,7 +636,7 @@ function show(v) {
   $$('.view').forEach(x => x.classList.toggle('on', x.id === 'v-' + v));
   $$('nav.bottom button').forEach(b => b.classList.toggle('on', b.dataset.go === v));
   $$('.ditem').forEach(b => b.classList.toggle('on', b.dataset.go === v && !b.dataset.type && !b.dataset.ncat));
-  $('#heroTitle').textContent = HERO[v][0]; $('#heroSub').textContent = HERO[v][1];
+  $('#heroTitle').textContent = HERO[v][0]; $('#heroSub').innerHTML = esc(HERO[v][1]).replace(/\n/g, '<br>');
   $('.stats').style.display = v === 'feed' ? '' : 'none';
   if (v === 'market') renderMarket();
   if (v === 'news') renderNews();
