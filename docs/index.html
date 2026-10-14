@@ -358,6 +358,21 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
 .brand .tag{display:none}
 .hv-a .appbar{align-items:center}
 
+
+/* ---------- Шапка (колонтитул) с надпис ---------- */
+.hv-b .appbar{background:
+    radial-gradient(60% 120% at 50% 0%,rgba(47,210,122,.10),transparent 60%),
+    radial-gradient(40% 90% at 70% 10%,rgba(245,180,0,.08),transparent 60%),
+    linear-gradient(180deg,#10284a 0%,#0c213d 100%);
+  border-radius:0 0 22px 22px;box-shadow:0 10px 24px -14px rgba(0,0,0,.75),inset 0 -1px 0 rgba(255,255,255,.06);
+  padding-bottom:16px;align-items:center}
+.hv-b .brand img{display:none}
+.hv-b .brand{padding-top:10px;gap:5px}
+.hv-b .brand b{font-size:clamp(22px,7vw,30px);letter-spacing:.2px}
+.hv-b .brand .tag{font-size:11px;letter-spacing:1.4px;text-transform:none;color:#9fb7d6}
+.hv-b #menuBtn,.hv-b .appbar>.ib[data-go=search],.hv-b #bell{align-self:center}
+.hv-b .hero{padding-top:14px}
+
 /* Начален екран */
 .splash{position:fixed;inset:0;z-index:100;background:var(--navy);display:grid;place-items:center;transition:opacity .4s;
   background-image:linear-gradient(rgba(127,168,216,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(127,168,216,.12) 1px,transparent 1px);background-size:14px 14px}
