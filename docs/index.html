@@ -42,7 +42,16 @@ a{color:inherit;text-decoration:none}
     linear-gradient(90deg,rgba(127,168,216,.22) 1px,transparent 1px);
   background-size:12px 12px,12px 12px,60px 60px,60px 60px;
   background-position:-1px -1px}
-.appbar{position:relative;z-index:3;display:flex;align-items:center;gap:6px;padding:calc(8px + env(safe-area-inset-top)) 8px 4px}
+.appbar{position:relative;z-index:3;display:flex;align-items:center;gap:6px;padding:calc(8px + env(safe-area-inset-top)) 8px 8px;
+  /* метална табела: тъмна стомана, фино шлифоване, светъл горен ръб */
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.022) 0 1px,transparent 1px 3px),
+    linear-gradient(180deg,#2c3b52 0%,#1b293e 48%,#132036 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 -1px 0 rgba(0,0,0,.35),0 8px 18px -10px rgba(0,0,0,.7)}
+.appbar::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;
+  background:linear-gradient(90deg,var(--eco) 0%,var(--eco) 18%,var(--signal) 46%,var(--signal) 100%);opacity:.9}
+.brand img{box-shadow:0 0 0 1px rgba(255,255,255,.22),0 0 0 3px rgba(9,18,32,.9),0 0 0 4px rgba(255,255,255,.10),0 4px 10px rgba(0,0,0,.45)}
+.brand b{text-shadow:0 1px 0 rgba(0,0,0,.45)}
 .ib{width:44px;height:44px;border:0;border-radius:50%;background:transparent;color:inherit;display:grid;place-items:center;cursor:pointer;position:relative}
 .ib:active{background:rgba(255,255,255,.12)}
 .ib svg{width:24px;height:24px}
@@ -58,10 +67,10 @@ a{color:inherit;text-decoration:none}
 .bell.on svg{animation:ring 1.4s ease-in-out infinite;transform-origin:50% 10%}
 @keyframes ring{0%,55%,100%{transform:rotate(0)}8%{transform:rotate(18deg)}16%{transform:rotate(-15deg)}24%{transform:rotate(10deg)}32%{transform:rotate(-6deg)}}
 
-.hero{position:relative;padding:4px 18px 16px;min-height:178px}
+.hero{position:relative;padding:14px 18px 16px;min-height:178px}
 .hero h1{position:relative;font-family:var(--display);font-weight:700;font-size:30px;line-height:1.02;margin:6px 0 6px;max-width:11ch;letter-spacing:-.2px}
 .hero p{position:relative;margin:0;color:#c9d8ec;font-size:13.5px;max-width:30ch}
-.drawing{position:absolute;right:-6px;top:-8px;width:187px;height:200px;pointer-events:none;opacity:.85}
+.drawing{position:absolute;right:-6px;top:2px;width:187px;height:200px;pointer-events:none;opacity:.85}
 @media(min-width:520px){.drawing{width:262px;height:280px;opacity:.95}}
 .drawing .ln3{fill:none;stroke:#5cc8ff;stroke-width:1.1;stroke-linejoin:round;stroke-linecap:round}
 .drawing .fn3{fill:none;stroke:#5cc8ff;stroke-width:.6;opacity:.75}
