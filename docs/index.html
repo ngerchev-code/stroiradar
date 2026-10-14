@@ -334,6 +334,30 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
 .alarm-act .btn{flex:1;text-align:center}
 @media (prefers-reduced-motion:reduce){.alarm,.alarm-top .siren{animation:none}}
 
+
+/* ---------- Варианти на заглавната лента ---------- */
+/* А: голямо лого, без лента */
+.hv-a .appbar{background:none;box-shadow:none;padding-top:calc(12px + env(safe-area-inset-top));padding-bottom:4px;align-items:flex-start}
+.hv-a .appbar::after{display:none}
+.hv-a .brand{display:grid;grid-template-columns:auto 1fr;column-gap:11px;align-items:center;min-width:0}
+.hv-a .brand img{width:54px;height:54px;border-radius:15px;grid-row:span 2}
+.hv-a .brand b{font-size:22px;line-height:1;display:block;align-self:end}
+.hv-a .brand .tag{display:block;font:600 10.5px var(--body);letter-spacing:.3px;color:#a9bfdc;margin-top:4px;align-self:start;white-space:nowrap}
+.hv-a .hero{padding-top:6px}
+/* Б: емблема в центъра */
+.hv-b .appbar{background:none;box-shadow:none;display:grid;grid-template-columns:44px 1fr 44px 44px;padding-bottom:0}
+.hv-b .appbar::after{display:none}
+.hv-b .brand{grid-column:2;flex-direction:column;gap:6px;justify-content:center;padding-top:6px}
+.hv-b .brand img{width:64px;height:64px;border-radius:18px}
+.hv-b .brand b{font-size:27px;line-height:1}
+.hv-b .brand .tag{display:block;font:600 11px var(--body);letter-spacing:.6px;color:#a9bfdc;text-align:center}
+.hv-b #menuBtn{grid-column:1;grid-row:1;align-self:start}
+.hv-b .appbar>.ib[data-go=search]{grid-column:3;grid-row:1;align-self:start}
+.hv-b #bell{grid-column:4;grid-row:1;align-self:start}
+.hv-b .hero{padding-top:6px}
+.brand .tag{display:none}
+.hv-a .appbar{align-items:center}
+
 /* Начален екран */
 .splash{position:fixed;inset:0;z-index:100;background:var(--navy);display:grid;place-items:center;transition:opacity .4s;
   background-image:linear-gradient(rgba(127,168,216,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(127,168,216,.12) 1px,transparent 1px);background-size:14px 14px}
@@ -345,7 +369,7 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
 .splash small{color:#a9bfdc}
 </style>
 </head>
-<body>
+<body class="hv-b">
 
 <div class="splash" id="splash"><div><img src="icons/icon-512-eb2.png" alt=""><b><i class="eco">EC<span class="o">O<svg class="leaf" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 17 C3 8 9 3 18 3 C18 12 12 17 3 17 Z" fill="currentColor"/><path d="M4 16 L13 7" stroke="var(--navy)" stroke-width="1.6" stroke-linecap="round"/></svg></span></i><span>Benchmark</span></b><small>Euro Construction Benchmark</small></div></div>
 
@@ -353,7 +377,7 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
 <header class="blueprint" id="top">
   <div class="appbar">
     <button class="ib" id="menuBtn" aria-label="Меню"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
-    <div class="brand"><img src="icons/icon-192-eb2.png" alt=""><b><i class="eco">EC<span class="o">O<svg class="leaf" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 17 C3 8 9 3 18 3 C18 12 12 17 3 17 Z" fill="currentColor"/><path d="M4 16 L13 7" stroke="var(--navy)" stroke-width="1.6" stroke-linecap="round"/></svg></span></i><span>Benchmark</span></b></div>
+    <div class="brand"><img src="icons/icon-192-eb2.png" alt=""><b><i class="eco">EC<span class="o">O<svg class="leaf" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 17 C3 8 9 3 18 3 C18 12 12 17 3 17 Z" fill="currentColor"/><path d="M4 16 L13 7" stroke="var(--navy)" stroke-width="1.6" stroke-linecap="round"/></svg></span></i><span>Benchmark</span></b><small class="tag">Euro Construction Benchmark</small></div>
     <button class="ib" data-go="search" aria-label="Търсене"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg></button>
     <button class="ib bell" id="bell" aria-label="Нови обяви"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg><span class="dot" id="bellCnt">0</span></button>
   </div>
