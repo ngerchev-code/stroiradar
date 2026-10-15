@@ -245,7 +245,7 @@ const S = {
   ack: store.get('ack', Date.now() - 864e5),
   notifKw: store.get('notifKw', true), notifWanted: store.get('notifWanted', false), notified: store.get('notified', []),
   liveUrl: store.get('liveUrl', ''), scope: 'all', theme: store.get('theme', ''),
-  custom: store.get('custom', []), voiceOn: store.get('voiceOn', true), alarmOn: store.get('alarmOn', true), alarmed: store.get('alarmed', []), show: [], showUpdated: null, sk: 'all',
+  custom: store.get('custom', []), ops: store.get('ops', []), voiceOn: store.get('voiceOn', true), alarmOn: store.get('alarmOn', true), alarmed: store.get('alarmed', []), show: [], showUpdated: null, sk: 'all',
   items: [], news: [], ncat: 'all', mkCountry: 'all', updated: null, newOnly: false, view: 'feed'
 };
 function save() {
@@ -407,6 +407,7 @@ function renderBanners() {
   const infra = S.news.filter(n => n.cat === 'infra').length;
   const bn = [
     { c: 'bn-1', h: w ? `${w} души търсят техника` : 'Кой търси техника днес', p: 'Купувачи и наематели от обявите — готови клиенти.', go: 'Виж търсещите', act: () => { S.type = 'wanted'; S.cat = 'all'; renderFeed(); scrollToList(); } },
+    { c: 'bn-3', h: 'Колко струва машината?', p: 'Виртуален продавач — оценка по марка, година, часове и състояние.', go: 'Оцени', act: () => show('seller') },
     { c: 'bn-2', h: 'Виртуален шоурум', p: 'Машини, подбрани и проверени от Claude.', go: 'Разгледай', act: () => show('show') },
     { c: 'bn-4', h: 'Сравни цените в Европа', p: 'Медианни цени по категории — България срещу ЕС.', go: 'Към пазарите', act: () => show('market') },
     { c: 'bn-3', h: 'Инфраструктурни проекти', p: infra ? `${infra} нови материала за пътища, ВиК и енергетика.` : 'Пътища, ВиК, енергетика и обществени поръчки.', go: 'Прочети', act: () => { S.ncat = 'infra'; show('news'); } },
@@ -712,6 +713,219 @@ function checkAlarm() {
   }
 }
 
+
+// ---------- Виртуален продавач (оценка) ----------
+// Ориентировъчни цени на НОВА машина в Европа, € без ДДС (стандартна конфигурация), по клас.
+const VS = {
+  backhoe:     { label: 'Комбиниран багер', cls: [['Стандартен (8–9 т)', 88000], ['Голям / 4CX (9–11 т)', 105000]],
+                 brands: ['Hidromek', 'JCB', 'Komatsu', 'Case', 'New Holland', 'Caterpillar', 'Volvo', 'Друга'], levels: ['Базово', 'Стандарт (A3)', 'Средно (A5)', 'Пълно (A8)'] },
+  minibackhoe: { label: 'Мини комбиниран багер', cls: [['5–6 т (HMK 62, 1CX)', 62000]], brands: ['Hidromek', 'JCB', 'Case', 'Komatsu', 'Друга'], levels: ['Базово', 'Стандарт', 'Средно', 'Пълно'] },
+  mini:        { label: 'Мини багер', cls: [['До 2 т', 26000], ['2–3,5 т', 38000], ['3,5–6 т', 56000]], brands: ['Komatsu', 'JCB', 'Caterpillar', 'Yanmar', 'Kubota', 'Takeuchi', 'Hidromek', 'Друга'], levels: ['Базово', 'Стандарт', 'Средно', 'Пълно'] },
+  midi:        { label: 'Миди багер', cls: [['6–10 т', 85000]], brands: ['Hidromek', 'Komatsu', 'JCB', 'Caterpillar', 'Volvo', 'Hyundai', 'Друга'], levels: ['Базово', 'Стандарт', 'Средно', 'Пълно'] },
+  crawler:     { label: 'Верижен багер', cls: [['12–16 т', 125000], ['18–25 т', 165000], ['30–40 т', 260000]], brands: ['Hidromek', 'Komatsu', 'Caterpillar', 'JCB', 'Volvo', 'Hyundai', 'Друга'], levels: ['Базово', 'Стандарт', 'Средно', 'Пълно'] },
+  excavator:   { label: 'Колесен багер', cls: [['14–17 т', 150000], ['18–22 т', 180000]], brands: ['Hidromek', 'Komatsu', 'Caterpillar', 'JCB', 'Volvo', 'Hyundai', 'Друга'], levels: ['Базово', 'Стандарт', 'Средно', 'Пълно'] },
+  minicl:      { label: 'Мини челен товарач', cls: [['Малък (до 2,5 т)', 42000], ['Голям / верижен', 62000]], brands: ['Gehl', 'Komatsu', 'Manitou', 'Case', 'Caterpillar', 'Takeuchi', 'Bobcat', 'Друга'], levels: ['Базово', 'Стандарт', 'Средно', 'Пълно'] },
+  loader:      { label: 'Челен товарач', cls: [['Компактен (до 7 т)', 75000], ['Среден (10–15 т)', 140000], ['Голям (над 18 т)', 210000]], brands: ['Komatsu', 'Caterpillar', 'Volvo', 'JCB', 'Hidromek', 'Liebherr', 'Друга'], levels: ['Базово', 'Стандарт', 'Средно', 'Пълно'] },
+  telehandler: { label: 'Телескопичен товарач', cls: [['До 10 м', 85000], ['13–18 м', 125000], ['Въртящ (MRT)', 230000]], brands: ['Manitou', 'Друга'], levels: ['Базово', 'Стандарт', 'Средно', 'Пълно (Privilege)'] },
+  dozer:       { label: 'Булдозер', cls: [['Малък (до 12 т)', 140000], ['Среден (15–25 т)', 240000]], brands: ['Komatsu', 'Caterpillar', 'Liebherr', 'Друга'], levels: ['Базово', 'Стандарт', 'Средно', 'Пълно'] },
+  roller:      { label: 'Валяк', cls: [['Тандем 1,5–4 т', 38000], ['Тандем 7–10 т', 95000], ['Почвен 10–13 т', 115000]], brands: ['Ammann', 'Bomag', 'Volvo', 'Hidromek', 'Hamm', 'Dynapac', 'Друга'], levels: ['Базово', 'Стандарт', 'Средно', 'Пълно'] }
+};
+// Марка спрямо средното ниво (задържане на стойност)
+const BRAND_K = { JCB: 1.06, Caterpillar: 1.08, Komatsu: 1.06, Volvo: 1.05, Hidromek: 1.0, Case: 0.97, 'New Holland': 0.95, Hyundai: 0.92, Liebherr: 1.07, Manitou: 1.03, Yanmar: 1.0, Kubota: 1.02, Takeuchi: 1.0, Gehl: 0.95, Bobcat: 1.0, Ammann: 1.02, Bomag: 1.03, Hamm: 1.02, Dynapac: 0.98, 'Друга': 0.85 };
+const COND = [['Отлично', 0.06], ['Добро', 0], ['Средно', -0.09], ['Лошо', -0.22]];
+const COND_W = { chassis: 1, engine: 1.2, hydr: 1.1 };
+const LEVEL_K = [-0.06, 0, 0.04, 0.09];
+const EXTRAS = [['Климатик', 0.02], ['Бързосменник (хидр.)', 0.025], ['Линия за чук', 0.02], ['4x4 / 4 управляеми колела', 0.02], ['Телескопична стрела', 0.03], ['Нови гуми/вериги', 0.025], ['Отваряща кофа (4в1)', 0.02], ['GPS / телематика', 0.01], ['Пълна сервизна история', 0.04], ['Една собственост', 0.02], ['Документи / CE / регистрация', 0.02]];
+const ATTACH = [['Доп. кофа', 600], ['Профилна/планир. кофа', 900], ['Хидравличен чук', 3500], ['Свредел', 2500], ['Вилици', 900], ['Мулчер', 6000], ['Метла/четка', 1800], ['Ripper / зъб', 700], ['Грайфер', 2200]];
+
+function vsBuild() {
+  const cat = $('#vsCat');
+  if (!cat.options.length) cat.innerHTML = Object.entries(VS).map(([k, v]) => `<option value="${k}">${esc(v.label)}</option>`).join('');
+  const d = VS[cat.value];
+  $('#vsCls').innerHTML = d.cls.map((c, i) => `<option value="${i}">${esc(c[0])}</option>`).join('');
+  $('#vsBrand').innerHTML = d.brands.map(b => `<option>${esc(b)}</option>`).join('');
+  document.querySelectorAll('#vsForm .cond').forEach(el => {
+    const k = el.dataset.c, opts = k === 'level' ? d.levels.map((l, i) => [l, i]) : COND.map((c, i) => [c[0], i]);
+    const def = k === 'level' ? 1 : 1;
+    el.innerHTML = opts.map(([l, i]) => `<label><input type="radio" name="${k}" value="${i}" ${i === def ? 'checked' : ''}><span class="c${k === 'level' ? 2 : i + 1}">${esc(l)}</span></label>`).join('');
+  });
+  if (!$('#vsExtras').innerHTML) $('#vsExtras').innerHTML = EXTRAS.map((e, i) => `<label><input type="checkbox" name="ex" value="${i}">${esc(e[0])}</label>`).join('');
+  if (!$('#vsAtt').innerHTML) $('#vsAtt').innerHTML = ATTACH.map((a, i) => `<label><input type="checkbox" name="at" value="${i}">${esc(a[0])}</label>`).join('');
+}
+const yearOf = it => { const m = (it.year || '') + ' ' + it.title + ' ' + (it.desc || ''); const y = m.match(/\b(19[89]\d|20[0-2]\d)\b/); return y ? +y[1] : null; };
+
+function vsValue(f) {
+  const d = VS[f.cat], [clsName, newPrice] = d.cls[+f.cls];
+  const now = new Date().getFullYear(), age = Math.max(0, now - +f.year);
+  const steps = [];
+  // 1) амортизация по възраст: −15% първата година, после −8% годишно, минимум 15%
+  const ageK = Math.max(0.15, age === 0 ? 0.92 : 0.85 * Math.pow(0.92, age - 1));
+  let v = newPrice * ageK;
+  steps.push([`Нова машина (${clsName})`, newPrice, 'base'], [`Възраст ${age} г.`, v - newPrice]);
+  // 2) марка
+  const bk = BRAND_K[f.brand] ?? 0.9; const v2 = v * bk; steps.push([`Марка ${f.brand}`, v2 - v]); v = v2;
+  // 3) моточасове спрямо нормата (~900 мч/год.)
+  const norm = Math.max(500, age * 900), diff = (+f.hours - norm) / 1000;
+  const hk = Math.max(-0.25, Math.min(0.12, -diff * 0.035)); const v3 = v * (1 + hk);
+  steps.push([`${(+f.hours).toLocaleString('bg-BG')} мч (норма ~${norm.toLocaleString('bg-BG')})`, v3 - v]); v = v3;
+  // 4) състояние
+  for (const [k, lbl] of [['chassis', 'Шаси / ходова част'], ['engine', 'Двигател'], ['hydr', 'Хидравлика']]) {
+    const c = COND[+f[k]]; const nv = v * (1 + c[1] * COND_W[k]); steps.push([`${lbl}: ${c[0].toLowerCase()}`, nv - v]); v = nv;
+  }
+  // 5) ниво на оборудване и екстри
+  const lv = v * (1 + LEVEL_K[+f.level]); steps.push([`Оборудване: ${d.levels[+f.level]}`, lv - v]); v = lv;
+  const exK = Math.min(0.18, (f.ex || []).reduce((a, i) => a + EXTRAS[i][1], 0));
+  if (exK) { const nv = v * (1 + exK); steps.push([`Екстри (${f.ex.length})`, nv - v]); v = nv; }
+  // 6) прикачен инвентар (по-тежка техника — по-скъп инвентар)
+  const attK = newPrice > 120000 ? 1.6 : newPrice < 45000 ? 0.6 : 1;
+  const att = (f.at || []).reduce((a, i) => a + ATTACH[i][1] * attK, 0);
+  if (att) { steps.push([`Инвентар (${f.at.length})`, att]); v += att; }
+  const model = v;
+  // 7) сверка с реални обяви: същата категория и марка, ±3 години
+  const comps = S.items.filter(i => i._cat === f.cat && i._eur && i.type === 'sale' && (f.brand === 'Друга' || new RegExp(f.brand, 'i').test(txt(i))))
+    .map(i => ({ i, y: yearOf(i) })).filter(c => !c.y || Math.abs(c.y - +f.year) <= 3)
+    .filter(c => c.i._eur > model * 0.35 && c.i._eur < model * 2.4)
+    .sort((a, b) => Math.abs((a.y || 0) - +f.year) - Math.abs((b.y || 0) - +f.year)).slice(0, 12);
+  let fair = model, conf = 'ниска';
+  if (comps.length >= 3) {
+    const med = median(comps.map(c => c.i._eur));
+    const w = Math.min(0.5, comps.length * 0.06);
+    fair = model * (1 - w) + med * w; steps.push([`Сверка с ${comps.length} обяви (медиана ${fmtEur(med)})`, fair - model]);
+    conf = comps.length >= 6 ? 'висока' : 'средна';
+  }
+  fair = Math.round(fair / 100) * 100;
+  const spread = conf === 'висока' ? 0.08 : conf === 'средна' ? 0.11 : 0.15;
+  return { fair, lo: Math.round(fair * (1 - spread) / 100) * 100, hi: Math.round(fair * (1 + spread) / 100) * 100, spread, steps, comps, conf };
+}
+
+function vsRender(f, r) {
+  const ask = +f.ask || 0;
+  const min = r.lo * 0.82, max = r.hi * 1.18, pos = x => Math.max(2, Math.min(98, (x - min) / (max - min) * 100));
+  let verdict = '', vc = '';
+  if (ask) {
+    if (ask <= r.lo) { verdict = `🟢 Изгодна цена — ${fmtEur(ask)} е под пазарния диапазон. Провери защо: документи, скрити дефекти, спешна продажба.`; vc = 'z1'; }
+    else if (ask <= r.hi) { verdict = `🟡 Пазарна цена — ${fmtEur(ask)} е в нормалния диапазон за тази машина. Има място за договаряне към ${fmtEur(r.fair)}.`; vc = 'z2'; }
+    else if (ask <= r.hi * 1.06) { verdict = `🟠 Горна граница — ${fmtEur(ask)} е малко над пазарния диапазон. Оправдано е при добро състояние и пълна история; иначе договаряй към ${fmtEur(r.hi)}.`; vc = 'z2'; }
+    else { verdict = `🔴 Висока цена — ${fmtEur(ask)} е над пазара с ${Math.round((ask / r.hi - 1) * 100)}%. Може да си заслужава при отлично състояние, пълна сервизна история, малко часове или рядка конфигурация — иначе договаряй.`; vc = 'z3'; }
+  }
+  const d = VS[f.cat];
+  $('#vsResult').innerHTML = `<div class="res">
+    <div class="rt">${esc(d.label)} · ${esc(f.brand)} ${esc(f.model || '')} · ${esc(f.year)} · ${(+f.hours).toLocaleString('bg-BG')} мч</div>
+    <div class="rv">${fmtEur(r.lo)} – ${fmtEur(r.hi)}</div>
+    <div class="rt">Справедлива стойност ≈ ${fmtEur(r.fair)} без ДДС · точност: ${r.conf}</div>
+    <div class="scale"><div class="bar"></div>
+      <div class="smk" style="left:${pos(r.fair)}%">Пазар</div>
+      ${ask ? `<div class="smk" style="left:${pos(ask)}%;color:var(--signal)">Искана</div>` : ''}
+      <div class="ticks"><span>Изгодно</span><span>Пазарно</span><span>Високо</span></div></div>
+    <div class="zones">
+      <div class="zone z1"><small>Препоръчителна</small><b>до ${fmtEur(r.lo)}</b></div>
+      <div class="zone z2"><small>Пазарна</small><b>${fmtEur(r.lo)}–${fmtEur(r.hi)}</b></div>
+      <div class="zone z3"><small>Рискова</small><b>над ${fmtEur(r.hi)}</b></div>
+    </div>
+    ${verdict ? `<div class="verdict2 zone ${vc}" style="text-align:left">${esc(verdict)}</div>` : ''}
+    <details style="margin-top:12px"><summary style="cursor:pointer;font-weight:700">Как е изчислено</summary>
+      <table class="brk">${r.steps.map(([l, v, b]) => `<tr><td>${esc(l)}</td><td class="${b ? '' : v >= 0 ? 'pos' : 'neg'}">${b ? fmtEur(v) : (v >= 0 ? '+' : '−') + fmtEur(Math.abs(v)).replace('€ ', '€ ')}</td></tr>`).join('')}</table></details>
+    ${r.comps.length ? `<details style="margin-top:10px"><summary style="cursor:pointer;font-weight:700">Сравними обяви (${r.comps.length})</summary><div class="comps">${r.comps.map(c => `<a href="${esc(c.i.url)}" target="_blank" rel="noopener"><span>${esc(shortTitle(c.i))}${c.y ? ' · ' + c.y : ''} · ${COUNTRIES[c.i._cc]?.[0] || ''}</span><b>${fmtEur(c.i._eur)}</b></a>`).join('')}</div></details>` : ''}
+    <div class="note2">Ориентировъчна оценка — не замества оглед. Цените на нова техника са средни за Европа; реалната стойност зависи от конкретната конфигурация, документите и търсенето в момента.</div>
+    <button class="al-btn go" id="vsAsk" style="width:100%;margin-top:14px">🤖 Поискай становище от Claude</button><div style="font-size:12px;color:var(--muted);margin-top:6px;text-align:center">${vsFiles.length ? vsFiles.length + ' прикачени файла · ' : ''}Claude чете протокола и снимките и отговаря до около час</div>
+    <div class="alarm-act" style="padding:12px 0 0"><button class="btn primary" id="vsShare" style="flex:1">Сподели оценката</button><button class="btn" id="vsAgain" style="flex:1">Нова оценка</button></div>
+  </div>`;
+  $('#vsResult').scrollIntoView({ behavior: 'smooth' });
+  const text = `ECOBenchmark — оценка\n${d.label} ${f.brand} ${f.model || ''}, ${f.year} г., ${f.hours} мч\nПазарен диапазон: ${fmtEur(r.lo)} – ${fmtEur(r.hi)} без ДДС\nСправедлива стойност: ≈ ${fmtEur(r.fair)}${ask ? `\nИскана цена: ${fmtEur(ask)}` : ''}`;
+  $('#vsShare').onclick = async () => { try { if (navigator.share) await navigator.share({ title: 'Оценка на техника', text }); else { await navigator.clipboard.writeText(text); toast('Оценката е копирана'); } } catch {} };
+  $('#vsAsk').onclick = () => requestOpinion(f, r);
+  $('#vsAgain').onclick = () => { $('#vsResult').innerHTML = ''; window.scrollTo({ top: 0, behavior: 'smooth' }); };
+}
+$('#vsCat').onchange = vsBuild;
+$('#vsForm').onsubmit = e => {
+  e.preventDefault();
+  const fd = new FormData(e.target), f = Object.fromEntries(fd);
+  f.ex = fd.getAll('ex').map(Number); f.at = fd.getAll('at').map(Number);
+  vsRender(f, vsValue(f));
+};
+
+
+// ---------- Становище от Claude (снимки, протоколи, текст) ----------
+const EVAL_TOPIC = 'bb-eval-562f6663a9e8';
+let vsFiles = [];
+async function shrinkImage(file) {
+  if (!file.type.startsWith('image/')) return file;
+  try {
+    const bmp = await createImageBitmap(file);
+    const k = Math.min(1, 1800 / Math.max(bmp.width, bmp.height));
+    const c = document.createElement('canvas'); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.82));
+    return new File([blob], file.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' });
+  } catch { return file; }
+}
+function renderFiles() {
+  $('#vsFileList').innerHTML = vsFiles.map((f, i) => f.type.startsWith('image/')
+    ? `<div class="fi" style="background-image:url('${URL.createObjectURL(f)}')"><button type="button" data-rmf="${i}">✕</button></div>`
+    : `<div class="fi">📄 ${esc(f.name.slice(-18))}<button type="button" data-rmf="${i}">✕</button></div>`).join('');
+}
+$('#vsFiles').onchange = async e => {
+  for (const f of [...e.target.files]) { if (vsFiles.length >= 10) break; if (f.size > 14e6) { toast(`${f.name} е над 14 MB`); continue; } vsFiles.push(await shrinkImage(f)); }
+  e.target.value = ''; renderFiles();
+};
+$('#vsFileList').onclick = e => { const b = e.target.closest('[data-rmf]'); if (b) { vsFiles.splice(+b.dataset.rmf, 1); renderFiles(); } };
+
+async function requestOpinion(f, r) {
+  const rid = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const d = VS[f.cat];
+  const btn = $('#vsAsk'); if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin2"></span>Изпращане…'; }
+  try {
+    for (let i = 0; i < vsFiles.length; i++) {
+      const file = vsFiles[i];
+      const msg = JSON.stringify({ kind: 'file', rid, i });
+      const res = await fetch(`https://ntfy.sh/${EVAL_TOPIC}?filename=${encodeURIComponent(file.name)}&message=${encodeURIComponent(msg)}`, { method: 'PUT', body: file });
+      if (!res.ok) throw new Error('файл ' + file.name);
+    }
+    const req = { kind: 'request', rid, sentAt: new Date().toISOString(), files: vsFiles.length,
+      machine: { category: d.label, cls: d.cls[+f.cls][0], brand: f.brand, model: f.model || '', year: +f.year, hours: +f.hours,
+        chassis: COND[+f.chassis][0], engine: COND[+f.engine][0], hydraulics: COND[+f.hydr][0], level: d.levels[+f.level],
+        extras: (f.ex || []).map(i => EXTRAS[i][0]), attachments: (f.at || []).map(i => ATTACH[i][0]), askPrice: +f.ask || null },
+      estimate: { lo: r.lo, fair: r.fair, hi: r.hi, confidence: r.conf, comparables: r.comps.slice(0, 8).map(c => ({ title: c.i.title, eur: c.i._eur, url: c.i.url, year: c.y })) },
+      notes: (f.notes || '').slice(0, 6000) };
+    const res = await fetch(`https://ntfy.sh/${EVAL_TOPIC}`, { method: 'POST', body: JSON.stringify(req) });
+    if (!res.ok) throw new Error('заявка');
+    S.ops = [{ rid, title: `${f.brand} ${f.model || d.label}, ${f.year}`, sentAt: req.sentAt, files: vsFiles.length }, ...S.ops].slice(0, 30); store.set('ops', S.ops);
+    vsFiles = []; renderFiles();
+    toast('Изпратено. Claude ще даде становище до около час.');
+    renderOps(); $('#vsOps').scrollIntoView({ behavior: 'smooth' });
+  } catch (err) {
+    toast('Изпращането не успя (' + err.message + '). Провери интернета и опитай пак.');
+  } finally { if (btn) { btn.disabled = false; btn.textContent = '🤖 Поискай становище от Claude'; } }
+}
+function mdLite(t) {
+  t = String(t).replace(/\n{2,}(?=- )/g, '\n').replace(/(- [^\n]+)\n{2,}/g, '$1\n');
+  return esc(t).replace(/^### (.+)$/gm, '<h5>$1</h5>').replace(/^## (.+)$/gm, '<h5>$1</h5>').replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+    .replace(/(^|\n)- (.+)/g, '$1<li>$2</li>').replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>').replace(/\n{2,}/g, '<br><br>').replace(/\n/g, '<br>');
+}
+async function renderOps() {
+  if (!S.ops.length) { $('#vsOps').innerHTML = '<p class="note">Още няма заявки. Попълни машината, прикачи снимки или протокол и натисни „Поискай становище от Claude“.</p>'; return; }
+  $('#vsOps').innerHTML = S.ops.map(o => `<div class="op ${o.done ? '' : 'wait'}" id="op-${o.rid}"><h4>${esc(o.title)}</h4>
+    <p class="st">${o.done ? '✅ Становище от Claude · ' + ago(o.doneAt) : `<span class="spin2"></span>Очаква преглед · изпратено ${ago(o.sentAt)}${o.files ? ' · ' + o.files + ' файла' : ''}`}</p>
+    ${o.html ? `<div class="body">${o.html}</div>` : ''}</div>`).join('');
+}
+async function pollOps(notify) {
+  let changed = false;
+  for (const o of S.ops.filter(o => !o.done)) {
+    try {
+      const r = await fetch(`data/opinions/${o.rid}.json?t=${Date.now()}`, { cache: 'no-store' });
+      if (!r.ok) continue;
+      const j = await r.json();
+      o.done = true; o.doneAt = j.updated || new Date().toISOString();
+      o.html = `${j.verdict ? `<div class="verdict2 zone ${j.zone === 'green' ? 'z1' : j.zone === 'red' ? 'z3' : 'z2'}" style="text-align:left;margin-top:0">${esc(j.verdict)}</div>` : ''}${j.range ? `<p><b>Оценка на Claude:</b> ${esc(j.range)}</p>` : ''}${mdLite(j.opinion || '')}`;
+      changed = true;
+      if (notify && 'Notification' in window && Notification.permission === 'granted') navigator.serviceWorker?.ready.then(reg => reg.showNotification('🟢 Становище от Claude', { body: o.title + (j.verdict ? '\n' + j.verdict.slice(0, 90) : ''), icon: 'icons/icon-192-eb3.png', badge: 'icons/badge-96-eb3.png', tag: 'op-' + o.rid, data: { url: './?v=seller' } }));
+      else if (notify) toast('🟢 Становище от Claude: ' + o.title);
+    } catch {}
+  }
+  if (changed) { store.set('ops', S.ops); if (S.view === 'seller') renderOps(); }
+}
+setInterval(() => pollOps(true), 5 * 60 * 1000);
+
 // ---------- Навигация ----------
 const HERO = {
   feed:   ['Пазарът на техника в Европа', 'Не продаваме техника.\nНамираме решения за вас.'],
@@ -721,6 +935,7 @@ const HERO = {
   know:   ['Ноу-хау', 'Практични насоки за избор, проверка и поддръжка.'],
   fav:    ['Любими', 'Обявите, които следиш.'],
   set:    ['Настройки', 'Ключови думи, известия и сайтове.'],
+  seller: ['Виртуален продавач', 'Колко струва машината? Ориентировъчна оценка за минута.'],
   show:   ['Виртуален шоурум', 'Подбрано и проверено от Claude — от потребители и от пазара.'],
   src:    ['Всички източници', 'Пазари, производители, търгове и лизинг на едно място.']
 };
@@ -738,6 +953,7 @@ function show(v) {
   if (v === 'set') renderSettings();
   if (v === 'src') renderSources();
   if (v === 'show') renderShow();
+  if (v === 'seller') { vsBuild(); renderOps(); pollOps(false).then(renderOps); }
   if (v === 'search') setTimeout(() => $('#sQ').focus(), 60);
   closeOverlays();
   window.scrollTo(0, 0);
@@ -850,5 +1066,5 @@ applyTheme();
 registerSW();
 
 const v0 = new URLSearchParams(location.search).get('v');
-load().then(() => { if (v0 && HERO[v0]) show(v0); setTimeout(() => $('#splash').classList.add('out'), 500); });
+load().then(() => { pollOps(true); if (v0 && HERO[v0]) show(v0); setTimeout(() => $('#splash').classList.add('out'), 500); });
 setInterval(() => load(true), 5 * 60 * 1000);

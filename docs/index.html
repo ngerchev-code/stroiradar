@@ -69,7 +69,7 @@ a{color:inherit;text-decoration:none}
 
 .hero{position:relative;padding:14px 18px 16px;min-height:178px}
 .hero h1{position:relative;font-family:var(--display);font-weight:700;font-size:30px;line-height:1.02;margin:6px 0 10px;max-width:min(54%,11ch);letter-spacing:-.2px}
-.hero p{position:relative;margin:0;color:#e6eef8;font-size:15px;font-weight:600;line-height:1.35;max-width:250px;white-space:nowrap}
+.hero p{position:relative;margin:0;color:#e6eef8;font-size:15px;font-weight:600;line-height:1.35;max-width:min(58%,250px)}
 .drawing{position:absolute;right:-4px;top:0px;width:210px;height:215px;pointer-events:none;opacity:.88}
 @media(min-width:520px){.drawing{width:293px;height:300px;opacity:.95}}
 .drawing .ln3{fill:none;stroke:#5cc8ff;stroke-width:1.1;stroke-linejoin:round;stroke-linecap:round}
@@ -387,6 +387,62 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
 .hv-b #menuBtn,.hv-b .appbar>.ib[data-go=search],.hv-b #bell{align-self:center}
 .hv-b .hero{padding-top:14px}
 
+
+/* ---------- Виртуален продавач ---------- */
+.vs .panel{margin:0 16px 12px}
+.vs h3{margin:0 0 10px;font-size:16px}
+.vs .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.vs .full{grid-column:1/-1}
+.vs label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.vs select,.vs input[type=text],.vs input[type=number]{width:100%;border:1px solid var(--rule);background:var(--paper);border-radius:12px;padding:11px 12px;font:inherit;color:inherit;font-size:15px}
+.cond{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.cond input{display:none}
+.cond span{display:block;text-align:center;padding:9px 2px;border-radius:10px;background:var(--soft);font-size:12.5px;font-weight:700;cursor:pointer;border:2px solid transparent}
+.cond input:checked+span{border-color:currentColor}
+.cond .c1{color:#1d955a}.cond .c2{color:#2f8fd2}.cond .c3{color:#c98a00}.cond .c4{color:#d9412f}
+.chips2{display:flex;flex-wrap:wrap;gap:8px}
+.chips2 label{display:inline-flex;align-items:center;gap:6px;margin:0;padding:8px 11px;border-radius:10px;background:var(--soft);color:var(--ink);font-size:13.5px;font-weight:600;cursor:pointer}
+.chips2 input{accent-color:#2fd27a;width:17px;height:17px}
+.vs-go{display:block;width:calc(100% - 32px);margin:4px 16px 16px;min-height:56px;font-size:17px}
+.res{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--lift);margin:0 16px 14px;padding:16px;overflow:hidden}
+.res .rt{font-size:13px;font-weight:700;color:var(--muted)}
+.res .rv{font-family:var(--display);font-size:34px;font-weight:800;line-height:1.1;margin:2px 0}
+.scale{position:relative;margin:22px 0 8px}
+.scale .bar{height:16px;border-radius:9px;background:linear-gradient(90deg,#1d955a 0%,#2fd27a 22%,#f5b400 50%,#f08a1c 72%,#d9412f 100%)}
+.scale .ticks{display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-top:6px}
+.scale .ticks span:nth-child(1){color:#1d955a}.scale .ticks span:nth-child(2){color:#c98a00;text-align:center}.scale .ticks span:nth-child(3){color:#d9412f;text-align:right}
+.scale .smk{position:absolute;top:-24px;transform:translateX(-50%);text-align:center;font-size:11.5px;font-weight:800;white-space:nowrap}
+.scale .smk::after{content:"";display:block;width:3px;height:22px;margin:2px auto 0;background:var(--ink);border-radius:2px}
+.zones{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:12px}
+.zone{border-radius:12px;padding:9px 8px;text-align:center}
+.zone b{display:block;font-family:var(--display);font-size:16px}
+.zone small{font-size:11.5px;font-weight:700}
+.z1{background:rgba(29,149,90,.14);color:#1d955a}.z2{background:rgba(245,180,0,.16);color:#a87400}.z3{background:rgba(217,65,47,.13);color:#d9412f}
+:root[data-theme="dark"] .z2{color:#f5b400}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .z2{color:#f5b400}}
+.verdict2{margin-top:12px;padding:12px;border-radius:12px;font-weight:600;font-size:14.5px;line-height:1.4}
+.brk{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+.brk td{padding:7px 0;border-top:1px solid var(--rule)}
+.brk td:last-child{text-align:right;font-weight:700;white-space:nowrap}
+.pos{color:#1d955a}.neg{color:#d9412f}
+.comps a{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--rule);font-size:13.5px}
+.comps a b{white-space:nowrap}
+.note2{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.4}
+
+.vs textarea{width:100%;border:1px solid var(--rule);background:var(--paper);border-radius:12px;padding:11px 12px;font:inherit;color:inherit;font-size:15px;resize:vertical}
+.dropz{display:flex!important;flex-direction:column;align-items:center;gap:4px;padding:18px 12px;border:2px dashed #2fd27a;border-radius:14px;background:rgba(47,210,122,.07);cursor:pointer;text-align:center;color:var(--ink)!important}
+.dropz b{font-size:15px}.dropz small{color:var(--muted);font-weight:600}
+.files{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.files .fi{position:relative;aspect-ratio:1;border-radius:10px;background:var(--soft) center/cover;display:grid;place-items:center;font-size:11px;font-weight:700;text-align:center;padding:4px;overflow:hidden;word-break:break-all}
+.files .fi button{position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:12px;cursor:pointer}
+.op{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--lift);margin:0 16px 12px;padding:14px 16px;border-left:4px solid #2fd27a}
+.op.wait{border-left-color:var(--signal)}
+.op h4{margin:0 0 4px;font-size:15px}.op .st{margin:0}
+.op .body{margin-top:10px;font-size:14.5px;line-height:1.5}
+.op .body h5{margin:12px 0 4px;font-size:14px;color:#2fd27a}
+.op .body ul{margin:4px 0;padding-left:18px}
+.spin2{display:inline-block;width:12px;height:12px;border:2px solid var(--signal);border-right-color:transparent;border-radius:50%;animation:sp .9s linear infinite;vertical-align:-1px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
 /* Начален екран */
 .splash{position:fixed;inset:0;z-index:100;background:var(--navy);display:grid;place-items:center;transition:opacity .4s;
   background-image:linear-gradient(rgba(127,168,216,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(127,168,216,.12) 1px,transparent 1px);background-size:14px 14px}
@@ -489,6 +545,46 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
     <div id="showList"></div>
   </section>
 
+  <!-- ВИРТУАЛЕН ПРОДАВАЧ -->
+  <section class="view vs" id="v-seller">
+    <div class="sec"><h2>Виртуален продавач</h2><p class="sub">Ориентировъчна пазарна стойност на машина — по марка, година, моточасове, състояние и оборудване, сверена с реалните обяви.</p></div>
+    <form id="vsForm">
+      <div class="panel"><h3>Машина</h3><div class="grid">
+        <div class="full"><label>Вид техника</label><select name="cat" id="vsCat"></select></div>
+        <div><label>Клас / тегло</label><select name="cls" id="vsCls"></select></div>
+        <div><label>Марка</label><select name="brand" id="vsBrand"></select></div>
+        <div class="full"><label>Модел (по желание)</label><input type="text" name="model" placeholder="напр. HMK 102B Alpha, 3CX, PC210"></div>
+        <div><label>Година</label><input type="number" name="year" inputmode="numeric" min="1985" max="2026" required placeholder="2018"></div>
+        <div><label>Моточасове</label><input type="number" name="hours" inputmode="numeric" min="0" max="60000" required placeholder="5200"></div>
+      </div></div>
+      <div class="panel"><h3>Състояние</h3>
+        <label>Ходова част / шаси</label><div class="cond" data-c="chassis"></div>
+        <label style="margin-top:10px">Двигател</label><div class="cond" data-c="engine"></div>
+        <label style="margin-top:10px">Хидравлика</label><div class="cond" data-c="hydr"></div>
+      </div>
+      <div class="panel"><h3>Оборудване</h3>
+        <label>Клас / ниво на оборудване</label><div class="cond" data-c="level"></div>
+        <label style="margin-top:12px">Допълнителни екстри</label><div class="chips2" id="vsExtras"></div>
+        <label style="margin-top:12px">Прикачен инвентар</label><div class="chips2" id="vsAtt"></div>
+      </div>
+      <div class="panel"><h3>Снимки, протокол, бележки</h3>
+        <p class="st" style="margin:0 0 10px">Прикачи снимки на машината, протокол от сервизен оглед (PDF, Word, снимка) или напиши какво знаеш. Claude ще ги прегледа и ще даде становище.</p>
+        <label class="dropz" for="vsFiles"><b>📎 Добави снимки или документи</b><small>JPG, PNG, PDF, DOCX, TXT · до 10 файла</small></label>
+        <input type="file" id="vsFiles" multiple accept="image/*,.pdf,.doc,.docx,.txt,.xlsx" hidden>
+        <div class="files" id="vsFileList"></div>
+        <label style="margin-top:12px">Бележки / текст от протокола</label>
+        <textarea name="notes" rows="4" placeholder="напр. Сменени ножове на кофата, теч от цилиндъра на стрелата, сервиз през 2025 г. при 4800 мч…"></textarea>
+      </div>
+      <div class="panel"><h3>Сравнение с цена (по желание)</h3><div class="grid">
+        <div class="full"><label>Искана цена, € без ДДС</label><input type="number" name="ask" inputmode="numeric" placeholder="напр. 42000"></div>
+      </div></div>
+      <button class="btn primary vs-go">Оцени машината</button>
+    </form>
+    <div id="vsResult"></div>
+    <div class="sec"><h2>Моите становища</h2><p class="sub">Заявките към Claude и отговорите му. Обикновено отговорът идва до час.</p></div>
+    <div id="vsOps"></div>
+  </section>
+
   <!-- ЛЮБИМИ -->
   <section class="view" id="v-fav"><div class="sec"><h2>Любими</h2><p class="sub">Запазените обяви остават тук, дори да изчезнат от сайта.</p></div><div class="list" id="favList"></div></section>
 
@@ -528,6 +624,7 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
   <div class="dgroup">
     <button class="ditem" data-go="feed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18"/></svg>Обяви<span class="pill" id="dNew"></span></button>
     <button class="ditem" data-go="feed" data-type="wanted"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg>Търсят техника</button>
+    <button class="ditem" data-go="seller"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h10M4 17h7"/><circle cx="18" cy="16" r="3.5"/><path d="M20.5 18.5 22 20"/></svg>Виртуален продавач<span class="pill">€</span></button>
     <button class="ditem" data-go="show"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9M3 9h18v11H3zM9 20v-5h6v5"/></svg>Виртуален шоурум<span class="pill">Claude</span></button>
     <button class="ditem" data-go="market"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Европейски пазари</button>
     <button class="ditem" data-go="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>Търсачка</button>

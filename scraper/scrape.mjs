@@ -2,7 +2,7 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { searchSource, enrich, classify, RELEVANT, NOISE, priceFromDesc } from './core.mjs';
 import { collectNews } from './news.mjs';
-import { collectInbox } from './inbox.mjs';
+import { collectInbox, collectEval } from './inbox.mjs';
 
 const ROOT = new URL('../docs/data/', import.meta.url);
 const config = JSON.parse(await readFile(new URL('./config.json', import.meta.url), 'utf8'));
@@ -95,6 +95,7 @@ const items = [...merged.values()]
 await mkdir(ROOT, { recursive: true });
 await writeFile(new URL('listings.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), rates, items }));
 try { console.log('Шоурум — нови заявки:', await collectInbox(config.inboxTopic)); } catch (e) { console.log('Шоурум:', e.message); }
+try { console.log('Становища — нови файлове:', await collectEval(config.evalTopic)); } catch (e) { console.log('Становища:', e.message); }
 try { const news = await collectNews(); if (news.length) await writeFile(new URL('news.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), items: news })); console.log('Новини:', news.length); } catch (e) { console.log('Новини:', e.message); }
 await writeFile(new URL('status.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), status }, null, 1));
 

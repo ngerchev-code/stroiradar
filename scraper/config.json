@@ -260,5 +260,6 @@
  "telehandlerPattern": "(телескоп|telehandler|teleskoplader|ładowarka teleskop|loadall|merlo|\\bjcb 5\\d\\d)",
  "inboxTopic": "bb-showroom-in-319983c2f7",
  "alarmPattern": "hidromek|хидромек|hmk ?\\d{2,3}",
- "appUrl": "https://ngerchev-code.github.io/stroiradar/"
+ "appUrl": "https://ngerchev-code.github.io/stroiradar/",
+ "evalTopic": "bb-eval-562f6663a9e8"
 }
