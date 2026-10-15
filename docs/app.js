@@ -246,7 +246,7 @@ const S = {
   notifKw: store.get('notifKw', true), notifWanted: store.get('notifWanted', false), notified: store.get('notified', []),
   liveUrl: store.get('liveUrl', ''), scope: 'all', theme: store.get('theme', ''),
   custom: store.get('custom', []), ops: store.get('ops', []), voiceOn: store.get('voiceOn', true), alarmOn: store.get('alarmOn', true), alarmed: store.get('alarmed', []), show: [], showUpdated: null, sk: 'all',
-  items: [], news: [], ncat: 'all', mkCountry: 'all', updated: null, newOnly: false, view: 'feed'
+  items: [], deals: [], dk: 'good', news: [], ncat: 'all', mkCountry: 'all', updated: null, newOnly: false, view: 'feed'
 };
 function save() {
   ['keywords', 'favs', 'disabled', 'onlyKw', 'ack', 'notifKw', 'notifWanted', 'liveUrl', 'theme', 'custom', 'alarmOn', 'voiceOn'].forEach(k => store.set(k, S[k]));
@@ -1061,6 +1061,48 @@ $('#vsOps').addEventListener('click', e => {
   const o = S.ops.find(x => x.rid === (b.dataset.oppdf || b.dataset.opshare)); if (o) vsPdf(o.f, o.j, b.dataset.oppdf ? 'download' : 'share');
 });
 
+
+// ---------- Ловец на сделки ----------
+const CONF = { 'висока': 'Висока увереност', 'средна': 'Средна увереност', 'ниска': 'Ниска увереност' };
+function dealsVisible() {
+  return S.deals.filter(x => !S.disabled.includes(x.source) && (
+    S.dk === 'all' ? true : S.dk === 'good' ? !x.suspicious && x.conf !== 'ниска' : S.dk === 'bg' ? !x.foreign && !x.suspicious : x.foreign && !x.suspicious));
+}
+function dealCard(x) {
+  const src = SOURCES[x.source] || { name: x.source, flag: '🌐' };
+  const facts = [x.brand + ' ' + x.model, x.year ? x.year + ' г.' : 'година неизвестна', x.hours ? x.hours.toLocaleString('bg-BG') + ' мч' : '', (x.location || (x.foreign ? 'Европа' : 'България'))].filter(Boolean).join(' · ');
+  const pct = Math.max(4, Math.min(100, Math.round(x.price / x.market * 100)));
+  return `<article class="deal">
+    <a class="dimg" href="${esc(x.url)}" target="_blank" rel="noopener"><img src="${esc(x.photo)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+      <span class="off ${x.suspicious ? 'warn' : ''}">${x.suspicious ? 'ПРОВЕРИ' : '−' + x.discount + '%'}</span><span class="cf">${CONF[x.conf] || ''}</span></a>
+    <div class="db">
+      <a class="dt" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a>
+      <div class="facts">${esc(facts)}</div>
+      <div class="prices"><b>${fmtEur(x.price)}</b><s>пазар ${fmtEur(x.market)}</s></div>
+      <div class="gauge"><i style="width:${pct}%"></i></div>
+      <div class="gl"><span>Цена = ${pct}% от пазара</span><span>${x.n} обяви · ${esc(x.basis)}</span></div>
+      <div class="money"><div><small>Потенциал при препродажба</small><b class="${x.profit > 0 ? 'pos' : ''}">${fmtEur(x.profit)}</b></div><div><small>Комисионна при посредничество</small><b>~${fmtEur(x.commission)}</b></div></div>
+      ${x.suspicious ? '<div class="warnline">Цената е над 60% под пазара — може да е част, капаро или грешка в обявата.</div>' : ''}
+      <div class="acts"><a class="btn dark" href="${esc(x.url)}" target="_blank" rel="noopener">Обявата в ${esc(src.name)}</a><button class="btn primary" data-dshare="${esc(x.id)}">Изпрати на клиент</button></div>
+    </div></article>`;
+}
+function renderDeals() {
+  const list = dealsVisible();
+  const good = S.deals.filter(x => !x.suspicious && x.conf !== 'ниска');
+  const best = S.deals.filter(x => !x.suspicious).reduce((m, x) => Math.max(m, x.discount), 0);
+  const pot = good.reduce((a, x) => a + Math.max(0, x.profit), 0);
+  $('#dealsSum').innerHTML = `<div><b>${S.deals.filter(x => !x.suspicious).length}</b><small>под пазара</small></div><div class="g"><b>${best ? '−' + best + '%' : '—'}</b><small>най-голяма отстъпка</small></div><div><b>${pot ? fmtEur(pot).replace('€ ', '€') : '—'}</b><small>потенциал (сигурни)</small></div>`;
+  $('#dealsSub').textContent = S.dealsUpdated ? `Обновено ${ago(S.dealsUpdated)}. Обяви, по-евтини от средната цена за същия модел и година.` : 'Обяви, по-евтини от средната цена за същия модел и година.';
+  $('#dealList').innerHTML = list.length ? list.map(dealCard).join('')
+    : `<div class="empty">${ICON_MACHINE}<b>${S.dk === 'good' ? 'Още няма сигурни сделки' : 'Няма сделки по този филтър'}</b>${S.dk === 'good' ? 'Скенерът трупа история на цените и чете годините от обявите. Сигурните сделки се появяват, когато за модела има поне 4 обяви с близка година. Виж и „Всички“.' : 'Пробвай друг филтър.'}</div>`;
+}
+async function shareDeal(id) {
+  const x = S.deals.find(d => d.id === id); if (!x) return;
+  const text = `Здравейте! Попаднах на машина, която може да Ви заинтересува:\n${x.brand} ${x.model}${x.year ? ', ' + x.year + ' г.' : ''}${x.hours ? ', ' + x.hours.toLocaleString('bg-BG') + ' мч' : ''}\nЦена: ${fmtEur(x.price)} (пазарна около ${fmtEur(x.market)})\nМога да организирам оглед и сделката. Николай Герчев`;
+  try { if (navigator.share) { await navigator.share({ title: x.brand + ' ' + x.model, text, url: x.url }); return; } } catch (e) { if (e.name === 'AbortError') return; }
+  try { await navigator.clipboard.writeText(text + '\n' + x.url); toast('Текстът е копиран — постави го във Viber или WhatsApp'); } catch { toast('Споделянето не е налично'); }
+}
+
 // ---------- Навигация ----------
 const HERO = {
   feed:   ['Пазарът на техника в Европа', 'Не продаваме техника.\nНамираме решения за вас.'],
@@ -1070,6 +1112,7 @@ const HERO = {
   know:   ['Ноу-хау', 'Практични насоки за избор, проверка и поддръжка.'],
   fav:    ['Любими', 'Обявите, които следиш.'],
   set:    ['Настройки', 'Ключови думи, известия и сайтове.'],
+  deals:  ['Ловец на сделки', 'Машини под пазарната цена — купи, препродай или свържи с клиент.'],
   seller: ['Виртуален продавач', 'Колко струва машината? Ориентировъчна оценка за минута.'],
   show:   ['Виртуален шоурум', 'Подбрано и проверено от Claude — от потребители и от пазара.'],
   src:    ['Всички източници', 'Пазари, производители, търгове и лизинг на едно място.']
@@ -1088,6 +1131,7 @@ function show(v) {
   if (v === 'set') renderSettings();
   if (v === 'src') renderSources();
   if (v === 'show') renderShow();
+  if (v === 'deals') renderDeals();
   if (v === 'seller') { vsBuild(); renderOps(); pollOps(false).then(renderOps); }
   if (v === 'search') setTimeout(() => $('#sQ').focus(), 60);
   closeOverlays();
@@ -1107,6 +1151,8 @@ document.addEventListener('click', e => {
   else if (d.mk) { S.mkCountry = d.mk; renderMarket(); }
   else if (d.ncat2) { S.ncat = d.ncat2; renderNews(); }
   else if (d.scope) { S.scope = d.scope; $$('#scopeSeg button').forEach(x => x.classList.toggle('on', x === b)); if ($('#sQ').value) doSearch($('#sQ').value); }
+  else if (d.dk) { S.dk = d.dk; $$('#dealSeg button').forEach(x => x.classList.toggle('on', x === b)); renderDeals(); }
+  else if (d.dshare) shareDeal(d.dshare);
   else if (d.sk) { S.sk = d.sk; $$('#showSeg button').forEach(x => x.classList.toggle('on', x === b)); renderShow(); }
   else if (d.cdel != null) { S.custom.splice(+d.cdel, 1); save(); renderSources(); }
   else if (d.kwdel != null) { S.keywords.splice(+d.kwdel, 1); save(); renderSettings(); renderStats(); }
@@ -1151,16 +1197,19 @@ new IntersectionObserver(([en]) => $('#toolbar').classList.toggle('stuck', !en.i
 // ---------- Данни ----------
 async function load(silent) {
   try {
-    const [r1, r2, r3, r4] = await Promise.allSettled([fetch('data/listings.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/news.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/showroom.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/turkey.json?t=' + Date.now(), { cache: 'no-store' })]);
+    const [r1, r2, r3, r4, r5] = await Promise.allSettled([fetch('data/listings.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/news.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/showroom.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/turkey.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/deals.json?t=' + Date.now(), { cache: 'no-store' })]);
     if (r3.status === 'fulfilled' && r3.value.ok) { const j = await r3.value.json(); S.show = j.items || []; S.showUpdated = j.updated; }
     if (r1.status === 'fulfilled' && r1.value.ok) { const j = await r1.value.json(); S.rates = j.rates || {}; S.items = (j.items || []).map(prep); S.updated = j.updated; }
     if (r2.status === 'fulfilled' && r2.value.ok) { const j = await r2.value.json(); S.news = j.items || []; }
+    if (r5.status === 'fulfilled' && r5.value.ok) { try { const j = await r5.value.json(); S.deals = (j.items || []).map(x => { cleanTitle(x); return x; }); S.dealsUpdated = j.updated; } catch {} }
     if (r4.status === 'fulfilled' && r4.value.ok) { try { const j = await r4.value.json(); const have = new Set(S.items.map(i => i.id)); S.items.push(...(j.items || []).filter(i => !have.has(i.id)).map(prep)); } catch {} }
   } catch {}
   renderBanners(); renderFeed();
   if (S.view !== 'feed' && !silent) show(S.view);
   else if (S.view === 'market') renderMarket();
   else if (S.view === 'show') renderShow();
+  else if (S.view === 'deals') renderDeals();
+  const dd = $('#dDeals'); if (dd) dd.textContent = S.deals.filter(x => !x.suspicious && x.conf !== 'ниска').length || '€';
   notifyNew();
   checkAlarm();
 }

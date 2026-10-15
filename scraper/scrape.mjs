@@ -1,6 +1,7 @@
 // СтройРадар — периодично събиране на обяви (пуска се от GitHub Actions на всеки 20 мин).
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { searchSource, enrich, classify, RELEVANT, NOISE, priceFromDesc } from './core.mjs';
+import { searchSource, enrich, classify, RELEVANT, NOISE, priceFromDesc, getText } from './core.mjs';
+import { updateMarket, findDeals, observe, factsFromHtml } from './deals.mjs';
 import { collectNews } from './news.mjs';
 import { collectInbox, collectEval } from './inbox.mjs';
 
@@ -92,11 +93,61 @@ const items = [...merged.values()]
   .sort((a, b) => new Date(b.firstSeen || b.date) - new Date(a.firstSeen || a.date))
   .slice(0, config.maxListings);
 
+// ---------- Ловец на сделки: обяви под пазарната цена ----------
+const DC = config.deals || {};
+let market = { byKey: {}, notified: [] }, dealsFirst = false;
+try { market = JSON.parse(await readFile(new URL('market.json', ROOT), 'utf8')); } catch { dealsFirst = true; }
+let turkey = [];
+try { turkey = JSON.parse(await readFile(new URL('turkey.json', ROOT), 'utf8')).items || []; } catch {}
+const pool = [...items, ...turkey.filter(t => !merged.has(t.id))];
+market = updateMarket(market, pool, rates);
+// Година и моточасове от детайлната страница: първо кандидатите за сделка, после машините от същите модели
+{
+  const pre = findDeals(pool, market, rates, { ...DC, minDiscount: (DC.minDiscount ?? 0.15) - 0.05 });
+  const keys = new Set(pre.map(d => d.brand + '|' + d.model));
+  const queue = [
+    ...pre.map(d => pool.find(i => i.id === d.id)),
+    ...pool.filter(i => { const o = observe(i, rates); return o && keys.has(o.key); }),
+    ...pool.filter(i => { const o = observe(i, rates); return o && (market.byKey[o.key] || []).length >= 3; })
+  ].filter((i, k, a) => i && !i.factsAt && !i.yr && a.indexOf(i) === k);
+  let fetched = 0;
+  for (const it of queue.slice(0, DC.detailFetchesPerRun ?? 40)) {
+    try { const f = factsFromHtml(await getText(it.url, 12000)); if (f.yr) it.yr = f.yr; if (f.mh) it.mh = f.mh; } catch {}
+    it.factsAt = new Date().toISOString(); fetched++;
+    await sleep(500);
+  }
+  if (fetched) market = updateMarket(market, pool, rates);
+  console.log('Сделки — прочетени детайли:', fetched);
+}
+const deals = findDeals(pool, market, rates, DC);
+const notifiedDeals = new Set(market.notified || []);
+const newDeals = deals.filter(d => !d.suspicious && d.conf !== 'ниска' && !notifiedDeals.has(d.id));
+market.notified = [...notifiedDeals, ...newDeals.map(d => d.id)].slice(-3000);
+console.log(`Сделки: ${deals.length}, нови за известие: ${newDeals.length}`);
+
 await mkdir(ROOT, { recursive: true });
 await writeFile(new URL('listings.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), rates, items }));
 try { console.log('Шоурум — нови заявки:', await collectInbox(config.inboxTopic)); } catch (e) { console.log('Шоурум:', e.message); }
 try { console.log('Становища — нови файлове:', await collectEval(config.evalTopic)); } catch (e) { console.log('Становища:', e.message); }
 try { const news = await collectNews(); if (news.length) await writeFile(new URL('news.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), items: news })); console.log('Новини:', news.length); } catch (e) { console.log('Новини:', e.message); }
+await writeFile(new URL('market.json', ROOT), JSON.stringify(market));
+await writeFile(new URL('deals.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), settings: { minDiscount: DC.minDiscount ?? 0.15, transport: DC.transport || { BG: 500, foreign: 2500 }, brokerFee: DC.brokerFee ?? 0.03 }, items: deals.slice(0, 200) }));
+// Известие за всяка нова сделка (не при първото пускане — тогава само се трупа история)
+if (NTFY && !dealsFirst) {
+  const eur = n => '€ ' + Math.round(n).toLocaleString('de-DE').replace(/\./g, ' ');
+  for (const d of newDeals.slice(0, DC.maxPushPerRun ?? 8)) {
+    const src = config.sources[d.source] || {};
+    const facts = [d.year && `${d.year} г.`, d.hours && `${d.hours.toLocaleString('de-DE').replace(/\./g, ' ')} мч`].filter(Boolean).join(' · ');
+    try {
+      await fetch('https://ntfy.sh/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+        topic: NTFY, priority: d.discount >= 25 ? 5 : 4, tags: ['moneybag', 'construction'], click: d.url,
+        title: `💰 СДЕЛКА −${d.discount}% · ${d.brand} ${d.model}`,
+        message: `${d.title}${facts ? '\n' + facts : ''}\n💶 ${eur(d.price)} (пазар ${eur(d.market)}, ${d.n} обяви)\n📈 Потенциал ${eur(d.profit)} · комисионна ~${eur(d.commission)}\n${src.flag || ''} ${src.name || d.source}${d.location ? ' · ' + d.location : ''}`
+      }) });
+    } catch {}
+    await sleep(400);
+  }
+}
 await writeFile(new URL('status.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), status }, null, 1));
 
 // Push известия (ntfy) — само за нови, не при първо пускане

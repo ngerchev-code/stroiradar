@@ -35,7 +35,7 @@ export function decode(s) {
     .replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
-async function getText(url, timeout = 15000, extra = {}) {
+export async function getText(url, timeout = 15000, extra = {}) {
   const ctrl = new AbortController();
   const tm = setTimeout(() => ctrl.abort(), timeout);
   try {
