@@ -323,11 +323,14 @@ function card(it) {
   const fav = !!S.favs[it.id];
   const c = COUNTRIES[it._cc];
   const eur = it._eur != null && !/€|eur/i.test(it.price || '') ? `<small>≈ ${fmtEur(it._eur)}</small>` : '';
-  return `<article class="card ${isNew(it) ? 'fresh' : ''}">
-    <a class="thumb" href="${esc(it.url)}" target="_blank" rel="noopener"><img src="${esc(it.photo)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.closest('.card').remove()"><span class="flag t-${esc(it.type || 'sale')}">${TBADGE[it.type] || 'ПРОДАВА'}</span></a>
+  const dl = S.dealMap?.[it.id];
+  const hunt = dl ? (dl.conf === 'ниска' ? 'hunt maybe' : 'hunt') : '';
+  return `<article class="card ${isNew(it) ? 'fresh' : ''} ${hunt}">
+    <a class="thumb" href="${esc(it.url)}" target="_blank" rel="noopener"><img src="${esc(it.photo)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.closest('.card').remove()"><span class="flag t-${esc(it.type || 'sale')}">${TBADGE[it.type] || 'ПРОДАВА'}</span>${dl ? `<span class="hflag">💰 −${dl.discount}%</span>` : ''}</a>
     <div class="cbody">
       <a class="ctitle" href="${esc(it.url)}" target="_blank" rel="noopener">${esc(it.title)}</a>
       ${it._eur ? `<div class="cprice">${esc(it.price)}${eur}</div>` : (it.type === 'sale' ? '<div class="cprice" style="font-size:14px;color:var(--muted)">Цена при запитване</div>' : '')}
+      ${dl ? `<button class="hline" data-go="deals">Ловец: пазар ${fmtEur(dl.market)} · потенциал ${fmtEur(dl.profit)}${dl.conf === 'ниска' ? ' · за проверка' : ''} ›</button>` : ''}
       <div class="cmeta">${isNew(it) ? '<span class="new">НОВО</span>' : ''}<span>${c ? c[0] : src.flag} ${esc(it.location || (c ? c[1] : 'Европа'))}</span><span>${ago(it.firstSeen || it.date)}</span></div>
       <div class="cfoot"><a class="open" href="${esc(it.url)}" target="_blank" rel="noopener">${esc(src.name)} ›</a><button class="star ${fav ? 'on' : ''}" data-fav="${esc(it.id)}" aria-label="Запази">${ICON_STAR}</button></div>
     </div></article>`;
@@ -1201,7 +1204,7 @@ async function load(silent) {
     if (r3.status === 'fulfilled' && r3.value.ok) { const j = await r3.value.json(); S.show = j.items || []; S.showUpdated = j.updated; }
     if (r1.status === 'fulfilled' && r1.value.ok) { const j = await r1.value.json(); S.rates = j.rates || {}; S.items = (j.items || []).map(prep); S.updated = j.updated; }
     if (r2.status === 'fulfilled' && r2.value.ok) { const j = await r2.value.json(); S.news = j.items || []; }
-    if (r5.status === 'fulfilled' && r5.value.ok) { try { const j = await r5.value.json(); S.deals = (j.items || []).map(x => { cleanTitle(x); return x; }); S.dealsUpdated = j.updated; } catch {} }
+    if (r5.status === 'fulfilled' && r5.value.ok) { try { const j = await r5.value.json(); S.deals = (j.items || []).map(x => { cleanTitle(x); return x; }); S.dealMap = Object.fromEntries(S.deals.filter(x => !x.suspicious).map(x => [x.id, x])); S.dealsUpdated = j.updated; } catch {} }
     if (r4.status === 'fulfilled' && r4.value.ok) { try { const j = await r4.value.json(); const have = new Set(S.items.map(i => i.id)); S.items.push(...(j.items || []).filter(i => !have.has(i.id)).map(prep)); } catch {} }
   } catch {}
   renderBanners(); renderFeed();

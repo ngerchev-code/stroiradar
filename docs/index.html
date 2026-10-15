@@ -493,6 +493,15 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
 .deal .warnline{margin-top:8px;font-size:12.5px;color:var(--red);font-weight:600}
 .deal .acts{display:flex;gap:8px;margin-top:12px}
 .deal .acts a,.deal .acts button{flex:1;text-align:center;text-decoration:none;font-size:13.5px}
+/* Обяви, намерени от ловеца на сделки */
+:root{--hunt:#c98a00;--hunt-bg:#fff6dc}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hunt:#f5b400;--hunt-bg:#2a2410}}
+:root[data-theme="dark"]{--hunt:#f5b400;--hunt-bg:#2a2410}
+.card.hunt{background:var(--hunt-bg);box-shadow:var(--lift),inset 0 0 0 2px var(--hunt)}
+.card.hunt.maybe{background:var(--card);box-shadow:var(--lift),inset 0 0 0 2px color-mix(in srgb,var(--hunt) 55%,transparent)}
+.hflag{position:absolute;left:8px;bottom:8px;background:var(--hunt);color:#1d1500;font-size:12px;font-weight:800;padding:3px 7px;border-radius:6px}
+.card.hunt.maybe .hflag{background:color-mix(in srgb,var(--hunt) 70%,#fff)}
+.hline{border:0;background:none;padding:0;text-align:left;font-size:12px;font-weight:700;color:var(--hunt);cursor:pointer}
 </style>
 </head>
 <body class="hv-b">
