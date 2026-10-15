@@ -798,6 +798,36 @@ function vsValue(f) {
   return { fair, lo: Math.round(fair * (1 - spread) / 100) * 100, hi: Math.round(fair * (1 + spread) / 100) * 100, spread, steps, comps, conf };
 }
 
+
+// Сценарии за продажба: цена ↔ вероятност ↔ срок, според ликвидността на машината
+const LIQ_CAT = { backhoe: 0.8, minibackhoe: 0.9, mini: 0.8, minicl: 0.9, midi: 0.95, crawler: 1.0, excavator: 1.1, loader: 1.0, telehandler: 1.0, roller: 1.15, dozer: 1.3 };
+const LIQ_BRAND = { Hidromek: 0.88, JCB: 0.88, Caterpillar: 0.9, Komatsu: 0.9, Volvo: 0.95, Manitou: 0.92, Bomag: 0.95, Ammann: 0.95, 'Друга': 1.25 };
+function saleScenarios(f, r) {
+  const age = new Date().getFullYear() - +f.year;
+  let L = (LIQ_CAT[f.cat] || 1) * (LIQ_BRAND[f.brand] || 1);
+  if (age > 15) L *= 1.15; else if (age <= 5) L *= 0.95;
+  if ([f.chassis, f.engine, f.hydr].some(x => +x === 3)) L *= 1.25; else if ([f.chassis, f.engine, f.hydr].some(x => +x === 2)) L *= 1.08;
+  const wanted = S.items.filter(i => i.type === 'wanted' && i._cat === f.cat).length;
+  if (wanted >= 3) L *= 0.9;
+  const prob = (b) => Math.max(5, Math.min(92, Math.round(b / Math.sqrt(L))));
+  const span = (a, b) => { const x = Math.round(a * L), y = Math.round(b * L); const fmt = d => d < 14 ? `${d} дни` : d < 60 ? `${Math.round(d / 7)} седм.` : `${Math.round(d / 30)} мес.`; return `${fmt(x)} – ${fmt(y)}`; };
+  const R = n => Math.round(n / 500) * 500;
+  return { L, wanted, rows: [
+    { z: 'z1', icon: '🟢', name: 'Бърза продажба', from: R(r.lo * 0.95), to: R(r.lo), p: prob(88), t: span(7, 25), tip: 'Цена под пазара — привлича купувачи веднага. Добре при нужда от ликвидност.' },
+    { z: 'z2', icon: '🟡', name: 'Пазарна продажба', from: R(r.lo), to: R(r.hi), p: prob(62), t: span(30, 80), tip: `Около справедливата стойност ${fmtEur(r.fair)}. Нормален срок и място за договаряне.` },
+    { z: 'z3', icon: '🔴', name: 'Максимална цена', from: R(r.hi), to: R(r.hi * 1.12), p: prob(28), t: span(90, 200), tip: 'Изисква отлично състояние, история и търпение — или конкретен купувач.' }
+  ] };
+}
+function scenariosHtml(sc) {
+  return `<div class="scen"><div class="scen-h">Сценарии за продажба</div>
+    ${sc.rows.map(x => `<div class="scen-row ${x.z}">
+      <div class="scen-top"><b>${x.icon} ${esc(x.name)}</b><span>${fmtEur(x.from)} – ${fmtEur(x.to)}</span></div>
+      <div class="scen-mid"><div class="pbar"><i style="width:${x.p}%"></i></div><b>${x.p}%</b></div>
+      <div class="scen-bot"><span>⏱ ${esc(x.t)}</span><small>${esc(x.tip)}</small></div>
+    </div>`).join('')}
+    <div class="note2" style="margin-top:8px">Вероятност за продажба в посочения срок. Ликвидност: ${sc.L < 0.85 ? 'висока' : sc.L < 1.05 ? 'нормална' : 'ниска'}${sc.wanted ? ` · ${sc.wanted} души търсят такава техника в момента` : ''}.</div></div>`;
+}
+
 function vsRender(f, r) {
   const ask = +f.ask || 0;
   const min = r.lo * 0.82, max = r.hi * 1.18, pos = x => Math.max(2, Math.min(98, (x - min) / (max - min) * 100));
@@ -809,6 +839,7 @@ function vsRender(f, r) {
     else { verdict = `🔴 Висока цена — ${fmtEur(ask)} е над пазара с ${Math.round((ask / r.hi - 1) * 100)}%. Може да си заслужава при отлично състояние, пълна сервизна история, малко часове или рядка конфигурация — иначе договаряй.`; vc = 'z3'; }
   }
   const d = VS[f.cat];
+  const sc = saleScenarios(f, r);
   $('#vsResult').innerHTML = `<div class="res">
     <div class="rt">${esc(d.label)} · ${esc(f.brand)} ${esc(f.model || '')} · ${esc(f.year)} · ${(+f.hours).toLocaleString('bg-BG')} мч</div>
     <div class="rv">${fmtEur(r.lo)} – ${fmtEur(r.hi)}</div>
@@ -823,6 +854,7 @@ function vsRender(f, r) {
       <div class="zone z3"><small>Рискова</small><b>над ${fmtEur(r.hi)}</b></div>
     </div>
     ${verdict ? `<div class="verdict2 zone ${vc}" style="text-align:left">${esc(verdict)}</div>` : ''}
+    ${scenariosHtml(sc)}
     <details style="margin-top:12px"><summary style="cursor:pointer;font-weight:700">Как е изчислено</summary>
       <table class="brk">${r.steps.map(([l, v, b]) => `<tr><td>${esc(l)}</td><td class="${b ? '' : v >= 0 ? 'pos' : 'neg'}">${b ? fmtEur(v) : (v >= 0 ? '+' : '−') + fmtEur(Math.abs(v)).replace('€ ', '€ ')}</td></tr>`).join('')}</table></details>
     ${r.comps.length ? `<details style="margin-top:10px"><summary style="cursor:pointer;font-weight:700">Сравними обяви (${r.comps.length})</summary><div class="comps">${r.comps.map(c => `<a href="${esc(c.i.url)}" target="_blank" rel="noopener"><span>${esc(shortTitle(c.i))}${c.y ? ' · ' + c.y : ''} · ${COUNTRIES[c.i._cc]?.[0] || ''}</span><b>${fmtEur(c.i._eur)}</b></a>`).join('')}</div></details>` : ''}
@@ -831,7 +863,7 @@ function vsRender(f, r) {
     <div class="alarm-act" style="padding:12px 0 0"><button class="btn primary" id="vsShare" style="flex:1">Сподели оценката</button><button class="btn" id="vsAgain" style="flex:1">Нова оценка</button></div>
   </div>`;
   $('#vsResult').scrollIntoView({ behavior: 'smooth' });
-  const text = `ECOBenchmark — оценка\n${d.label} ${f.brand} ${f.model || ''}, ${f.year} г., ${f.hours} мч\nПазарен диапазон: ${fmtEur(r.lo)} – ${fmtEur(r.hi)} без ДДС\nСправедлива стойност: ≈ ${fmtEur(r.fair)}${ask ? `\nИскана цена: ${fmtEur(ask)}` : ''}`;
+  const text = `ECOBenchmark — оценка\n${d.label} ${f.brand} ${f.model || ''}, ${f.year} г., ${f.hours} мч\nПазарен диапазон: ${fmtEur(r.lo)} – ${fmtEur(r.hi)} без ДДС\nСправедлива стойност: ≈ ${fmtEur(r.fair)}${ask ? `\nИскана цена: ${fmtEur(ask)}` : ''}\n\nСценарии за продажба:\n${sc.rows.map(x => `${x.icon} ${x.name}: ${fmtEur(x.from)}–${fmtEur(x.to)} · ${x.p}% · ${x.t}`).join('\n')}`;
   $('#vsShare').onclick = async () => { try { if (navigator.share) await navigator.share({ title: 'Оценка на техника', text }); else { await navigator.clipboard.writeText(text); toast('Оценката е копирана'); } } catch {} };
   $('#vsAsk').onclick = () => requestOpinion(f, r);
   $('#vsAgain').onclick = () => { $('#vsResult').innerHTML = ''; window.scrollTo({ top: 0, behavior: 'smooth' }); };
@@ -885,7 +917,7 @@ async function requestOpinion(f, r) {
       machine: { category: d.label, cls: d.cls[+f.cls][0], brand: f.brand, model: f.model || '', year: +f.year, hours: +f.hours,
         chassis: COND[+f.chassis][0], engine: COND[+f.engine][0], hydraulics: COND[+f.hydr][0], level: d.levels[+f.level],
         extras: (f.ex || []).map(i => EXTRAS[i][0]), attachments: (f.at || []).map(i => ATTACH[i][0]), askPrice: +f.ask || null },
-      estimate: { lo: r.lo, fair: r.fair, hi: r.hi, confidence: r.conf, comparables: r.comps.slice(0, 8).map(c => ({ title: c.i.title, eur: c.i._eur, url: c.i.url, year: c.y })) },
+      estimate: { lo: r.lo, fair: r.fair, hi: r.hi, confidence: r.conf, scenarios: saleScenarios(f, r).rows.map(x => ({ name: x.name, from: x.from, to: x.to, probability: x.p, time: x.t })), comparables: r.comps.slice(0, 8).map(c => ({ title: c.i.title, eur: c.i._eur, url: c.i.url, year: c.y })) },
       notes: (f.notes || '').slice(0, 6000) };
     const res = await fetch(`https://ntfy.sh/${EVAL_TOPIC}`, { method: 'POST', body: JSON.stringify(req) });
     if (!res.ok) throw new Error('заявка');
@@ -916,7 +948,7 @@ async function pollOps(notify) {
       if (!r.ok) continue;
       const j = await r.json();
       o.done = true; o.doneAt = j.updated || new Date().toISOString();
-      o.html = `${j.verdict ? `<div class="verdict2 zone ${j.zone === 'green' ? 'z1' : j.zone === 'red' ? 'z3' : 'z2'}" style="text-align:left;margin-top:0">${esc(j.verdict)}</div>` : ''}${j.range ? `<p><b>Оценка на Claude:</b> ${esc(j.range)}</p>` : ''}${mdLite(j.opinion || '')}`;
+      o.html = `${j.verdict ? `<div class="verdict2 zone ${j.zone === 'green' ? 'z1' : j.zone === 'red' ? 'z3' : 'z2'}" style="text-align:left;margin-top:0">${esc(j.verdict)}</div>` : ''}${j.range ? `<p><b>Оценка на Claude:</b> ${esc(j.range)}</p>` : ''}${mdLite(j.opinion || '')}${Array.isArray(j.scenarios) && j.scenarios.length ? scenariosHtml({ L: 1, wanted: 0, rows: j.scenarios.map((x, i) => ({ z: ['z1', 'z2', 'z3'][i] || 'z2', icon: ['🟢', '🟡', '🔴'][i] || '🟡', name: x.name, from: x.from, to: x.to, p: x.probability, t: x.time, tip: x.note || '' })) }).replace(/<div class="note2"[\s\S]*?<\/div><\/div>$/, '</div>') : ''}`;
       changed = true;
       if (notify && 'Notification' in window && Notification.permission === 'granted') navigator.serviceWorker?.ready.then(reg => reg.showNotification('🟢 Становище от Claude', { body: o.title + (j.verdict ? '\n' + j.verdict.slice(0, 90) : ''), icon: 'icons/icon-192-eb3.png', badge: 'icons/badge-96-eb3.png', tag: 'op-' + o.rid, data: { url: './?v=seller' } }));
       else if (notify) toast('🟢 Становище от Claude: ' + o.title);
