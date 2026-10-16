@@ -1,33 +1,33 @@
 {
- "updated": "2026-10-16T07:33:06.422Z",
+ "updated": "2026-10-16T08:10:32.268Z",
  "status": {
   "mobilebg": {
    "name": "Mobile.bg",
    "ok": 1,
    "err": 0,
    "lastError": "",
-   "at": "2026-10-16T07:31:05.793Z"
+   "at": "2026-10-16T08:08:13.833Z"
   },
   "kleinanzeigen": {
    "name": "Kleinanzeigen",
    "ok": 28,
    "err": 0,
    "lastError": "",
-   "at": "2026-10-16T07:31:17.025Z"
+   "at": "2026-10-16T08:08:27.778Z"
   },
   "machineseeker": {
    "name": "Machineseeker",
    "ok": 12,
    "err": 16,
    "lastError": "HTTP 404",
-   "at": "2026-10-16T07:31:20.221Z"
+   "at": "2026-10-16T08:08:29.062Z"
   },
   "bazar": {
    "name": "Bazar.bg",
    "ok": 58,
    "err": 0,
    "lastError": "",
-   "at": "2026-10-16T07:32:26.120Z"
+   "at": "2026-10-16T08:09:29.337Z"
   }
  }
 }
