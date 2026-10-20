@@ -933,6 +933,7 @@ function vsRender(f, r) {
     <div class="pdfrow"><button class="btn primary" id="vsPdf">📄 PDF доклад</button><button class="btn" id="vsPdfShare">📤 Изпрати PDF</button></div>
     <button class="al-btn go" id="vsAsk" style="width:100%;margin-top:12px">🤖 Поискай становище от Claude</button><div style="font-size:12px;color:var(--muted);margin-top:6px;text-align:center">${vsFiles.length ? vsFiles.length + ' прикачени файла · ' : ''}Claude чете протокола и снимките и отговаря до около час</div>
     <div class="alarm-act" style="padding:12px 0 0"><button class="btn" id="vsShare" style="flex:1">Сподели като текст</button><button class="btn" id="vsAgain" style="flex:1">Нова оценка</button></div>
+    <button class="btn primary" id="vsPost" style="width:100%;margin-top:10px;justify-content:center">📢 Публикувай тази машина навсякъде</button>
   </div>`;
   $('#vsResult').scrollIntoView({ behavior: 'smooth' });
   const text = `ECOBenchmark — оценка\n${d.label} ${f.brand} ${f.model || ''}, ${f.year} г., ${f.hours} мч\nПазарен диапазон: ${fmtEur(r.lo)} – ${fmtEur(r.hi)} без ДДС\nСправедлива стойност: ≈ ${fmtEur(r.fair)}${ask ? `\nИскана цена: ${fmtEur(ask)}` : ''}\n\nСценарии за продажба:\n${sc.rows.map(x => `${x.icon} ${x.name}: ${fmtEur(x.from)}–${fmtEur(x.to)} · ${x.p}% · ${x.t}`).join('\n')}`;
@@ -940,6 +941,7 @@ function vsRender(f, r) {
   $('#vsPdf').onclick = () => vsPdf(f, null, 'download');
   $('#vsPdfShare').onclick = () => vsPdf(f, null, 'share');
   $('#vsAsk').onclick = () => requestOpinion(f, r);
+  $('#vsPost').onclick = () => window.pbPrefill && pbPrefill(f);
   $('#vsAgain').onclick = () => { $('#vsResult').innerHTML = ''; window.scrollTo({ top: 0, behavior: 'smooth' }); };
 }
 $('#vsCat').onchange = vsBuild;
@@ -1021,7 +1023,7 @@ async function requestOpinion(f, r) {
         extras: (f.ex || []).map(i => EXTRAS[i][0]), attachments: (f.at || []).map(i => ATTACH[i][0]), askPrice: +f.ask || null },
       estimate: { lo: r.lo, fair: r.fair, hi: r.hi, confidence: r.conf, scenarios: saleScenarios(f, r).rows.map(x => ({ name: x.name, from: x.from, to: x.to, probability: x.p, time: x.t })), comparables: r.comps.slice(0, 8).map(c => ({ title: c.i.title, eur: c.i._eur, url: c.i.url, year: c.y })) },
       notes: (f.notes || '').slice(0, 6000) };
-    const res = await fetch(`https://ntfy.sh/${EVAL_TOPIC}`, { method: 'POST', body: JSON.stringify(req) });
+    const res = await fetch(`https://ntfy.sh/${EVAL_TOPIC}?filename=request.json&message=${encodeURIComponent(JSON.stringify({ kind: 'request', rid }))}`, { method: 'PUT', body: new Blob([JSON.stringify(req)], { type: 'application/json' }) });
     if (!res.ok) throw new Error('заявка');
     S.ops = [{ rid, f, title: `${f.brand} ${f.model || d.label}, ${f.year}`, sentAt: req.sentAt, files: vsFiles.length }, ...S.ops].slice(0, 30); store.set('ops', S.ops);
     vsFiles = []; renderFiles();
@@ -1116,6 +1118,7 @@ const HERO = {
   fav:    ['Любими', 'Обявите, които следиш.'],
   set:    ['Настройки', 'Ключови думи, известия и сайтове.'],
   deals:  ['Ловец на сделки', 'Машини под пазарната цена — купи, препродай или свържи с клиент.'],
+  post:   ['Публикувай обява', 'Една обява — всички сайтове, на езика на всеки.'],
   seller: ['Виртуален продавач', 'Колко струва машината? Ориентировъчна оценка за минута.'],
   show:   ['Виртуален шоурум', 'Подбрано и проверено от Claude — от потребители и от пазара.'],
   src:    ['Всички източници', 'Пазари, производители, търгове и лизинг на едно място.']
@@ -1136,6 +1139,7 @@ function show(v) {
   if (v === 'show') renderShow();
   if (v === 'deals') renderDeals();
   if (v === 'seller') { vsBuild(); renderOps(); pollOps(false).then(renderOps); }
+  if (v === 'post' && window.renderPost) renderPost();
   if (v === 'search') setTimeout(() => $('#sQ').focus(), 60);
   closeOverlays();
   window.scrollTo(0, 0);

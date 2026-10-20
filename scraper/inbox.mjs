@@ -28,10 +28,10 @@ export async function collectInbox(topic) {
 
 // Заявки за становище от „Виртуален продавач“: данни + прикачени файлове (снимки, протоколи).
 // Файловете се свалят в inbox/eval/<rid>/ — Claude ги преглежда и после ги изтрива.
-export async function collectEval(topic) {
+export async function collectEval(topic, sub = 'eval') {
   if (!topic) return 0;
   const { existsSync } = await import('node:fs');
-  const base = new URL('../inbox/eval/', import.meta.url);
+  const base = new URL(`../inbox/${sub}/`, import.meta.url);
   const r = await fetch(`https://ntfy.sh/${topic}/json?poll=1&since=all`);
   const lines = (await r.text()).split('\n').filter(Boolean);
   let n = 0;
@@ -46,7 +46,11 @@ export async function collectEval(topic) {
     await mkdir(dir, { recursive: true });
     if (meta.kind === 'request') {
       const f = new URL('request.json', dir);
-      if (!existsSync(f)) { await writeFile(f, JSON.stringify({ ...meta, received: new Date(m.time * 1000).toISOString() }, null, 1)); n++; }
+      if (existsSync(f)) continue;
+      let body = meta;
+      // голяма заявка идва като прикачен JSON файл
+      if (m.attachment?.url) { try { const a = await fetch(m.attachment.url); if (a.ok) body = await a.json(); } catch { continue; } }
+      await writeFile(f, JSON.stringify({ ...body, received: new Date(m.time * 1000).toISOString() }, null, 1)); n++;
     } else if (meta.kind === 'file' && m.attachment?.url) {
       const name = String(meta.i ?? 0).padStart(2, '0') + '-' + String(m.attachment.name || 'file').replace(/[^\w.\-]+/g, '_').slice(-60);
       const f = new URL(name, dir);

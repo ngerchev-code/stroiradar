@@ -23,10 +23,10 @@ const EXCL0 = new RegExp(config.excludePattern || '^$', 'i');
 const TELE = new RegExp(config.telehandlerPattern || '^$', 'i');
 // Изключени: лодки, части и консумативи, телескопични товарачи извън Manitou
 const EXCL = { test: t => EXCL0.test(t) || (TELE.test(t) && !/manitou/i.test(t)) };
-let rates = { TRY: 0 };
-try { const r = await fetch('https://api.frankfurter.app/latest?from=EUR&to=TRY'); const j = await r.json(); if (j.rates?.TRY) rates.TRY = j.rates.TRY; } catch {}
-try { if (!rates.TRY) { const r = await fetch('https://open.er-api.com/v6/latest/EUR'); const j = await r.json(); if (j.rates?.TRY) rates.TRY = j.rates.TRY; } } catch {}
-console.log('Курс EUR/TRY:', rates.TRY);
+let rates = { TRY: 0, RON: 0, PLN: 0, RSD: 0 };
+try { const r = await fetch('https://api.frankfurter.app/latest?from=EUR&to=TRY,RON,PLN'); const j = await r.json(); for (const k of ['TRY', 'RON', 'PLN']) if (j.rates?.[k]) rates[k] = j.rates[k]; } catch {}
+try { const r = await fetch('https://open.er-api.com/v6/latest/EUR'); const j = await r.json(); for (const k of Object.keys(rates)) if (!rates[k] && j.rates?.[k]) rates[k] = j.rates[k]; } catch {}
+console.log('Курсове EUR:', JSON.stringify(rates));
 const found = new Map();
 // Диагностика: записва първата страница от всеки сайт
 if (process.env.DEBUG_HTML) {
@@ -129,6 +129,7 @@ await mkdir(ROOT, { recursive: true });
 await writeFile(new URL('listings.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), rates, items }));
 try { console.log('Шоурум — нови заявки:', await collectInbox(config.inboxTopic)); } catch (e) { console.log('Шоурум:', e.message); }
 try { console.log('Становища — нови файлове:', await collectEval(config.evalTopic)); } catch (e) { console.log('Становища:', e.message); }
+try { console.log('Публикуване — нови файлове:', await collectEval(config.publishTopic, 'publish')); } catch (e) { console.log('Публикуване:', e.message); }
 try { const news = await collectNews(); if (news.length) await writeFile(new URL('news.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), items: news })); console.log('Новини:', news.length); } catch (e) { console.log('Новини:', e.message); }
 await writeFile(new URL('market.json', ROOT), JSON.stringify(market));
 await writeFile(new URL('deals.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), settings: { minDiscount: DC.minDiscount ?? 0.15, transport: DC.transport || { BG: 500, foreign: 2500 }, brokerFee: DC.brokerFee ?? 0.03 }, items: deals.slice(0, 200) }));

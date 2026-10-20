@@ -272,5 +272,6 @@
   "brokerFee": 0.03,
   "detailFetchesPerRun": 40,
   "maxPushPerRun": 8
- }
+ },
+ "publishTopic": "bb-pub-7d41c9e2a5"
 }
