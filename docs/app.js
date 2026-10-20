@@ -293,8 +293,8 @@ function prep(it) {
   it._cat = (CATS.find(c => c[2].test(t)) || ['other'])[0];
   it._boat = BOATS.test(t) || PARTS_X.test(t) || (TELE_X.test(t) && !/manitou/.test(t)) || nonMachine(it.title) || NON_MACHINE_CATS.includes(it._cat) || HOME_X.test(it.title);
   // Само машини от 2008 г. нататък; без година след проверка на страницата → не се показва
-  it._year = +it.year > 0 ? +it.year : textYear(it);
-  it._old = it.type !== 'wanted' && (it._year ? it._year < MIN_YEAR : it.year === 0);
+  it._year = +it.year > 0 ? +it.year : +it.yr > 0 ? +it.yr : textYear(it);
+  it._old = it.type !== 'wanted' && (it._year ? it._year < MIN_YEAR : it.year === 0 && !it.yr);
   let cc = SOURCES[it.source]?.cc;
   if (!cc || SOURCES[it.source]?.foreign) { const m = Object.entries(COUNTRIES).find(([, v]) => v[2].test(t)); if (m) cc = m[0]; }
   it._cc = cc || (SOURCES[it.source]?.foreign ? 'EU' : 'BG');
