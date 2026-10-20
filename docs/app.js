@@ -177,7 +177,7 @@ function rank(it) {
   return 3;
 }
 const PRIORITY = ['minibackhoe', 'backhoe', 'mini', 'midi', 'crawler', 'excavator', 'minicl', 'loader', 'telehandler', 'dozer'];
-const PARTS_X = new RegExp('пиньон|корона за|зъбн\\w* колел|лагер|уплътнен|семеринг|стъкло за|седалка за|помпа за|хидравлична помпа|двигател за|радиатор|ремъ[кц]|втулк|щифтове|джойстик за|ключ за|стартер|алтернатор|турбо(компресор)? за|верига за|вериги за|ролк[аи] за|зъб(и)? за кофа|резервн|част(и)? за|(^|\\s)части(\\s|$)|консуматив|филтр|(^|\\s)масл[оа](\\s|$)|гуми за|акумулатор|ersatzteil|spare ?part|zubehör|verschleißteil|\\bfilter\\b|części|piese');
+const PARTS_X = new RegExp('пиньон|корона за|зъбн\\w* колел|лагер|уплътнен|семеринг|стъкло за|седалка за|помпа за|хидравлична помпа|двигател за|радиатор|ремъ[кц]|втулк|щифтове|джойстик за|ключ за|стартер|алтернатор|турбо(компресор)? за|верига за|вериги за|ролк[аи] за|зъб(и)? за кофа|резервн|част(и)? за|(^|\\s)части(\\s|$)|консуматив|филтр|филтър|филтри|(^|\\s)масл[оа](\\s|$)|гуми за|акумулатор|ersatzteil|spare ?part|zubehör|verschleißteil|\\bfilter\\b|części|piese');
 const TELE_X = new RegExp('(телескоп|telehandler|teleskoplader|ładowarka teleskop|loadall|merlo|\\bjcb 5\\d\\d)');
 const BOATS = /детски|играчк|lego|bruder|spielzeug|modell|siku|1:\d{2}|(^|\s)гуми(\s|$)|джанти|услуги с|изкопни услуги|лодк|катер|яхт|джет|jet ?ski|извънбордов|плавателн|понтон|\bboot\b|boat|yacht|schlauchboot|außenborder/;
 const BRANDS = ['Hidromek', 'JCB', 'Develon', 'Sany', 'Mecalac', 'Wacker Neuson', 'Caterpillar', 'Komatsu', 'Volvo', 'Case', 'New Holland', 'Bobcat', 'Takeuchi', 'Kubota', 'Hitachi', 'Liebherr', 'Doosan', 'Hyundai', 'Terex', 'Manitou', 'Ammann', 'Bomag', 'Dynapac', 'Hamm', 'Wacker', 'FAE', 'Atlas Copco', 'Yanmar', 'Kobelco'];
@@ -265,6 +265,21 @@ function cleanTitle(it) {
   it.title = t.replace(/\s*\|\s*(Bazar\.bg|kleinanzeigen(\.de)?|Mobile\.bg)\s*$/i, '').trim();
   it._clean = true;
 }
+// Не е цяла машина (инвентар, кофи, чукове, мулчери, части) — същото правило като в scraper-а
+const ATT_W = /кофа|кофи|бързосменник|хидравличен|чук|къртач|мулчер|свредел|грайфер|вилици|рипер|оборудване|инвентар|bucket|löffel|schaufel|schnellwechsler|tiltrotator|powertilt|tilt|hammer|gabel|grapple|auger|coupler|breaker|mulcher|łyżka|młot|chwytak|widły|kova|kırıcı|ataşman|benna|godet|cazo|anbau/i;
+const MACH_W = /багер|товарач|булдозер|валяк|самосвал|вишка|сметосъбира|генератор|компресор|трошачк|асфалтополагач|рециклатор|виброплоч|трамбовк|грейдер|excavator|bagger|lader|loader|dozer|raupe|walze|roller|kipper|tipper|bühne|platform|koparka|ładowarka|spycharka|walec|ekskavat|loder|yükleyici|silindir|escavatore|terna|pala|pelle|chargeuse|excavadora|retro|cargadora|bager|utovarivač|stromerzeuger|kompressor|compressor|crusher|brecher|fertiger|paver|^hmk|^\d ?cx$/i;
+function nonMachine(title) {
+  const w = String(title || '').toLowerCase().split(/[\s|,;:()\/*+–—-]+/).filter(Boolean);
+  let a = -1, m = -1;
+  w.forEach((x, i) => { const isM = MACH_W.test(x); if (isM && m < 0) m = i; if (!isM && ATT_W.test(x) && a < 0) a = i; });
+  // „… вилици за всички комбинирани багери“, „Löffel für Minibagger“ → инвентар, дори марката да е отпред
+  if (a >= 0 && /^(за|для|für|fur|for|do|pentru|per|pour|para|için|icin|na)$/.test(w[a + 1] || '') ) return true;
+  return a >= 0 && (m < 0 || a < m);
+}
+const NON_MACHINE_CATS = ['attach', 'breaker', 'mulcher'];
+const HOME_X = /kühlschrank|gefrier|küche|kueche|einbauküche|хладилник|фризер|велосипед|колело|fahrrad|mtb|e-bike|waschmaschine|geschirrspüler|пералня|кафемашина|kaffeemaschine|weinkühl|backofen|фурна/i;
+const MIN_YEAR = 2008;
+const textYear = it => { const m = ((it.title || '') + ' ' + (it.desc || '')).match(/\b(19[89]\d|20[0-2]\d)\b/); return m ? +m[1] : 0; };
 const WANT_X = /(^|[\s\/,.;:(!-])(търся|търсим|търси се|купувам|изкупувам|купуваме|wanted|suche|kaufe|ankauf|kupię|kupie|cumpăr|cumpar|compro|cerco|achète|busco)([\s\/,.;:)!-]|$)/i;
 function prep(it) {
   if (it.photo && it.photo.startsWith('//')) it.photo = 'https:' + it.photo;
@@ -276,7 +291,10 @@ function prep(it) {
   if (WANT_X.test(it.title)) it.type = 'wanted';
   const t = txt(it);
   it._cat = (CATS.find(c => c[2].test(t)) || ['other'])[0];
-  it._boat = BOATS.test(t) || PARTS_X.test(t) || (TELE_X.test(t) && !/manitou/.test(t));
+  it._boat = BOATS.test(t) || PARTS_X.test(t) || (TELE_X.test(t) && !/manitou/.test(t)) || nonMachine(it.title) || NON_MACHINE_CATS.includes(it._cat) || HOME_X.test(it.title);
+  // Само машини от 2008 г. нататък; без година след проверка на страницата → не се показва
+  it._year = +it.year > 0 ? +it.year : textYear(it);
+  it._old = it.type !== 'wanted' && (it._year ? it._year < MIN_YEAR : it.year === 0);
   let cc = SOURCES[it.source]?.cc;
   if (!cc || SOURCES[it.source]?.foreign) { const m = Object.entries(COUNTRIES).find(([, v]) => v[2].test(t)); if (m) cc = m[0]; }
   it._cc = cc || (SOURCES[it.source]?.foreign ? 'EU' : 'BG');
@@ -307,7 +325,7 @@ const when = it => new Date(it.firstSeen || it.date).getTime();
 const isNew = it => when(it) > S.ack;
 const wantsNotify = it => (!S.notifKw || kwMatch(it)) && (!S.notifWanted || it.type === 'wanted');
 let _live = null, _liveKey = '';
-const live = () => { const k = S.items.length + '|' + S.disabled.join(','); if (_live && k === _liveKey) return _live; _liveKey = k; return (_live = dedupe(S.items.filter(i => !S.disabled.includes(i.source) && !i._boat && brandOk(i) && hasPhoto(i)))); };
+const live = () => { const k = S.items.length + '|' + S.disabled.join(','); if (_live && k === _liveKey) return _live; _liveKey = k; return (_live = dedupe(S.items.filter(i => !S.disabled.includes(i.source) && !i._boat && !i._old && brandOk(i) && hasPhoto(i)))); };
 function ago(d) {
   const m = Math.round((Date.now() - new Date(d)) / 6e4);
   if (m < 1) return 'току-що'; if (m < 60) return `преди ${m} мин`;
@@ -399,6 +417,7 @@ function renderStats() {
   $('#bell').classList.toggle('on', nNew > 0);
   $('#bellCnt').textContent = nNew > 99 ? '99+' : nNew;
   $('#dNew').textContent = nNew ? nNew + ' нови' : ''; $('#dNew').style.display = nNew ? '' : 'none';
+  const nf = Object.keys(S.favs).length; if ($('#dFav')) { $('#dFav').textContent = nf || ''; $('#dFav').style.display = nf ? '' : 'none'; }
   if ('setAppBadge' in navigator) { try { nNew ? navigator.setAppBadge(nNew) : navigator.clearAppBadge(); } catch {} }
   document.title = nNew ? `(${nNew}) ECOBenchmark` : 'ECOBenchmark';
 }
@@ -495,14 +514,41 @@ function renderKnow() {
 
 // ---------- Търсачка ----------
 const inScope = k => S.scope === 'all' || (S.scope === 'foreign' ? !!SOURCES[k]?.foreign : !SOURCES[k]?.foreign);
+// Разбор на заявката: „hidromek до 40 000“, „jcb 3cx 30-50k“, „мини багер над 20000 след 2015“
+const numQ = (n, k) => { const v = parseFloat(String(n).replace(/[\s.](?=\d{3}\b)/g, '').replace(',', '.')); return k ? v * 1000 : v; };
+function parseQuery(q) {
+  const f = { min: null, max: null, ymin: null };
+  const N = '(\\d[\\d\\s.,]*?\\d|\\d)\\s*(k|к|хил\\.?|хиляди)?\\s*(?:€|евро|eur)?';
+  q = q.replace(new RegExp(`(?:от|from|ab)?\\s*${N}\\s*(?:-|–|до|to|bis)\\s*${N}(?=\\s|$)`, 'i'), (m, a, ka, b, kb) => { const x = numQ(a, ka || kb), y = numQ(b, kb); if (y >= 1000 && !(x >= 1980 && x <= 2035 && y >= 1980 && y <= 2035)) { f.min = x; f.max = y; return ' '; } return m; });
+  q = q.replace(new RegExp(`(?:^|\\s)(?:до|под|max|bis|unter|<)\\s*${N}(?=\\s|$)`, 'i'), (m, a, k) => { const v = numQ(a, k); if (v >= 1000 && !(v >= 1980 && v <= 2035 && !k)) { f.max = v; return ' '; } return m; });
+  q = q.replace(new RegExp(`(?:^|\\s)(?:над|от|min|ab|über|>)\\s*${N}(?=\\s|$)`, 'i'), (m, a, k) => { const v = numQ(a, k); if (v >= 1000 && !(v >= 1980 && v <= 2035 && !k)) { f.min = v; return ' '; } return m; });
+  q = q.replace(/(?:^|\s)(?:след|от|after|ab)\s*((?:19|20)\d{2})\s*(?:г\.?|година)?(?=\s|$)|(?:^|\s)((?:19|20)\d{2})\s*(?:г\.?\s*)?\+(?=\s|$)/i, (m, a, b) => { f.ymin = +(a || b) + (a && /след|after/i.test(m) ? 1 : 0); return ' '; });
+  return { words: norm(q).split(/\s+/).filter(w => w.length > 0), ...f };
+}
+// Дума → синоними на марката („хидромек“ = „hidromek“ = „hmk 102“)
+const wordTest = w => { const r = Object.values(BR).find(x => w.length >= 3 && new RegExp('^(?:' + x + ')', 'i').test(w)); return r ? (t => new RegExp(r, 'i').test(t)) : (t => t.includes(w)); };
 async function doSearch(q) {
-  q = q.trim(); if (!q) return;
-  const words = norm(q).split(/\s+/);
-  const local = live().filter(it => inScope(it.source) && words.every(w => txt(it).includes(w))).sort((a, b) => (a._rank - b._rank) || (when(b) - when(a)));
+  q = (q || '').trim();
+  const pq = parseQuery(q);
+  const min = +$('#sPmin').value || pq.min, max = +$('#sPmax').value || pq.max, ymin = +$('#sYmin').value || pq.ymin, sort = $('#sSort').value;
+  if (!pq.words.length && !min && !max && !ymin) return;
+  // „мини багер“, „валяк“, „челен товарач“ → търси по категория (хваща и Minibagger, Walze, Radlader…)
+  const qs = pq.words.join(' '), cm = CATS.filter(c => !NON_MACHINE_CATS.includes(c[0]) && c[0] !== 'parts').map(c => [c, c[2].exec(qs)]).find(([, m]) => m);
+  const catQ = cm ? cm[0][0] : null;
+  const rest = cm && !/\d/.test(cm[1][0]) ? qs.replace(cm[1][0], ' ').split(/\s+/).filter(Boolean) : pq.words;
+  const tests = rest.map(wordTest);
+  let local = live().filter(it => inScope(it.source) && (!catQ || it._cat === catQ) && tests.every(t => t(txt(it))) &&
+    (!(min || max) || it.type === 'sale') &&
+    (!min || (it._eur && it._eur >= min)) && (!max || (it._eur && it._eur <= max)) && (!ymin || (it._year && it._year >= ymin)));
+  local = sort === 'pasc' ? local.sort((a, b) => (a._eur ?? 9e9) - (b._eur ?? 9e9)) : sort === 'pdesc' ? local.sort((a, b) => (b._eur ?? -1) - (a._eur ?? -1))
+    : sort === 'new' ? local.sort((a, b) => when(b) - when(a)) : sort === 'year' ? local.sort((a, b) => (b._year || 0) - (a._year || 0)) : local.sort((a, b) => (a._rank - b._rank) || (when(b) - when(a)));
+  const pr = local.map(i => i._eur).filter(Boolean);
+  const chips = [catQ && CATS.find(c => c[0] === catQ)[1], rest.length && `„${rest.join(' ')}“`, min && `от ${fmtEur(min)}`, max && `до ${fmtEur(max)}`, ymin && `от ${ymin} г.`].filter(Boolean).join(' · ');
+  q = pq.words.join(' ') || q;
   const siteBtns = Object.entries(SOURCES).filter(([k]) => inScope(k)).map(([, s]) => `<a class="site" href="${esc(s.link(q))}" target="_blank" rel="noopener"><i>${s.flag}</i>${esc(s.name)}</a>`).join('');
   const fbBtns = FB.map(f => `<a class="site fb" href="${esc(f.link(q))}" target="_blank" rel="noopener"><i>f</i>${f.name}</a>`).join('');
   $('#sResults').innerHTML = `
-    <div class="sec"><h2>В събраните обяви</h2><p class="sub">${local.length ? local.length + ' съвпадения' : 'Няма съвпадения засега'}</p></div>
+    <div class="sec"><h2>В събраните обяви</h2><p class="sub">${chips}<br>${local.length ? `${local.length} съвпадения${pr.length ? ` · медиана ${fmtEur(median(pr))} · ${fmtEur(Math.min(...pr))} – ${fmtEur(Math.max(...pr))}` : ''}` : 'Няма съвпадения засега'}</p></div>
     <div class="list">${local.slice(0, 100).map(card).join('')}</div>
     <div id="liveBox"></div>
     <div class="sec"><h2>Търси директно в сайтовете</h2><p class="sub">Отваря търсенето за „${esc(q)}“ във всеки сайт.</p></div><div class="sites">${siteBtns}</div>
@@ -541,11 +587,24 @@ function renderSources() {
   $('#cForm').onsubmit = e => { e.preventDefault(); S.custom.push({ name: $('#cName').value.trim(), url: $('#cUrl').value.trim() }); save(); renderSources(); toast('Източникът е добавен'); };
 }
 
-// ---------- Любими и настройки ----------
+// ---------- Демопарк и настройки ----------
 function renderFavs() {
-  const f = Object.values(S.favs).map(prep).sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
-  $('#favList').innerHTML = f.length ? f.map(card).join('') : `<div class="empty">${ICON_STAR}<b>Още нямаш любими</b>Натисни звездата на обява, за да я запазиш тук.</div>`;
+  let f = Object.values(S.favs).map(prep).sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
+  if (!f.length) { $('#favTop').innerHTML = ''; $('#favList').innerHTML = `<div class="empty">${ICON_STAR}<b>Демопаркът е празен</b>Натисни звездата на обява, която харесваш — машината идва тук и остава, дори обявата да изчезне от сайта.</div>`; return; }
+  const cats = {}; f.forEach(i => { cats[i._cat] = (cats[i._cat] || 0) + 1; });
+  if (S.favCat && !cats[S.favCat]) S.favCat = '';
+  const pr = f.map(i => i._eur).filter(Boolean);
+  $('#favTop').innerHTML = `<div class="mkgrid" style="margin-bottom:10px"><div class="mk"><div class="lbl">Машини</div><div class="val">${f.length}</div></div><div class="mk"><div class="lbl">Обща стойност</div><div class="val">${fmtEur(pr.reduce((a, b) => a + b, 0))}</div></div><div class="mk"><div class="lbl">Средна цена</div><div class="val">${fmtEur(pr.length ? pr.reduce((a, b) => a + b, 0) / pr.length : null)}</div></div><div class="mk"><div class="lbl">Търсят</div><div class="val">${f.filter(i => i.type === 'wanted').length}</div></div></div>
+    <div class="toolbar"><button class="dd ${!S.favCat ? 'set' : ''}" data-favcat="">Всички</button>${Object.entries(cats).map(([k, n]) => `<button class="dd ${S.favCat === k ? 'set' : ''}" data-favcat="${k}">${esc(CATS.find(c => c[0] === k)?.[1] || 'Друго')} · ${n}</button>`).join('')}</div>
+    <div class="alarm-act" style="padding:0 16px 10px"><button class="btn" id="favShare" style="flex:1">📤 Изпрати списъка</button></div>`;
+  if (S.favCat) f = f.filter(i => i._cat === S.favCat);
+  $('#favList').innerHTML = f.map(card).join('');
+  $('#favShare').onclick = async () => {
+    const t = 'ECOBenchmark — Демопарк\n\n' + f.map(i => `• ${i.title}${i._eur ? ' — ' + fmtEur(i._eur) : ''}\n  ${i.url}`).join('\n');
+    try { if (navigator.share) await navigator.share({ title: 'Демопарк', text: t }); else { await navigator.clipboard.writeText(t); toast('Списъкът е копиран'); } } catch {}
+  };
 }
+document.addEventListener('click', e => { const b = e.target.closest('[data-favcat]'); if (b) { S.favCat = b.dataset.favcat; renderFavs(); } });
 function renderSettings() {
   $('#kwList').innerHTML = S.keywords.map((k, i) => `<span class="kwc">${esc(k)}<button data-kwdel="${i}" aria-label="Премахни">✕</button></span>`).join('') || '<span class="st">Няма добавени думи.</span>';
   $('#alarmOn').checked = S.alarmOn;
@@ -691,7 +750,7 @@ function showAlarm() {
   $('#alarmClose').onclick = close;
   if ($('#alarmNext')) $('#alarmNext').onclick = showAlarm;
   $('#alarmOpen').onclick = () => setTimeout(showAlarm, 300);
-  $('#alarmSave').onclick = () => { const { _cat, _cc, _eur, _brand, _rank, ...raw } = it; S.favs[it.id] = { ...raw, savedAt: Date.now() }; save(); toast('★ Запазена в любими'); showAlarm(); };
+  $('#alarmSave').onclick = () => { const { _cat, _cc, _eur, _brand, _rank, ...raw } = it; S.favs[it.id] = { ...raw, savedAt: Date.now() }; save(); toast('★ Добавена в Демопарк'); showAlarm(); };
   alarmTimer = setTimeout(showAlarm, 40000);
   siren();
   setTimeout(() => speak(`Нова обява. ${title}. ${it._eur ? eurWords(it._eur) : ''}. ${city}.`), 1700);
@@ -1115,7 +1174,7 @@ const HERO = {
   search: ['Търсачка', 'Намери конкретна машина във всички сайтове наведнъж.'],
   news:   ['Новини от бранша', 'Инфраструктура, икономика, енергетика и техника.'],
   know:   ['Ноу-хау', 'Практични насоки за избор, проверка и поддръжка.'],
-  fav:    ['Любими', 'Обявите, които следиш.'],
+  fav:    ['Демопарк', 'Машините, които харесваш — на едно място.'],
   set:    ['Настройки', 'Ключови думи, известия и сайтове.'],
   deals:  ['Ловец на сделки', 'Машини под пазарната цена — купи, препродай или свържи с клиент.'],
   post:   ['Публикувай обява', 'Една обява — всички сайтове, на езика на всеки.'],
@@ -1167,8 +1226,8 @@ document.addEventListener('click', e => {
   else if (d.fav) {
     e.preventDefault();
     const it = S.items.find(i => i.id === d.fav) || S.liveCache?.[d.fav] || S.favs[d.fav];
-    if (S.favs[d.fav]) { delete S.favs[d.fav]; toast('Премахната от любими'); }
-    else if (it) { const { _cat, _cc, _eur, _brand, ...raw } = it; S.favs[d.fav] = { ...raw, savedAt: Date.now() }; toast('Запазена в любими'); }
+    if (S.favs[d.fav]) { delete S.favs[d.fav]; toast('Махната от Демопарк'); }
+    else if (it) { const { _cat, _cc, _eur, _brand, ...raw } = it; S.favs[d.fav] = { ...raw, savedAt: Date.now() }; toast('★ Добавена в Демопарк'); }
     save(); $$(`[data-fav="${CSS.escape(d.fav)}"]`).forEach(x => x.classList.toggle('on', !!S.favs[d.fav]));
     if (S.view === 'fav') renderFavs();
   }
@@ -1192,6 +1251,7 @@ $('#notifWanted').onchange = e => { S.notifWanted = e.target.checked; save(); re
 $('#srcSet').onchange = e => { const k = e.target.dataset.srcset; if (!k) return; S.disabled = e.target.checked ? S.disabled.filter(x => x !== k) : [...S.disabled, k]; save(); renderFeed(); };
 $('#kwForm').onsubmit = e => { e.preventDefault(); const v = $('#kwIn').value.trim(); if (v && !S.keywords.some(k => norm(k) === norm(v))) { S.keywords.push(v); save(); renderSettings(); renderStats(); toast(`„${v}“ е добавена`); } $('#kwIn').value = ''; };
 $('#sForm').onsubmit = e => { e.preventDefault(); $('#sQ').blur(); doSearch($('#sQ').value); };
+['#sPmin', '#sPmax', '#sYmin', '#sSort'].forEach(id => $(id).addEventListener('change', () => doSearch($('#sQ').value)));
 $('#liveSave').onclick = () => { S.liveUrl = $('#liveUrl').value.trim(); save(); toast('Запазено'); };
 $('#notifBtn').onclick = async () => {
   if (!('Notification' in window)) return toast('Устройството не поддържа известия тук');

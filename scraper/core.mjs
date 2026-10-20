@@ -23,7 +23,7 @@ export function classify(text, title) {
 // ---------- Филтър по бранша ----------
 export const RELEVANT = /багер|товарач|валяк|виброплоч|трамбовк|пачекрак|хидравличен чук|къртач|мулчер|асфалтополагач|асфалтова|фреза за асфалт|трошачк|генератор|компресор|телескопичен|булдозер|грейдер|къртиц|сондаж|бобкат|самосвал|автокран|кран[- ]?манипулатор|вишк|челен|верижен|бързосменник|прикачен инвентар|строителна техника|земни работи|сметосъбира|боклукчийск|тристран|рециклатор|термоконтейнер|excavator|backhoe|wheel loader|skid ?steer|telehandler|compactor|hydraulic breaker|mulcher|asphalt paver|crusher|bulldozer|grader|minibagger|midibagger|kettenbagger|mobilbagger|baggerlader|radlader|kompaktlader|teleskoplader|planierraupe|rüttelplatte|walzenzug|tandemwalze|hydraulikhammer|abbruchhammer|forstmulcher|kipper|müllwagen|arbeitsbühne|stromerzeuger|baukompressor|koparka|ładowarka|buldoexcavator|hidromek|ammann|\bjcb\b|caterpillar|komatsu|takeuchi|kubota|hitachi|liebherr|doosan|develon|new holland|terex|manitou|bomag|dynapac|\bhamm\b|wacker|neuson|\bimeks\b|hycon|grundomat|tracto-technik|rioned|komplet|yanmar|kobelco|\bsany\b|xcmg|liugong|mecalac|kramer|weidemann|\bavant\b|\bgehl\b|\bsdmo\b|\baksa\b|bager|valyak|tovarach|vibroplocha|trambovka|buldozer|greyder|samosval|vishka/i;
 // Шум от потребителски сайтове (игри, мебели, инструменти)
-export const NOISE = /детски|за деца|конструктор|warhammer|skylander|lego|playmobil|siku|bruder|modell|spielzeug|играчк|модел 1:|1:\d{2}|figur|kill team|dice|würfel|landhausdiele|parkett|bohrhammer|akku|ladegerät/i;
+export const NOISE = /kühlschrank|gefrier|küche|kueche|einbauküche|хладилник|фризер|велосипед|колело|fahrrad|mtb|e-bike|waschmaschine|geschirrspüler|пералня|кафемашина|kaffeemaschine|weinkühl|backofen|фурна|детски|за деца|конструктор|warhammer|skylander|lego|playmobil|siku|bruder|modell|spielzeug|играчк|модел 1:|1:\d{2}|figur|kill team|dice|würfel|landhausdiele|parkett|bohrhammer|akku|ladegerät/i;
 
 // ---------- Помощни ----------
 const ENT = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', '#39': "'" };
@@ -111,6 +111,42 @@ function extractLinks(html, baseUrl, pattern) {
   return [...out.values()];
 }
 
+
+// Не е цяла машина: инвентар, кофи, части — ако думата за инвентар идва ПРЕДИ думата за машина
+// („Кофа за багер JCB“ → инвентар; „JCB 3CX с кофа и чук“ → машина; „Schaufellader“ → машина)
+const ATT_W = /кофа|кофи|бързосменник|хидравличен|чук|къртач|мулчер|свредел|грайфер|вилици|рипер|оборудване|инвентар|bucket|löffel|schaufel|schnellwechsler|tiltrotator|powertilt|tilt|hammer|gabel|grapple|auger|coupler|breaker|mulcher|łyżka|młot|chwytak|widły|kova|kırıcı|ataşman|benna|godet|cazo|anbau/i;
+const MACH_W = /багер|товарач|булдозер|валяк|самосвал|вишка|сметосъбира|генератор|компресор|трошачк|асфалтополагач|рециклатор|виброплоч|трамбовк|грейдер|excavator|bagger|lader|loader|dozer|raupe|walze|roller|kipper|tipper|bühne|platform|koparka|ładowarka|spycharka|walec|ekskavat|loder|yükleyici|silindir|escavatore|terna|pala|pelle|chargeuse|excavadora|retro|cargadora|bager|utovarivač|stromerzeuger|kompressor|compressor|crusher|brecher|fertiger|paver|^hmk|^\d ?cx$/i;
+export function nonMachine(title) {
+  const w = String(title || '').toLowerCase().split(/[\s|,;:()\/*+–—-]+/).filter(Boolean);
+  let a = -1, m = -1;
+  w.forEach((x, i) => { const isM = MACH_W.test(x); if (isM && m < 0) m = i; if (!isM && ATT_W.test(x) && a < 0) a = i; });
+  // „… вилици за всички комбинирани багери“, „Löffel für Minibagger“ → инвентар, дори марката да е отпред
+  if (a >= 0 && /^(за|для|für|fur|for|do|pentru|per|pour|para|için|icin|na)$/.test(w[a + 1] || '') ) return true;
+  return a >= 0 && (m < 0 || a < m);
+}
+// Година на производство: първо от етикет на страницата, после от текста
+const YR = '((?:19[89]|20[0-2])\\d)';
+const YEAR_LBL = [
+  new RegExp('(?:година на производство|дата на производство|произведен[аo]?|год\\.? на пр\\w*)[^0-9]{0,40}' + YR, 'i'),
+  new RegExp('(?:baujahr|erstzulassung|bj\\.)[^0-9]{0,25}(?:\\d{1,2}[./])?' + YR, 'i'),
+  new RegExp('(?:year of manufacture|year of construction|manufacturing year|model year|year built)[^0-9]{0,25}' + YR, 'i'),
+  new RegExp('(?:rok produkcji|model yılı|an fabricație|anno di costruzione|année)[^0-9]{0,25}' + YR, 'i'),
+  new RegExp('"(?:productionDate|vehicleModelDate|modelDate|dateVehicleFirstRegistered)"\\s*:\\s*"' + YR, 'i')
+];
+export function yearFromText(t) {
+  t = String(t || '');
+  for (const rx of YEAR_LBL) { const m = rx.exec(t); if (m) return +m[1]; }
+  return 0;
+}
+export async function fetchYear(item) {
+  try {
+    const html = await getText(item.url, 12000);
+    const text = decode(html.slice(0, 400000).replace(/<script(?![^>]*ld\+json)[\s\S]*?<\/script>/gi, ' ').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ');
+    item.year = yearFromText(html.slice(0, 400000)) || yearFromText(text) || 0;
+  } catch { /* недостъпна страница — пробва се пак следващия път */ }
+  return item;
+}
+
 export async function enrich(item) {
   // Детайлна страница → og: тагове (заглавие, снимка, описание)
   try {
@@ -133,6 +169,7 @@ export async function enrich(item) {
     else if (amt) item.price = `${amt} ${cur || ''}`.trim();
     else if (item.source && item.source !== 'bazar' && item.source !== 'mobilebg') item.price = '';
     else if (!item.price) item.price = priceFrom(meta(html, 'og:description')) || priceFrom(decode(html.slice(0, 60000)));
+    if (!item.year) item.year = yearFromText(html.slice(0, 400000)) || yearFromText(decode(html.slice(0, 400000).replace(/<[^>]+>/g, ' '))) || 0;
   } catch { /* ок — остава каквото е намерено в списъка */ }
   return item;
 }

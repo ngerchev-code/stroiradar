@@ -13,7 +13,10 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 let old = [];
 try { old = JSON.parse(await readFile(new URL('listings.json', ROOT), 'utf8')).items || []; } catch {}
 const EXCLX = t => new RegExp(config.excludePattern || '^$', 'i').test(t) || (new RegExp(config.telehandlerPattern || '^$', 'i').test(t) && !/manitou/i.test(t));
-old = old.filter(i => RELEVANT.test(i.title + ' ' + (i.desc || '') + ' ' + i.url) && !EXCLX(i.title + ' ' + i.url) && !NOISE.test(i.title));
+const MIN_YEAR = config.minYear || 2008;
+const textYear = i => { const m = ((i.title || '') + ' ' + (i.desc || '')).match(/\b(19[89]\d|20[0-2]\d)\b/); return m ? +m[1] : 0; };
+const tooOld = i => { const y = +i.year || textYear(i); return y > 0 && y < MIN_YEAR; };
+old = old.filter(i => RELEVANT.test(i.title + ' ' + (i.desc || '') + ' ' + i.url) && !EXCLX(i.title + ' ' + i.url) && !NOISE.test(i.title) && !nonMachine(i.title) && !tooOld(i));
 for (const i of old) { i.type = classify(i.title + ' ' + (i.desc || ''), i.title); const pd = priceFromDesc(i.desc); if (pd) i.price = pd; }
 for (const i of old) if (/^\d\s\d{2}\s\d{3}\b/.test(i.price || '')) i.price = i.price.replace(/^\d\s/, '');
 const known = new Map(old.map(i => [i.id, i]));
@@ -45,7 +48,7 @@ async function runSource(key, src, terms) {
       const q = queue.shift();
       try {
         const items = await searchSource(key, src, q, { enrichDetails: false });
-        for (const it of items) { it.matched = q; if (!RELEVANT.test(it.title + ' ' + (it.desc || '') + ' ' + it.url + ' ' + (it.hint || '')) || EXCL.test(it.title + ' ' + it.url) || NOISE.test(it.title)) continue; if (!found.has(it.id)) found.set(it.id, it); }
+        for (const it of items) { it.matched = q; if (!RELEVANT.test(it.title + ' ' + (it.desc || '') + ' ' + it.url + ' ' + (it.hint || '')) || EXCL.test(it.title + ' ' + it.url) || NOISE.test(it.title) || nonMachine(it.title)) continue; if (!found.has(it.id)) found.set(it.id, it); }
         ok++;
       } catch (e) { err++; last = e.message; }
       await sleep(700);
@@ -69,10 +72,16 @@ for (let i = 0; i < fresh.length; i += 6) {
   await Promise.all(fresh.slice(i, i + 6).map(async it => {
     if (it.source !== 'olx' && !it.desc) await enrich(it);
     it.type = classify(it.title + ' ' + it.desc, it.title);
-    if (EXCL.test(it.title + ' ' + (it.desc || ''))) found.delete(it.id);
+    if (EXCL.test(it.title + ' ' + (it.desc || '')) || nonMachine(it.title) || tooOld(it)) found.delete(it.id);
     it.firstSeen = new Date().toISOString();
   }));
 }
+
+// Година за старите обяви без година (постепенно — до 350 на пускане)
+const noYear = [...known.values()].filter(i => i.year === undefined && i.type !== 'wanted' && !textYear(i)).slice(0, 350);
+for (let i = 0; i < noYear.length; i += 6) await Promise.all(noYear.slice(i, i + 6).map(fetchYear));
+for (const it of noYear) if (tooOld(it)) known.delete(it.id);
+console.log(`Година: проверени ${noYear.length}, намерена при ${noYear.filter(i => i.year).length}`);
 
 // Само обяви с истинска снимка (по-малко данни, по-бързо приложение)
 const BAD_PHOTO = /noimage|no-image|no_photo|nophoto|placeholder|default[-_]?(img|image)|logo|blank\.(gif|png)|spacer|data:image|1x1/i;

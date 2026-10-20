@@ -444,6 +444,7 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
 .spin2{display:inline-block;width:12px;height:12px;border:2px solid var(--signal);border-right-color:transparent;border-radius:50%;animation:sp .9s linear infinite;vertical-align:-1px;margin-right:6px}
 @keyframes sp{to{transform:rotate(360deg)}}
 .pdfrow{display:flex;gap:8px;margin-top:14px}.pdfrow .btn{flex:1;justify-content:center}
+.sfilt{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 16px 10px}.sfilt input,.sfilt select{min-width:0;padding:10px 12px;border-radius:12px;border:1px solid var(--rule);background:var(--card);color:inherit;font:inherit;font-size:14px}
 .pb-lang{margin-bottom:8px}.pb-lang small{display:block;font-weight:700;color:var(--muted);margin-bottom:4px}
 .chk{display:flex;align-items:center;gap:8px;font-weight:600;padding:12px 0}
 .pb-card{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--lift);margin:0 16px 12px;padding:14px}
@@ -581,9 +582,10 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
 
   <!-- ТЪРСАЧКА -->
   <section class="view" id="v-search">
-    <form class="searchbox" id="sForm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><input id="sQ" placeholder="Модел, марка или услуга" autocomplete="off" enterkeyhint="search"><button class="btn primary">Търси</button></form>
+    <form class="searchbox" id="sForm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><input id="sQ" placeholder="напр. hidromek 102b до 45000" autocomplete="off" enterkeyhint="search"><button class="btn primary">Търси</button></form>
+    <div class="sfilt"><input id="sPmin" type="number" inputmode="numeric" placeholder="Цена от €"><input id="sPmax" type="number" inputmode="numeric" placeholder="Цена до €"><input id="sYmin" type="number" inputmode="numeric" placeholder="Година от" min="2008" max="2027"><select id="sSort"><option value="rank">Приоритет</option><option value="pasc">Цена ↑</option><option value="pdesc">Цена ↓</option><option value="year">Най-нова машина</option><option value="new">Най-нова обява</option></select></div>
     <div class="seg" id="scopeSeg"><button data-scope="all" class="on">Навсякъде</button><button data-scope="bg">България</button><button data-scope="foreign">Европа</button></div>
-    <div id="sResults"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><b>Намери техника в цяла Европа</b>Напиши модел, например „Hidromek 102B“ или „FAE мулчер“.</div></div>
+    <div id="sResults"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><b>Намери техника в цяла Европа</b>Търси по марка, модел или дума от обявата. Може и цена: „jcb 3cx до 40000“, „мини багер 20-35k“, „komatsu след 2015“.</div></div>
   </section>
 
   <!-- НОВИНИ -->
@@ -693,7 +695,7 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
   </section>
 
   <!-- ЛЮБИМИ -->
-  <section class="view" id="v-fav"><div class="sec"><h2>Любими</h2><p class="sub">Запазените обяви остават тук, дори да изчезнат от сайта.</p></div><div class="list" id="favList"></div></section>
+  <section class="view" id="v-fav"><div class="sec"><h2>Демопарк</h2><p class="sub">Всяка обява, която харесаш (★), идва тук и остава, дори да изчезне от сайта.</p></div><div id="favTop"></div><div class="list" id="favList"></div></section>
 
   <!-- НАСТРОЙКИ -->
   <section class="view" id="v-set">
@@ -748,7 +750,7 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
     <button class="ditem" data-go="know"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 7h6"/></svg>Ноу-хау</button>
   </div>
   <div class="dgroup">
-    <button class="ditem" data-go="fav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 2.8 5.6 6.2.9-4.5 4.4 1 6.1L12 17l-5.5 3 1-6.1L3 9.5l6.2-.9z"/></svg>Любими</button>
+    <button class="ditem" data-go="fav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 2.8 5.6 6.2.9-4.5 4.4 1 6.1L12 17l-5.5 3 1-6.1L3 9.5l6.2-.9z"/></svg>Демопарк<span class="pill" id="dFav"></span></button>
     <button class="ditem" data-go="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7 7 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg>Настройки</button>
   </div>
   <div class="dfoot" id="dfoot">ECOBenchmark · версия 1.2</div>
