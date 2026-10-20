@@ -1,6 +1,6 @@
 // СтройРадар — периодично събиране на обяви (пуска се от GitHub Actions на всеки 20 мин).
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { searchSource, enrich, classify, RELEVANT, NOISE, priceFromDesc, getText, nonMachine, fetchYear } from './core.mjs';
+import { searchSource, enrich, classify, RELEVANT, NOISE, priceFromDesc, getText, nonMachine, fetchYear, isService } from './core.mjs';
 import { updateMarket, findDeals, observe, factsFromHtml } from './deals.mjs';
 import { collectNews } from './news.mjs';
 import { collectInbox, collectEval } from './inbox.mjs';
@@ -16,7 +16,7 @@ const EXCLX = t => new RegExp(config.excludePattern || '^$', 'i').test(t) || (ne
 const MIN_YEAR = config.minYear || 2008;
 const textYear = i => { const m = ((i.title || '') + ' ' + (i.desc || '')).match(/\b(19[89]\d|20[0-2]\d)\b/); return m ? +m[1] : 0; };
 const tooOld = i => { const y = +i.year || +i.yr || textYear(i); return y > 0 && y < MIN_YEAR; };
-old = old.filter(i => RELEVANT.test(i.title + ' ' + (i.desc || '') + ' ' + i.url) && !EXCLX(i.title + ' ' + i.url) && !NOISE.test(i.title) && !nonMachine(i.title) && !tooOld(i));
+old = old.filter(i => RELEVANT.test(i.title + ' ' + (i.desc || '') + ' ' + i.url) && !EXCLX(i.title + ' ' + i.url) && !NOISE.test(i.title) && !nonMachine(i.title) && !isService(i.title) && !tooOld(i));
 for (const i of old) { i.type = classify(i.title + ' ' + (i.desc || ''), i.title); const pd = priceFromDesc(i.desc); if (pd) i.price = pd; }
 for (const i of old) if (/^\d\s\d{2}\s\d{3}\b/.test(i.price || '')) i.price = i.price.replace(/^\d\s/, '');
 const known = new Map(old.map(i => [i.id, i]));
@@ -48,7 +48,7 @@ async function runSource(key, src, terms) {
       const q = queue.shift();
       try {
         const items = await searchSource(key, src, q, { enrichDetails: false });
-        for (const it of items) { it.matched = q; if (!RELEVANT.test(it.title + ' ' + (it.desc || '') + ' ' + it.url + ' ' + (it.hint || '')) || EXCL.test(it.title + ' ' + it.url) || NOISE.test(it.title) || nonMachine(it.title)) continue; if (!found.has(it.id)) found.set(it.id, it); }
+        for (const it of items) { it.matched = q; if (!RELEVANT.test(it.title + ' ' + (it.desc || '') + ' ' + it.url + ' ' + (it.hint || '')) || EXCL.test(it.title + ' ' + it.url) || NOISE.test(it.title) || nonMachine(it.title) || isService(it.title)) continue; if (!found.has(it.id)) found.set(it.id, it); }
         ok++;
       } catch (e) { err++; last = e.message; }
       await sleep(700);

@@ -116,6 +116,10 @@ function extractLinks(html, baseUrl, pattern) {
 // („Кофа за багер JCB“ → инвентар; „JCB 3CX с кофа и чук“ → машина; „Schaufellader“ → машина)
 const ATT_W = /кофа|кофи|бързосменник|хидравличен|чук|къртач|мулчер|свредел|грайфер|вилици|рипер|оборудване|инвентар|bucket|löffel|schaufel|schnellwechsler|tiltrotator|powertilt|tilt|hammer|gabel|grapple|auger|coupler|breaker|mulcher|łyżka|młot|chwytak|widły|kova|kırıcı|ataşman|benna|godet|cazo|anbau/i;
 const MACH_W = /багер|товарач|булдозер|валяк|самосвал|вишка|сметосъбира|генератор|компресор|трошачк|асфалтополагач|рециклатор|виброплоч|трамбовк|грейдер|excavator|bagger|lader|loader|dozer|raupe|walze|roller|kipper|tipper|bühne|platform|koparka|ładowarka|spycharka|walec|ekskavat|loder|yükleyici|silindir|escavatore|terna|pala|pelle|chargeuse|excavadora|retro|cargadora|bager|utovarivač|stromerzeuger|kompressor|compressor|crusher|brecher|fertiger|paver|^hmk|^\d ?cx$/i;
+// Услуга (сервиз, ремонт, изкопни услуги) — по заглавието, за да не се махат машини със „сервизна история“
+const SERVICE_T = /(^|[\s,.:;(\/-])(услуг\p{L}*|ремонт(?!иран)\p{L}*|сервиз(?!иран|н\p{L}* истор|н\p{L}* книж)\p{L}*|изкопни|repair\p{L}*|reparatur\p{L}*|werkstatt|dienstleistung\p{L}*|naprawa|serwis\p{L}*|tamir\p{L}*)([\s,.:;)!\/-]|$)/iu;
+export const isService = t => SERVICE_T.test(String(t || ''));
+
 export function nonMachine(title) {
   const w = String(title || '').toLowerCase().split(/[\s|,;:()\/*+–—-]+/).filter(Boolean);
   let a = -1, m = -1;

@@ -181,7 +181,7 @@ const PARTS_X = new RegExp('пиньон|корона за|зъбн\\w* коле
 const TELE_X = new RegExp('(телескоп|telehandler|teleskoplader|ładowarka teleskop|loadall|merlo|\\bjcb 5\\d\\d)');
 const BOATS = /детски|играчк|lego|bruder|spielzeug|modell|siku|1:\d{2}|(^|\s)гуми(\s|$)|джанти|услуги с|изкопни услуги|лодк|катер|яхт|джет|jet ?ski|извънбордов|плавателн|понтон|\bboot\b|boat|yacht|schlauchboot|außenborder/;
 const BRANDS = ['Hidromek', 'JCB', 'Develon', 'Sany', 'Mecalac', 'Wacker Neuson', 'Caterpillar', 'Komatsu', 'Volvo', 'Case', 'New Holland', 'Bobcat', 'Takeuchi', 'Kubota', 'Hitachi', 'Liebherr', 'Doosan', 'Hyundai', 'Terex', 'Manitou', 'Ammann', 'Bomag', 'Dynapac', 'Hamm', 'Wacker', 'FAE', 'Atlas Copco', 'Yanmar', 'Kobelco'];
-const TYPES = { all: 'Всички обяви', wanted: 'Търсят', sale: 'Продават', service: 'Сервиз и ремонт', rent: 'Под наем' };
+const TYPES = { all: 'Всички обяви', wanted: 'Търсят', sale: 'Продават', rent: 'Под наем' };
 const TBADGE = { wanted: 'ТЪРСИ', sale: 'ПРОДАВА', service: 'СЕРВИЗ', rent: 'НАЕМ' };
 const SORTS = { rank: 'Приоритет: комбинирани Hidromek, Komatsu, JCB', new: 'Най-нови', pasc: 'Цена — възходящо', pdesc: 'Цена — низходящо' };
 const NCATS = { all: 'Всички', infra: 'Инфраструктурни проекти', economy: 'Икономика', energy: 'Енергетика', industry: 'Развитие на бранша', machines: 'Техника', knowhow: 'Ноу-хау' };
@@ -268,6 +268,10 @@ function cleanTitle(it) {
 // Не е цяла машина (инвентар, кофи, чукове, мулчери, части) — същото правило като в scraper-а
 const ATT_W = /кофа|кофи|бързосменник|хидравличен|чук|къртач|мулчер|свредел|грайфер|вилици|рипер|оборудване|инвентар|bucket|löffel|schaufel|schnellwechsler|tiltrotator|powertilt|tilt|hammer|gabel|grapple|auger|coupler|breaker|mulcher|łyżka|młot|chwytak|widły|kova|kırıcı|ataşman|benna|godet|cazo|anbau/i;
 const MACH_W = /багер|товарач|булдозер|валяк|самосвал|вишка|сметосъбира|генератор|компресор|трошачк|асфалтополагач|рециклатор|виброплоч|трамбовк|грейдер|excavator|bagger|lader|loader|dozer|raupe|walze|roller|kipper|tipper|bühne|platform|koparka|ładowarka|spycharka|walec|ekskavat|loder|yükleyici|silindir|escavatore|terna|pala|pelle|chargeuse|excavadora|retro|cargadora|bager|utovarivač|stromerzeuger|kompressor|compressor|crusher|brecher|fertiger|paver|^hmk|^\d ?cx$/i;
+// Услуга (сервиз, ремонт, изкопни услуги) — по заглавието, за да не се махат машини със „сервизна история“
+const SERVICE_T = /(^|[\s,.:;(\/-])(услуг\p{L}*|ремонт(?!иран)\p{L}*|сервиз(?!иран|н\p{L}* истор|н\p{L}* книж)\p{L}*|изкопни|repair\p{L}*|reparatur\p{L}*|werkstatt|dienstleistung\p{L}*|naprawa|serwis\p{L}*|tamir\p{L}*)([\s,.:;)!\/-]|$)/iu;
+const isService = t => SERVICE_T.test(String(t || ''));
+
 function nonMachine(title) {
   const w = String(title || '').toLowerCase().split(/[\s|,;:()\/*+–—-]+/).filter(Boolean);
   let a = -1, m = -1;
@@ -291,7 +295,7 @@ function prep(it) {
   if (WANT_X.test(it.title)) it.type = 'wanted';
   const t = txt(it);
   it._cat = (CATS.find(c => c[2].test(t)) || ['other'])[0];
-  it._boat = BOATS.test(t) || PARTS_X.test(t) || (TELE_X.test(t) && !/manitou/.test(t)) || nonMachine(it.title) || NON_MACHINE_CATS.includes(it._cat) || HOME_X.test(it.title);
+  it._boat = BOATS.test(t) || PARTS_X.test(t) || (TELE_X.test(t) && !/manitou/.test(t)) || nonMachine(it.title) || NON_MACHINE_CATS.includes(it._cat) || HOME_X.test(it.title) || isService(it.title) || it._cat === 'parts';
   // Само машини от 2008 г. нататък; без година след проверка на страницата → не се показва
   it._year = +it.year > 0 ? +it.year : +it.yr > 0 ? +it.yr : textYear(it);
   it._old = it.type !== 'wanted' && (it._year ? it._year < MIN_YEAR : it.year === 0 && !it.yr);
