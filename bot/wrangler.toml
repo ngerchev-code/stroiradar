@@ -1,0 +1,9 @@
+name = "ecobench-bot"
+main = "bot.mjs"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Паметта на бота. id-то се получава с: npx wrangler kv namespace create MEMORY
+[[kv_namespaces]]
+binding = "MEMORY"
+id = "ПОСТАВЕТЕ_ID_ТУК"

@@ -5,6 +5,7 @@ Euro Construction Benchmark — машини, енергия, инфрастру
 - **docs/** — приложението (инсталира се на Android с иконка, работи и офлайн)
 - **scraper/** — събира обявите на всеки 20 минути (GitHub Actions); ключовите думи за събиране са в `scraper/config.json`
 - **worker/** — по желание: търсачка на живо (Cloudflare Worker)
+- **bot/** — личен асистент в Telegram с Claude: обяви, цени, сделки, входяща кутия, чернови на писма (виж `bot/README.md`)
 
 ## Пускане
 1. GitHub → Settings → Pages → Branch `main`, папка `/docs`.
