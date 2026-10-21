@@ -8,14 +8,14 @@
  ],
  "sentAlarm": [],
  "diag": {
-  "at": "2026-10-21T11:31:45.605Z",
-  "bot": "ecobenchmark_niki_bot",
-  "tokenOk": true,
+  "at": "2026-10-21T11:54:21.138Z",
+  "bot": null,
+  "tokenOk": false,
   "updates": 0,
-  "pending": 0,
+  "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": null
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
