@@ -93,6 +93,10 @@ export async function runTelegram({ token, ownerEnv, config, items, deals, newDe
 
   // 2) Автоматични известия към собственика
   const to = ownerEnv || st.owner;
+  if (to && st.welcomed !== String(to)) {
+    const w = await call(token, 'sendMessage', { chat_id: to, parse_mode: 'HTML', text: '✅ <b>ECOBenchmark бот е свързан.</b>\n\nОттук нататък ще получаваш:\n💰 сделки под пазарната цена\n🚨 всяка нова обява за Hidromek\n\nКоманди: /deals /hidromek /search /stats' });
+    if (w.ok) st.welcomed = String(to);
+  }
   if (to && !dealsFirst) {
     const sent = new Set(st.sentDeals);
     for (const d of newDeals.filter(d => !sent.has(d.id)).slice(0, config.deals?.maxPushPerRun ?? 8)) {
