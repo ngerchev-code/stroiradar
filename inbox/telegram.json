@@ -8,9 +8,9 @@
   "bot": "ecobenchmark_niki_bot",
   "tokenOk": true,
   "updates": 0,
-  "pending": 0,
+  "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": null
+  "error": "getUpdates: 401 Unauthorized"
  }
 }
