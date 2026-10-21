@@ -4,13 +4,13 @@
  "sentDeals": [],
  "sentAlarm": [],
  "diag": {
-  "at": "2026-10-21T11:18:39.146Z",
+  "at": "2026-10-21T11:26:13.717Z",
   "bot": "ecobenchmark_niki_bot",
   "tokenOk": true,
   "updates": 0,
-  "pending": null,
+  "pending": 0,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "getUpdates: 401 Unauthorized"
+  "error": null
  }
 }
