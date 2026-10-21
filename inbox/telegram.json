@@ -6,16 +6,18 @@
   "kleinanzeigen-1flo78f",
   "kleinanzeigen-171bz1t"
  ],
- "sentAlarm": [],
+ "sentAlarm": [
+  "bazar-x81dra"
+ ],
  "diag": {
-  "at": "2026-10-21T12:21:42.205Z",
+  "at": "2026-10-21T13:08:24.601Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "getUpdates: 404 Not Found"
+  "error": "sendMessage: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
