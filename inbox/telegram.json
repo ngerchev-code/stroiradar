@@ -10,14 +10,14 @@
   "bazar-x81dra"
  ],
  "diag": {
-  "at": "2026-10-21T13:08:24.601Z",
+  "at": "2026-10-21T13:54:04.717Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
