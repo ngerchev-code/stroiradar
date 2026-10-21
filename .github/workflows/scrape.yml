@@ -29,6 +29,8 @@ jobs:
       - name: Събиране
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           DEBUG_HTML: ${{ inputs.debug && '1' || '' }}
         run: node scraper/scrape.mjs
       - name: Запис

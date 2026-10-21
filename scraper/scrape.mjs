@@ -3,6 +3,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { searchSource, enrich, classify, RELEVANT, NOISE, priceFromDesc, getText, nonMachine, fetchYear, isService } from './core.mjs';
 import { updateMarket, findDeals, observe, factsFromHtml } from './deals.mjs';
 import { collectNews } from './news.mjs';
+import { runTelegram } from './telegram.mjs';
 import { collectInbox, collectEval } from './inbox.mjs';
 
 const ROOT = new URL('../docs/data/', import.meta.url);
@@ -159,6 +160,14 @@ if (NTFY && !dealsFirst) {
   }
 }
 await writeFile(new URL('status.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), status }, null, 1));
+
+// Telegram бот (ако е зададен TELEGRAM_BOT_TOKEN)
+try {
+  const ALARM_T = new RegExp(config.alarmPattern || 'hidromek|хидромек', 'i');
+  const live = new Set(items.map(i => i.id));
+  await runTelegram({ token: process.env.TELEGRAM_BOT_TOKEN, ownerEnv: process.env.TELEGRAM_CHAT_ID, config, items, deals, newDeals, dealsFirst,
+    alarmItems: firstRun ? [] : fresh.filter(it => live.has(it.id) && ALARM_T.test(it.title + ' ' + (it.desc || ''))) });
+} catch (e) { console.log('Telegram:', e.message); }
 
 // Push известия (ntfy) — само за нови, не при първо пускане
 if (NTFY && !firstRun && fresh.length) {
