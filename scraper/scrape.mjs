@@ -165,7 +165,7 @@ await writeFile(new URL('status.json', ROOT), JSON.stringify({ updated: new Date
 try {
   const ALARM_T = new RegExp(config.alarmPattern || 'hidromek|хидромек', 'i');
   const live = new Set(items.map(i => i.id));
-  await runTelegram({ token: process.env.TELEGRAM_BOT_TOKEN, ownerEnv: process.env.TELEGRAM_CHAT_ID, config, items, deals, newDeals, dealsFirst,
+  await runTelegram({ token: process.env.TELEGRAM_BOT_TOKEN, ownerEnv: process.env.TELEGRAM_CHAT_ID || config.telegramChatId, config, items, deals, newDeals, dealsFirst,
     alarmItems: firstRun ? [] : fresh.filter(it => live.has(it.id) && ALARM_T.test(it.title + ' ' + (it.desc || ''))) });
 } catch (e) { console.log('Telegram:', e.message); }
 

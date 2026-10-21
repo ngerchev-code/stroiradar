@@ -263,5 +263,6 @@
   "maxPushPerRun": 8
  },
  "publishTopic": "bb-pub-7d41c9e2a5",
- "minYear": 2008
+ "minYear": 2008,
+ "telegramChatId": "5457374164"
 }
