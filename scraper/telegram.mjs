@@ -7,15 +7,16 @@ const API = t => `https://api.telegram.org/bot${t}`;
 const STATE = new URL('../inbox/telegram.json', import.meta.url);
 const eur = n => n == null ? '—' : '€ ' + Math.round(n).toLocaleString('de-DE').replace(/\./g, ' ');
 const esc = s => String(s ?? '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+const LAST = { err: '' };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function call(token, method, body) {
   try {
     const r = await fetch(`${API(token)}/${method}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     const j = await r.json();
-    if (!j.ok) console.log('Telegram', method, j.description);
+    if (!j.ok) { console.log('Telegram', method, j.description); LAST.err = `${method}: ${j.error_code || ''} ${j.description || ''}`.trim(); }
     return j;
-  } catch (e) { console.log('Telegram', method, e.message); return {}; }
+  } catch (e) { console.log('Telegram', method, e.message); LAST.err = `${method}: ${e.message}`; return {}; }
 }
 async function send(token, chat, text, photo, url) {
   const reply_markup = url ? { inline_keyboard: [[{ text: 'Отвори обявата ›', url }]] } : undefined;
@@ -54,6 +55,10 @@ export async function runTelegram({ token, ownerEnv, config, items, deals, newDe
   const owner = ownerEnv || st.owner;
   const SRC = config.sources || {};
 
+  // Диагностика: кой е ботът и има ли webhook (той блокира getUpdates)
+  const me = await call(token, 'getMe', {});
+  const wh = await call(token, 'getWebhookInfo', {});
+  if (wh.result?.url) await call(token, 'deleteWebhook', {});
   // 1) Входящи съобщения и команди
   const up = await call(token, 'getUpdates', { offset: st.offset || 0, timeout: 0, allowed_updates: ['message'] });
   for (const u of up.result || []) {
@@ -101,6 +106,7 @@ export async function runTelegram({ token, ownerEnv, config, items, deals, newDe
     st.sentAlarm = [...sa].slice(-3000);
   }
   await mkdir(new URL('../inbox/', import.meta.url), { recursive: true });
+  st.diag = { at: new Date().toISOString(), bot: me.result?.username || null, tokenOk: !!me.ok, updates: (up.result || []).length, webhook: wh.result?.url ? 'изтрит' : 'няма', error: LAST.err || null };
   await writeFile(STATE, JSON.stringify(st, null, 1));
   console.log('Telegram: собственик', to ? 'зададен' : 'няма (напиши /start на бота)');
 }
