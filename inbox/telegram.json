@@ -4,20 +4,21 @@
  "sentDeals": [
   "kleinanzeigen-th1ieo",
   "kleinanzeigen-1flo78f",
-  "kleinanzeigen-171bz1t"
+  "kleinanzeigen-171bz1t",
+  "machineseeker-1u7so96"
  ],
  "sentAlarm": [
   "bazar-x81dra"
  ],
  "diag": {
-  "at": "2026-10-21T13:54:04.717Z",
+  "at": "2026-10-21T14:25:16.394Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "getUpdates: 404 Not Found"
+  "error": "sendMessage: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
