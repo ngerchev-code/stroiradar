@@ -1,10 +1,14 @@
 {
  "offset": 0,
  "owner": null,
- "sentDeals": [],
+ "sentDeals": [
+  "kleinanzeigen-th1ieo",
+  "kleinanzeigen-1flo78f",
+  "kleinanzeigen-171bz1t"
+ ],
  "sentAlarm": [],
  "diag": {
-  "at": "2026-10-21T11:26:13.717Z",
+  "at": "2026-10-21T11:31:45.605Z",
   "bot": "ecobenchmark_niki_bot",
   "tokenOk": true,
   "updates": 0,
@@ -12,5 +16,6 @@
   "lastErrorMsg": null,
   "webhook": "няма",
   "error": null
- }
+ },
+ "welcomed": "5457374164"
 }
