@@ -60,7 +60,7 @@ export async function runTelegram({ token, ownerEnv, config, items, deals, newDe
   const wh = await call(token, 'getWebhookInfo', {});
   if (wh.result?.url) await call(token, 'deleteWebhook', {});
   // 1) Входящи съобщения и команди
-  const up = await call(token, 'getUpdates', { offset: st.offset || 0, timeout: 0, allowed_updates: ['message'] });
+  const up = await call(token, 'getUpdates', st.offset ? { offset: st.offset, timeout: 0 } : { timeout: 0 });
   for (const u of up.result || []) {
     st.offset = u.update_id + 1;
     const m = u.message; if (!m?.text) continue;
@@ -106,7 +106,7 @@ export async function runTelegram({ token, ownerEnv, config, items, deals, newDe
     st.sentAlarm = [...sa].slice(-3000);
   }
   await mkdir(new URL('../inbox/', import.meta.url), { recursive: true });
-  st.diag = { at: new Date().toISOString(), bot: me.result?.username || null, tokenOk: !!me.ok, updates: (up.result || []).length, webhook: wh.result?.url ? 'изтрит' : 'няма', error: LAST.err || null };
+  st.diag = { at: new Date().toISOString(), bot: me.result?.username || null, tokenOk: !!me.ok, updates: (up.result || []).length, pending: wh.result?.pending_update_count ?? null, lastErrorMsg: wh.result?.last_error_message || null, webhook: wh.result?.url ? 'изтрит' : 'няма', error: LAST.err || null };
   await writeFile(STATE, JSON.stringify(st, null, 1));
   console.log('Telegram: собственик', to ? 'зададен' : 'няма (напиши /start на бота)');
 }
