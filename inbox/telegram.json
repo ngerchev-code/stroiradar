@@ -2,5 +2,13 @@
  "offset": 0,
  "owner": null,
  "sentDeals": [],
- "sentAlarm": []
+ "sentAlarm": [],
+ "diag": {
+  "at": "2026-10-21T11:05:07.182Z",
+  "bot": "ecobenchmark_niki_bot",
+  "tokenOk": true,
+  "updates": 0,
+  "webhook": "няма",
+  "error": null
+ }
 }
