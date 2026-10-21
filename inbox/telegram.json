@@ -14,14 +14,14 @@
   "bazar-cd4n9g"
  ],
  "diag": {
-  "at": "2026-10-21T19:27:02.674Z",
+  "at": "2026-10-21T20:06:03.958Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
