@@ -1192,6 +1192,7 @@ const HERO = {
   analytics: ['Пазарен анализ', 'Цени, предлагане и колко бързо се продава — по категории.'],
   deals:  ['Ловец на сделки', 'Машини под пазарната цена — купи, препродай или свържи с клиент.'],
   post:   ['Публикувай обява', 'Една обява — всички сайтове, на езика на всеки.'],
+  ident:  ['Разпознай машина', 'Табелка, PIN или двигател — данни и пазарна цена.'],
   seller: ['Виртуален продавач', 'Колко струва машината? Ориентировъчна оценка за минута.'],
   show:   ['Виртуален шоурум', 'Подбрано и проверено от Claude — от потребители и от пазара.'],
   src:    ['Всички източници', 'Пазари, производители, търгове и лизинг на едно място.']
@@ -1214,6 +1215,7 @@ function show(v) {
   if (v === 'analytics' && window.renderAnalytics) renderAnalytics();
   if (v === 'seller') { vsBuild(); renderOps(); pollOps(false).then(renderOps); }
   if (v === 'post' && window.renderPost) renderPost();
+  if (v === 'ident' && window.renderIdent) renderIdent();
   if (v === 'search') setTimeout(() => $('#sQ').focus(), 60);
   closeOverlays();
   window.scrollTo(0, 0);
