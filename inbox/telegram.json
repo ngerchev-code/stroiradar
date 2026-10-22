@@ -16,17 +16,22 @@
   "bazar-cd4n9g",
   "bazar-o4udwe",
   "bazar-14kyki9",
-  "bazar-dqzmmt"
+  "bazar-dqzmmt",
+  "kleinanzeigen-1xowbgs",
+  "kleinanzeigen-e1ob25",
+  "kleinanzeigen-j7jtot",
+  "kleinanzeigen-vovypa",
+  "kleinanzeigen-e1q7qw"
  ],
  "diag": {
-  "at": "2026-10-22T16:09:57.904Z",
+  "at": "2026-10-22T16:50:42.830Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "getUpdates: 404 Not Found"
+  "error": "sendMessage: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
