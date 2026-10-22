@@ -14,17 +14,18 @@
   "kleinanzeigen-4t537s",
   "bazar-cd4n9g",
   "bazar-o4udwe",
-  "bazar-14kyki9"
+  "bazar-14kyki9",
+  "bazar-dqzmmt"
  ],
  "diag": {
-  "at": "2026-10-22T14:14:56.744Z",
+  "at": "2026-10-22T14:49:57.111Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "getUpdates: 404 Not Found"
+  "error": "sendMessage: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
