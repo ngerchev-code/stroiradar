@@ -443,6 +443,35 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
 .op .body ul{margin:4px 0;padding-left:18px}
 .spin2{display:inline-block;width:12px;height:12px;border:2px solid var(--signal);border-right-color:transparent;border-radius:50%;animation:sp .9s linear infinite;vertical-align:-1px;margin-right:6px}
 @keyframes sp{to{transform:rotate(360deg)}}
+
+/* Потенциал: зелено/жълто/червено, ловец — лилаво */
+:root{--pg:#1e9e57;--py:#d99a00;--pr:#d64545;--pp:#7c3aed}
+.pflag{position:absolute;left:8px;bottom:8px;color:#fff;font-size:11.5px;font-weight:800;padding:3px 7px;border-radius:6px}
+.pflag.g{background:var(--pg)}.pflag.y{background:var(--py);color:#231a00}.pflag.r{background:var(--pr)}.pflag.low{opacity:.82;outline:1px dashed rgba(255,255,255,.7);outline-offset:-3px}
+.card.pot-g{box-shadow:var(--lift),inset 3px 0 0 var(--pg)}.card.pot-y{box-shadow:var(--lift),inset 3px 0 0 var(--py)}.card.pot-r{box-shadow:var(--lift),inset 3px 0 0 var(--pr)}
+.pot-legend,#potLegend{display:flex;flex-wrap:wrap;gap:6px;margin:0 16px 10px;align-items:center}
+.pz{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:4px 9px;border-radius:999px;border:0;font-style:normal;background:color-mix(in srgb,currentColor 12%,transparent)}
+.pz::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.pz.p{color:var(--pp)}.pz.g{color:var(--pg)}.pz.y{color:var(--py)}.pz.r{color:var(--pr)}
+button.pz{cursor:pointer}.pz-sort{border:0;background:none;color:var(--muted);font-weight:700;font-size:12px;cursor:pointer;margin-left:auto}
+/* Пазарен анализ */
+#anCats{margin:0 16px 12px}
+.ch-card{margin-bottom:12px}.ch-card .st{margin:0 0 6px}
+.ch{width:100%;height:auto;display:block}
+.ch-grid{stroke:var(--rule);stroke-width:.7}.ch-ax{font-size:9px;fill:var(--muted)}.ch-ax.strong{font-weight:700;fill:var(--ink)}
+.ch-line{fill:none;stroke:var(--pp);stroke-width:2.2;stroke-linejoin:round}.ch-line.b{stroke:#2f6fdc}
+.ch-dot{fill:var(--pp)}.ch-dot.b{fill:#2f6fdc}.ch-band{fill:var(--pp);opacity:.13}
+.ch-bar.g{fill:var(--pg)}.ch-bar.y{fill:var(--py)}.ch-bar.r{fill:var(--pr)}.ch-med{stroke:var(--ink);stroke-dasharray:3 3}
+.ch-empty{font-size:13px;color:var(--muted);padding:18px 4px;text-align:center}
+.hb-r{display:grid;grid-template-columns:96px 1fr auto;gap:8px;align-items:center;padding:4px 0;font-size:13px}
+.hb-l{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hb-b{height:9px;background:var(--rule);border-radius:5px;overflow:hidden}.hb-b i{display:block;height:100%;background:var(--pp);border-radius:5px}.hb-b i.y{background:var(--py)}
+.hb-v{font-weight:800;white-space:nowrap}.hb-v small{font-weight:600;color:var(--muted);margin-left:5px}
+.mk small{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}.mk small.up,.rep small.up{color:var(--pr)}.mk small.down,.rep small.down{color:var(--pg)}
+.rep-h{display:flex;justify-content:space-between;align-items:center;gap:8px}.rep-h select{padding:6px 8px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:inherit}
+.rep-c{background:color-mix(in srgb,var(--pp) 8%,transparent);border-radius:12px;padding:10px 12px;margin:8px 0;font-size:13.5px}
+.tbl{overflow-x:auto}.tbl table{width:100%;border-collapse:collapse;font-size:13px}.tbl th{text-align:left;color:var(--muted);font-weight:700;font-size:11.5px;padding:6px 4px;border-bottom:1px solid var(--rule)}.tbl td{padding:7px 4px;border-bottom:1px solid var(--rule);white-space:nowrap}.tbl td:first-child{white-space:normal}
+.rep-top{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--rule);text-decoration:none;color:inherit}.rep-top img{width:74px;height:56px;object-fit:cover;border-radius:8px;flex:none}.rep-top span{display:flex;flex-direction:column;gap:2px;min-width:0}.rep-top b{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rep-top small{font-size:12px;color:var(--muted)}
+
 .pdfrow{display:flex;gap:8px;margin-top:14px}.pdfrow .btn{flex:1;justify-content:center}
 .sfilt{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 16px 10px}.sfilt input,.sfilt select{min-width:0;padding:10px 12px;border-radius:12px;border:1px solid var(--rule);background:var(--card);color:inherit;font:inherit;font-size:14px}
 .pb-lang{margin-bottom:8px}.pb-lang small{display:block;font-weight:700;color:var(--muted);margin-bottom:4px}
@@ -505,12 +534,12 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
 .deal .acts{display:flex;gap:8px;margin-top:12px}
 .deal .acts a,.deal .acts button{flex:1;text-align:center;text-decoration:none;font-size:13.5px}
 /* Обяви, намерени от ловеца на сделки */
-:root{--hunt:#c98a00;--hunt-bg:#fff6dc}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hunt:#f5b400;--hunt-bg:#2a2410}}
-:root[data-theme="dark"]{--hunt:#f5b400;--hunt-bg:#2a2410}
+:root{--hunt:#7c3aed;--hunt-bg:#f4eeff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hunt:#a78bfa;--hunt-bg:#221a36}}
+:root[data-theme="dark"]{--hunt:#a78bfa;--hunt-bg:#221a36}
 .card.hunt{background:var(--hunt-bg);box-shadow:var(--lift),inset 0 0 0 2px var(--hunt)}
 .card.hunt.maybe{background:var(--card);box-shadow:var(--lift),inset 0 0 0 2px color-mix(in srgb,var(--hunt) 55%,transparent)}
-.hflag{position:absolute;left:8px;bottom:8px;background:var(--hunt);color:#1d1500;font-size:12px;font-weight:800;padding:3px 7px;border-radius:6px}
+.hflag{position:absolute;left:8px;bottom:8px;background:var(--hunt);color:#fff;font-size:12px;font-weight:800;padding:3px 7px;border-radius:6px}
 .card.hunt.maybe .hflag{background:color-mix(in srgb,var(--hunt) 70%,#fff)}
 .hline{border:0;background:none;padding:0;text-align:left;font-size:12px;font-weight:700;color:var(--hunt);cursor:pointer}
 </style>
@@ -555,6 +584,7 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
       <button class="dd" data-dd="sort"></button>
     </div>
     <div class="resline"><label><input type="checkbox" id="onlyKw"> Само по моите ключови думи</label><span id="count"></span></div>
+    <div id="potLegend"></div>
     <div class="list" id="feed"></div>
   </section>
 
@@ -656,6 +686,15 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
     <div id="vsOps"></div>
   </section>
 
+  <!-- ПАЗАРЕН АНАЛИЗ -->
+  <section class="view" id="v-analytics">
+    <div class="sec"><h2>Пазарен анализ</h2><p class="sub">Цени, предлагане и скорост на продажба по категории — от всички следени сайтове. Обновява се на всеки 20 минути.</p></div>
+    <div class="toolbar" id="anCats"></div>
+    <div id="anBody"></div>
+    <div id="anReport"></div>
+    <div class="alarm-act" style="padding:0 16px 18px"><button class="btn" data-go="market" style="flex:1">🇪🇺 Сравни пазарите по държави ›</button></div>
+  </section>
+
   <!-- ПУБЛИКУВАЙ ОБЯВА -->
   <section class="view vs" id="v-post">
     <div class="sec"><h2>Публикувай обява</h2><p class="sub">Попълваш веднъж — получаваш готова обява за всеки сайт: на езика му, с цена във валутата на страната и обработени снимки.</p></div>
@@ -737,6 +776,7 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
     <button class="ditem" data-go="seller"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h10M4 17h7"/><circle cx="18" cy="16" r="3.5"/><path d="M20.5 18.5 22 20"/></svg>Виртуален продавач<span class="pill">€</span></button>
     <button class="ditem" data-go="post"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 3v12M7 8l5-5 5 5"/></svg>Публикувай обява<span class="pill">Нов</span></button>
     <button class="ditem" data-go="show"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9M3 9h18v11H3zM9 20v-5h6v5"/></svg>Виртуален шоурум<span class="pill">Claude</span></button>
+    <button class="ditem" data-go="analytics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg>Пазарен анализ<span class="pill">Нов</span></button>
     <button class="ditem" data-go="market"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Европейски пазари</button>
     <button class="ditem" data-go="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>Търсачка</button>
     <button class="ditem" data-go="src"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="1.5"/><circle cx="14" cy="12" r="1.5"/><circle cx="10" cy="18" r="1.5"/></svg>Всички източници</button>
@@ -762,7 +802,7 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
 <nav class="bottom">
   <button class="on" data-go="feed"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18"/></svg></span>Обяви</button>
   <button data-go="deals"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/><path d="M12 10.5v5M10.2 11.6c0-.7.8-1.1 1.8-1.1s1.8.4 1.8 1.1-.8 1-1.8 1.2-1.8.5-1.8 1.2.8 1.1 1.8 1.1 1.8-.4 1.8-1.1"/></svg></span>Сделки</button>
-  <button data-go="market"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>Пазари</button>
+  <button data-go="analytics"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg></span>Анализ</button>
   <button data-go="search"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg></span>Търси</button>
   <button data-go="show"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9M3 9h18v11H3zM3 9c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3M9 20v-5h6v5"/></svg></span>Шоурум</button>
 </nav>
@@ -770,5 +810,6 @@ nav.bottom button.on .ic{background:color-mix(in srgb,var(--signal) 38%,transpar
 <div class="toast" id="toast"></div>
 <script src="app.js"></script>
 <script src="publish.js"></script>
+<script src="analytics.js"></script>
 </body>
 </html>

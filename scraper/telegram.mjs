@@ -48,7 +48,7 @@ function searchItems(items, q) {
   });
 }
 
-export async function runTelegram({ token, ownerEnv, config, items, deals, newDeals, alarmItems, dealsFirst }) {
+export async function runTelegram({ token, ownerEnv, config, items, deals, newDeals, alarmItems, dealsFirst, weekly }) {
   if (!token) return;
   let st = { offset: 0, owner: null, sentDeals: [], sentAlarm: [] };
   try { st = { ...st, ...JSON.parse(await readFile(STATE, 'utf8')) }; } catch {}
@@ -108,6 +108,11 @@ export async function runTelegram({ token, ownerEnv, config, items, deals, newDe
       await send(token, to, itemText(it, SRC[it.source] || {}, '🚨 <b>HIDROMEK</b> · нова обява'), it.photo, it.url); sa.add(it.id); await sleep(400);
     }
     st.sentAlarm = [...sa].slice(-3000);
+    if (weekly && st.sentWeek !== weekly.week) {
+      const L = Object.values(weekly.cats).filter(x => x.entered || x.gone).map(x => `• <b>${esc(x.label)}</b>: +${x.entered} нови, ${x.gone} продадени${x.domMed != null ? ` (~${x.domMed} дни)` : ''}${x.med ? `, медиана ${eur(x.med)}` : ''}${x.medChange ? ` (${x.medChange > 0 ? '+' : ''}${x.medChange}%)` : ''}`);
+      await send(token, to, `📊 <b>Седмичен пазарен отчет ${weekly.week}</b>\n\n${L.join('\n') || 'Малко данни за седмицата.'}\n\nТоп обяви: ${weekly.top.length}${weekly.partial ? '\n<i>Първа седмица — историята още се трупа.</i>' : ''}`, null, (config.appUrl || '') + '?v=analytics');
+      st.sentWeek = weekly.week;
+    }
   }
   await mkdir(new URL('../inbox/', import.meta.url), { recursive: true });
   st.diag = { at: new Date().toISOString(), bot: me.result?.username || null, tokenOk: !!me.ok, updates: (up.result || []).length, pending: wh.result?.pending_update_count ?? null, lastErrorMsg: wh.result?.last_error_message || null, webhook: wh.result?.url ? 'изтрит' : 'няма', error: LAST.err || null };

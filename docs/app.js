@@ -118,6 +118,7 @@ const CATS = [
   ['dozer',      'Булдозери',                /булдозер|bulldozer|\bdozer|planierraupe|spycharka/],
   ['excavator',  'Колесни и други багери',   /багер|excavator|bagger|koparka|escavatore|ekskavat[öo]r/],
   ['loader',     'Челни товарачи',           /челен товарач|колесен товарач|товарач|wheel loader|radlader|ładowarka|incarcator|chargeuse|loder y[üu]kleyici|loder/],
+  ['dumper',     'Дъмпери',                  /дъмпер|dumper|raddumper|kettendumper|motocarriola|wozidło/],
   ['tipper',     'Самосвали (с кран, тристранни)', /самосвал|тристран|кран[- ]?манипулатор|kipper|dreiseiten|tipper|dump truck|wywrotka/],
   ['garbage',    'Сметосъбиращи камиони',    /сметосъбира|боклукчийск|müllwagen|garbage truck|refuse (truck|collector)|śmieciarka/],
   ['aerial',     'Вишки',                    /вишка|автовишка|arbeitsbühne|hubarbeitsbühne|aerial|boom lift|scissor lift|podnośnik/],
@@ -183,7 +184,7 @@ const BOATS = /детски|играчк|lego|bruder|spielzeug|modell|siku|1:\d{
 const BRANDS = ['Hidromek', 'JCB', 'Develon', 'Sany', 'Mecalac', 'Wacker Neuson', 'Caterpillar', 'Komatsu', 'Volvo', 'Case', 'New Holland', 'Bobcat', 'Takeuchi', 'Kubota', 'Hitachi', 'Liebherr', 'Doosan', 'Hyundai', 'Terex', 'Manitou', 'Ammann', 'Bomag', 'Dynapac', 'Hamm', 'Wacker', 'FAE', 'Atlas Copco', 'Yanmar', 'Kobelco'];
 const TYPES = { all: 'Всички обяви', wanted: 'Търсят', sale: 'Продават', rent: 'Под наем' };
 const TBADGE = { wanted: 'ТЪРСИ', sale: 'ПРОДАВА', service: 'СЕРВИЗ', rent: 'НАЕМ' };
-const SORTS = { rank: 'Приоритет: комбинирани Hidromek, Komatsu, JCB', new: 'Най-нови', pasc: 'Цена — възходящо', pdesc: 'Цена — низходящо' };
+const SORTS = { rank: 'Приоритет: комбинирани Hidromek, Komatsu, JCB', pot: 'Потенциал: най-изгодните първо', new: 'Най-нови', pasc: 'Цена — възходящо', pdesc: 'Цена — низходящо' };
 const NCATS = { all: 'Всички', infra: 'Инфраструктурни проекти', economy: 'Икономика', energy: 'Енергетика', industry: 'Развитие на бранша', machines: 'Техника', knowhow: 'Ноу-хау' };
 const NSHORT = { infra: 'Проекти', economy: 'Икономика', energy: 'Енергетика', industry: 'Бранш', machines: 'Техника', knowhow: 'Ноу-хау' };
 const NTFY_TOPIC = 'stroiradar-ng-c2e7b1bf';
@@ -347,8 +348,11 @@ function card(it) {
   const eur = it._eur != null && !/€|eur/i.test(it.price || '') ? `<small>≈ ${fmtEur(it._eur)}</small>` : '';
   const dl = S.dealMap?.[it.id];
   const hunt = dl ? (dl.conf === 'ниска' ? 'hunt maybe' : 'hunt') : '';
-  return `<article class="card ${isNew(it) ? 'fresh' : ''} ${hunt}">
-    <a class="thumb" href="${esc(it.url)}" target="_blank" rel="noopener"><img src="${esc(it.photo)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.closest('.card').remove()"><span class="flag t-${esc(it.type || 'sale')}">${TBADGE[it.type] || 'ПРОДАВА'}</span>${dl ? `<span class="hflag">💰 −${dl.discount}%</span>` : ''}</a>
+  const pt = !dl && S.pot?.[it.id];
+  const POTL = { g: 'Изгодна', y: 'Пазарна цена', r: 'Над пазара' };
+  const potHtml = pt ? `<span class="pflag ${pt[0]}${pt[4] ? '' : ' low'}" title="Спрямо пазарна цена ${fmtEur(pt[2])} (${pt[3]} обяви)${pt[4] ? '' : ' — ориентировъчно'}">${POTL[pt[0]]} ${pt[1] > 0 ? '+' : ''}${pt[1]}%</span>` : '';
+  return `<article class="card ${isNew(it) ? 'fresh' : ''} ${hunt} ${pt ? 'pot-' + pt[0] : ''}">
+    <a class="thumb" href="${esc(it.url)}" target="_blank" rel="noopener"><img src="${esc(it.photo)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.closest('.card').remove()"><span class="flag t-${esc(it.type || 'sale')}">${TBADGE[it.type] || 'ПРОДАВА'}</span>${dl ? `<span class="hflag">💰 Ловец −${dl.discount}%</span>` : potHtml}</a>
     <div class="cbody">
       <a class="ctitle" href="${esc(it.url)}" target="_blank" rel="noopener">${esc(it.title)}</a>
       ${it._eur ? `<div class="cprice">${esc(it.price)}${eur}</div>` : (it.type === 'sale' ? '<div class="cprice" style="font-size:14px;color:var(--muted)">Цена при запитване</div>' : '')}
@@ -398,6 +402,7 @@ function visible() {
     (S.region === 'all' || (S.region === 'bg' ? !SOURCES[it.source]?.foreign : S.region === 'eu' ? SOURCES[it.source]?.foreign : it._cc === S.region)) &&
     (!S.onlyKw || kwMatch(it)) && (!S.newOnly || isNew(it)));
   if (S.sort === 'rank') v = v.sort((a, b) => (a._rank - b._rank) || (when(b) - when(a)));
+  else if (S.sort === 'pot') { const zo = it => S.dealMap?.[it.id] ? [0, -S.dealMap[it.id].discount] : S.pot?.[it.id] ? [{ g: 1, y: 2, r: 3 }[S.pot[it.id][0]], S.pot[it.id][1]] : [4, 0]; v = v.sort((a, b) => { const x = zo(a), y = zo(b); return (x[0] - y[0]) || (x[1] - y[1]); }); }
   else if (S.sort === 'pasc') v = v.filter(i => i._eur).sort((a, b) => a._eur - b._eur);
   else if (S.sort === 'pdesc') v = v.filter(i => i._eur).sort((a, b) => b._eur - a._eur);
   return v;
@@ -407,6 +412,7 @@ function renderFeed() {
   const v = visible();
   $('#count').textContent = S.newOnly ? `${v.length} нови · покажи всички ✕` : `${v.length} обяви`;
   $('#count').style.cursor = S.newOnly ? 'pointer' : '';
+  if ($('#potLegend')) { const L = live(); const c = { p: 0, g: 0, y: 0, r: 0 }; L.forEach(i => { if (S.dealMap?.[i.id]) c.p++; else if (S.pot?.[i.id]) c[S.pot[i.id][0]]++; }); $('#potLegend').innerHTML = `<button class="pz p" data-go="deals">Ловец ${c.p}</button><span class="pz g">Изгодни ${c.g}</span><span class="pz y">Пазарни ${c.y}</span><span class="pz r">Скъпи ${c.r}</span><button class="pz-sort" data-potsort="1">Подреди ›</button>`; }
   $('#feed').innerHTML = v.length ? v.slice(0, 300).map(card).join('')
     : `<div class="empty">${ICON_MACHINE}<b>${S.items.length ? 'Няма обяви по тези филтри' : 'Събираме първите обяви'}</b>${S.items.length ? 'Промени категорията или пазара от филтрите горе.' : 'Първото събиране от сайтовете приключва до 20 минути. Ще те известим за новите.'}</div>`;
   renderStats();
@@ -608,6 +614,7 @@ function renderFavs() {
     try { if (navigator.share) await navigator.share({ title: 'Демопарк', text: t }); else { await navigator.clipboard.writeText(t); toast('Списъкът е копиран'); } } catch {}
   };
 }
+document.addEventListener('click', e => { const ps = e.target.closest('[data-potsort]'); if (ps) { S.sort = 'pot'; renderFeed(); } });
 document.addEventListener('click', e => { const b = e.target.closest('[data-favcat]'); if (b) { S.favCat = b.dataset.favcat; renderFavs(); } });
 function renderSettings() {
   $('#kwList').innerHTML = S.keywords.map((k, i) => `<span class="kwc">${esc(k)}<button data-kwdel="${i}" aria-label="Премахни">✕</button></span>`).join('') || '<span class="st">Няма добавени думи.</span>';
@@ -1180,6 +1187,7 @@ const HERO = {
   know:   ['Ноу-хау', 'Практични насоки за избор, проверка и поддръжка.'],
   fav:    ['Демопарк', 'Машините, които харесваш — на едно място.'],
   set:    ['Настройки', 'Ключови думи, известия и сайтове.'],
+  analytics: ['Пазарен анализ', 'Цени, предлагане и колко бързо се продава — по категории.'],
   deals:  ['Ловец на сделки', 'Машини под пазарната цена — купи, препродай или свържи с клиент.'],
   post:   ['Публикувай обява', 'Една обява — всички сайтове, на езика на всеки.'],
   seller: ['Виртуален продавач', 'Колко струва машината? Ориентировъчна оценка за минута.'],
@@ -1201,6 +1209,7 @@ function show(v) {
   if (v === 'src') renderSources();
   if (v === 'show') renderShow();
   if (v === 'deals') renderDeals();
+  if (v === 'analytics' && window.renderAnalytics) renderAnalytics();
   if (v === 'seller') { vsBuild(); renderOps(); pollOps(false).then(renderOps); }
   if (v === 'post' && window.renderPost) renderPost();
   if (v === 'search') setTimeout(() => $('#sQ').focus(), 60);
@@ -1268,11 +1277,12 @@ new IntersectionObserver(([en]) => $('#toolbar').classList.toggle('stuck', !en.i
 // ---------- Данни ----------
 async function load(silent) {
   try {
-    const [r1, r2, r3, r4, r5] = await Promise.allSettled([fetch('data/listings.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/news.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/showroom.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/turkey.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/deals.json?t=' + Date.now(), { cache: 'no-store' })]);
+    const [r1, r2, r3, r4, r5, r6] = await Promise.allSettled([fetch('data/listings.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/news.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/showroom.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/turkey.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/deals.json?t=' + Date.now(), { cache: 'no-store' }), fetch('data/potential.json?t=' + Date.now(), { cache: 'no-store' })]);
     if (r3.status === 'fulfilled' && r3.value.ok) { const j = await r3.value.json(); S.show = j.items || []; S.showUpdated = j.updated; }
     if (r1.status === 'fulfilled' && r1.value.ok) { const j = await r1.value.json(); S.rates = j.rates || {}; S.items = (j.items || []).map(prep); S.updated = j.updated; }
     if (r2.status === 'fulfilled' && r2.value.ok) { const j = await r2.value.json(); S.news = j.items || []; }
     if (r5.status === 'fulfilled' && r5.value.ok) { try { const j = await r5.value.json(); S.deals = (j.items || []).map(x => { cleanTitle(x); return x; }); S.dealMap = Object.fromEntries(S.deals.filter(x => !x.suspicious).map(x => [x.id, x])); S.dealsUpdated = j.updated; } catch {} }
+    if (r6.status === 'fulfilled' && r6.value.ok) { try { S.pot = (await r6.value.json()).items || {}; } catch {} }
     if (r4.status === 'fulfilled' && r4.value.ok) { try { const j = await r4.value.json(); const have = new Set(S.items.map(i => i.id)); S.items.push(...(j.items || []).filter(i => !have.has(i.id)).map(prep)); } catch {} }
   } catch {}
   renderBanners(); renderFeed();

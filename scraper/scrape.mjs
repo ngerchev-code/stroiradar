@@ -4,6 +4,7 @@ import { searchSource, enrich, classify, RELEVANT, NOISE, priceFromDesc, getText
 import { updateMarket, findDeals, observe, factsFromHtml } from './deals.mjs';
 import { collectNews } from './news.mjs';
 import { runTelegram } from './telegram.mjs';
+import { runAnalytics, MCATS } from './analytics.mjs';
 import { collectInbox, collectEval } from './inbox.mjs';
 
 const ROOT = new URL('../docs/data/', import.meta.url);
@@ -142,6 +143,12 @@ try { console.log('Становища — нови файлове:', await colle
 try { console.log('Публикуване — нови файлове:', await collectEval(config.publishTopic, 'publish')); } catch (e) { console.log('Публикуване:', e.message); }
 try { const news = await collectNews(); if (news.length) await writeFile(new URL('news.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), items: news })); console.log('Новини:', news.length); } catch (e) { console.log('Новини:', e.message); }
 await writeFile(new URL('market.json', ROOT), JSON.stringify(market));
+let weekly = null;
+try { const r = await runAnalytics({ items, turkey, deals, market, rates }); weekly = r.made; console.log('Потенциал:', r.potCount); } catch (e) { console.log('Анализ:', e.message); }
+if (weekly && NTFY) {
+  const lines = MCATS.map(([c, l]) => { const x = weekly.cats[c]; return x && (x.entered || x.gone) ? `${l}: +${x.entered} нови, ${x.gone} продадени${x.domMed != null ? `, ~${x.domMed} дни` : ''}` : null; }).filter(Boolean).slice(0, 8);
+  try { await fetch('https://ntfy.sh/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic: NTFY, title: `📊 Седмичен пазарен отчет ${weekly.week}`, message: lines.join('\n') || 'Отчетът е готов.', click: (config.appUrl || '') + '?v=analytics', tags: ['bar_chart'], priority: 4 }) }); } catch {}
+}
 await writeFile(new URL('deals.json', ROOT), JSON.stringify({ updated: new Date().toISOString(), settings: { minDiscount: DC.minDiscount ?? 0.15, transport: DC.transport || { BG: 500, foreign: 2500 }, brokerFee: DC.brokerFee ?? 0.03 }, items: deals.slice(0, 200) }));
 // Известие за всяка нова сделка (не при първото пускане — тогава само се трупа история)
 if (NTFY && !dealsFirst) {
@@ -165,7 +172,7 @@ await writeFile(new URL('status.json', ROOT), JSON.stringify({ updated: new Date
 try {
   const ALARM_T = new RegExp(config.alarmPattern || 'hidromek|хидромек', 'i');
   const live = new Set(items.map(i => i.id));
-  await runTelegram({ token: process.env.TELEGRAM_BOT_TOKEN, ownerEnv: process.env.TELEGRAM_CHAT_ID || config.telegramChatId, config, items, deals, newDeals, dealsFirst,
+  await runTelegram({ token: process.env.TELEGRAM_BOT_TOKEN, ownerEnv: process.env.TELEGRAM_CHAT_ID || config.telegramChatId, config, items, deals, newDeals, dealsFirst, weekly,
     alarmItems: firstRun ? [] : fresh.filter(it => live.has(it.id) && ALARM_T.test(it.title + ' ' + (it.desc || ''))) });
 } catch (e) { console.log('Telegram:', e.message); }
 

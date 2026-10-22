@@ -26,8 +26,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: История (от клона analytics-data)
+        run: |
+          git fetch --depth 1 origin analytics-data:refs/remotes/origin/analytics-data 2>/dev/null && git show origin/analytics-data:history.json.gz > "$RUNNER_TEMP/history.json.gz" || echo "няма история още"
       - name: Събиране
         env:
+          HISTORY_FILE: ${{ runner.temp }}/history.json.gz
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -43,3 +47,12 @@ jobs:
           git diff --cached --quiet || git commit -m "Обяви $(date -u +%F' '%H:%M)"
           git pull --rebase -X ours || true
           git push
+      - name: Запис на историята (клон analytics-data, без натрупване)
+        if: always()
+        run: |
+          f="$RUNNER_TEMP/history.json.gz"; [ -s "$f" ] || exit 0
+          git config user.name "stroiradar-bot"; git config user.email "bot@users.noreply.github.com"
+          blob=$(git hash-object -w "$f")
+          tree=$(printf "100644 blob %s\thistory.json.gz\n" "$blob" | git mktree)
+          commit=$(git commit-tree "$tree" -m "История $(date -u +%F' '%H:%M)")
+          git push -f origin "$commit:refs/heads/analytics-data"
