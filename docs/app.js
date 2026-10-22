@@ -400,7 +400,8 @@ function visible() {
   let v = live().filter(it =>
     (S.type === 'all' || it.type === S.type) && (S.cat === 'all' || (S.cat === 'priority' ? PRIORITY.includes(it._cat) : it._cat === S.cat)) &&
     (S.region === 'all' || (S.region === 'bg' ? !SOURCES[it.source]?.foreign : S.region === 'eu' ? SOURCES[it.source]?.foreign : it._cc === S.region)) &&
-    (!S.onlyKw || kwMatch(it)) && (!S.newOnly || isNew(it)));
+    (!S.onlyKw || kwMatch(it)) && (!S.newOnly || isNew(it)) &&
+    (!S.potF || (!S.dealMap?.[it.id] && S.pot?.[it.id]?.[0] === S.potF)));
   if (S.sort === 'rank') v = v.sort((a, b) => (a._rank - b._rank) || (when(b) - when(a)));
   else if (S.sort === 'pot') { const zo = it => S.dealMap?.[it.id] ? [0, -S.dealMap[it.id].discount] : S.pot?.[it.id] ? [{ g: 1, y: 2, r: 3 }[S.pot[it.id][0]], S.pot[it.id][1]] : [4, 0]; v = v.sort((a, b) => { const x = zo(a), y = zo(b); return (x[0] - y[0]) || (x[1] - y[1]); }); }
   else if (S.sort === 'pasc') v = v.filter(i => i._eur).sort((a, b) => a._eur - b._eur);
@@ -412,7 +413,7 @@ function renderFeed() {
   const v = visible();
   $('#count').textContent = S.newOnly ? `${v.length} нови · покажи всички ✕` : `${v.length} обяви`;
   $('#count').style.cursor = S.newOnly ? 'pointer' : '';
-  if ($('#potLegend')) { const L = live(); const c = { p: 0, g: 0, y: 0, r: 0 }; L.forEach(i => { if (S.dealMap?.[i.id]) c.p++; else if (S.pot?.[i.id]) c[S.pot[i.id][0]]++; }); $('#potLegend').innerHTML = `<button class="pz p" data-go="deals">Ловец ${c.p}</button><span class="pz g">Изгодни ${c.g}</span><span class="pz y">Пазарни ${c.y}</span><span class="pz r">Скъпи ${c.r}</span><button class="pz-sort" data-potsort="1">Подреди ›</button>`; }
+  if ($('#potLegend')) { const L = live(); const c = { p: 0, g: 0, y: 0, r: 0 }; L.forEach(i => { if (S.dealMap?.[i.id]) c.p++; else if (S.pot?.[i.id]) c[S.pot[i.id][0]]++; }); $('#potLegend').innerHTML = `<button class="pz p" data-go="deals">Ловец ${c.p}</button>${[['g', 'Изгодни'], ['y', 'Пазарни'], ['r', 'Скъпи']].map(([k, l]) => `<button class="pz ${k}${S.potF === k ? ' on' : ''}" data-potf="${k}" aria-pressed="${S.potF === k}">${l} ${c[k]}${S.potF === k ? ' ✕' : ''}</button>`).join('')}<button class="pz-sort" data-potsort="1">Подреди ›</button>`; }
   $('#feed').innerHTML = v.length ? v.slice(0, 300).map(card).join('')
     : `<div class="empty">${ICON_MACHINE}<b>${S.items.length ? 'Няма обяви по тези филтри' : 'Събираме първите обяви'}</b>${S.items.length ? 'Промени категорията или пазара от филтрите горе.' : 'Първото събиране от сайтовете приключва до 20 минути. Ще те известим за новите.'}</div>`;
   renderStats();
@@ -615,6 +616,7 @@ function renderFavs() {
   };
 }
 document.addEventListener('click', e => { const ps = e.target.closest('[data-potsort]'); if (ps) { S.sort = 'pot'; renderFeed(); } });
+document.addEventListener('click', e => { const pf = e.target.closest('[data-potf]'); if (pf) { S.potF = S.potF === pf.dataset.potf ? null : pf.dataset.potf; renderFeed(); } });
 document.addEventListener('click', e => { const b = e.target.closest('[data-favcat]'); if (b) { S.favCat = b.dataset.favcat; renderFavs(); } });
 function renderSettings() {
   $('#kwList').innerHTML = S.keywords.map((k, i) => `<span class="kwc">${esc(k)}<button data-kwdel="${i}" aria-label="Премахни">✕</button></span>`).join('') || '<span class="st">Няма добавени думи.</span>';
