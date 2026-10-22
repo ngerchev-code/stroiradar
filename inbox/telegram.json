@@ -21,17 +21,27 @@
   "kleinanzeigen-e1ob25",
   "kleinanzeigen-j7jtot",
   "kleinanzeigen-vovypa",
-  "kleinanzeigen-e1q7qw"
+  "kleinanzeigen-e1q7qw",
+  "kleinanzeigen-1q7e6s4",
+  "kleinanzeigen-585ieb",
+  "kleinanzeigen-1az9cdh",
+  "kleinanzeigen-1nlyymc",
+  "kleinanzeigen-1wtq10k",
+  "kleinanzeigen-1ivc77s",
+  "kleinanzeigen-w5yc3w",
+  "kleinanzeigen-vxkbat",
+  "kleinanzeigen-zm7vc8",
+  "kleinanzeigen-1c63kbs"
  ],
  "diag": {
-  "at": "2026-10-22T17:20:28.466Z",
+  "at": "2026-10-22T17:50:05.170Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "getUpdates: 404 Not Found"
+  "error": "sendMessage: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
