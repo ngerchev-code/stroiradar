@@ -24,14 +24,14 @@
   "kleinanzeigen-e1q7qw"
  ],
  "diag": {
-  "at": "2026-10-22T16:50:42.830Z",
+  "at": "2026-10-22T17:20:28.466Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
