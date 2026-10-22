@@ -16,14 +16,14 @@
   "bazar-o4udwe"
  ],
  "diag": {
-  "at": "2026-10-22T07:57:01.481Z",
+  "at": "2026-10-22T08:20:02.078Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
