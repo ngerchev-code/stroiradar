@@ -17,14 +17,14 @@
   "bazar-14kyki9"
  ],
  "diag": {
-  "at": "2026-10-22T09:50:19.476Z",
+  "at": "2026-10-22T10:25:58.810Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
