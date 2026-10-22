@@ -6,7 +6,8 @@
   "kleinanzeigen-1flo78f",
   "kleinanzeigen-171bz1t",
   "machineseeker-1u7so96",
-  "kleinanzeigen-jmb592"
+  "kleinanzeigen-jmb592",
+  "kleinanzeigen-1q6budm"
  ],
  "sentAlarm": [
   "bazar-x81dra",
@@ -15,14 +16,14 @@
   "bazar-o4udwe"
  ],
  "diag": {
-  "at": "2026-10-22T07:13:30.153Z",
+  "at": "2026-10-22T07:57:01.481Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "getUpdates: 404 Not Found"
+  "error": "sendMessage: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
