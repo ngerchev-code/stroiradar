@@ -36,14 +36,14 @@
   "bazar-1lwdr64"
  ],
  "diag": {
-  "at": "2026-10-22T18:19:44.672Z",
+  "at": "2026-10-22T18:56:51.866Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
