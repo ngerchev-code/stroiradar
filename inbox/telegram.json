@@ -34,17 +34,24 @@
   "kleinanzeigen-1c63kbs",
   "bazar-fhxpce",
   "bazar-1lwdr64",
-  "bazar-1dogwk1"
+  "bazar-1dogwk1",
+  "bazar-1smiyba",
+  "bazar-yyyta6",
+  "bazar-15arpo6",
+  "bazar-1k6yxbz",
+  "bazar-1qp8b54",
+  "bazar-xw0c38",
+  "bazar-jmg58i"
  ],
  "diag": {
-  "at": "2026-10-23T05:51:37.606Z",
+  "at": "2026-10-23T06:21:09.256Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "getUpdates: 404 Not Found"
+  "error": "sendMessage: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
