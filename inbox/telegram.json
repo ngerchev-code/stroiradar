@@ -37,14 +37,14 @@
   "bazar-1dogwk1"
  ],
  "diag": {
-  "at": "2026-10-23T01:02:38.969Z",
+  "at": "2026-10-23T01:35:09.507Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
