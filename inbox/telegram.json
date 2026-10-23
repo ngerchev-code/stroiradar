@@ -8,7 +8,8 @@
   "machineseeker-1u7so96",
   "kleinanzeigen-jmb592",
   "kleinanzeigen-1q6budm",
-  "kleinanzeigen-9mnyye"
+  "kleinanzeigen-9mnyye",
+  "kleinanzeigen-r2cuzi"
  ],
  "sentAlarm": [
   "bazar-x81dra",
@@ -51,10 +52,11 @@
   "bazar-1m048am",
   "bazar-14zekmb",
   "bazar-sqlecm",
-  "bazar-1uwhrgq"
+  "bazar-1uwhrgq",
+  "bazar-134ksgn"
  ],
  "diag": {
-  "at": "2026-10-23T07:57:00.842Z",
+  "at": "2026-10-23T08:26:08.737Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
