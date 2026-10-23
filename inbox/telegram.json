@@ -33,17 +33,18 @@
   "kleinanzeigen-zm7vc8",
   "kleinanzeigen-1c63kbs",
   "bazar-fhxpce",
-  "bazar-1lwdr64"
+  "bazar-1lwdr64",
+  "bazar-1dogwk1"
  ],
  "diag": {
-  "at": "2026-10-23T00:14:26.143Z",
+  "at": "2026-10-23T01:02:38.969Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "getUpdates: 404 Not Found"
+  "error": "sendMessage: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
