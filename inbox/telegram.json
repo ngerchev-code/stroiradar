@@ -65,14 +65,14 @@
   "bazar-4m858t"
  ],
  "diag": {
-  "at": "2026-10-24T19:17:26.385Z",
+  "at": "2026-10-24T19:40:45.768Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
