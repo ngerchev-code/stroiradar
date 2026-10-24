@@ -66,14 +66,14 @@
   "bazar-1yunz0c"
  ],
  "diag": {
-  "at": "2026-10-24T22:43:59.532Z",
+  "at": "2026-10-24T23:12:25.918Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
