@@ -56,17 +56,18 @@
   "bazar-1uwhrgq",
   "bazar-134ksgn",
   "bazar-14y2ybp",
-  "bazar-3b6mx0"
+  "bazar-3b6mx0",
+  "bazar-it6jfg"
  ],
  "diag": {
-  "at": "2026-10-24T14:02:01.112Z",
+  "at": "2026-10-24T14:22:41.860Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "getUpdates: 404 Not Found"
+  "error": "sendMessage: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
