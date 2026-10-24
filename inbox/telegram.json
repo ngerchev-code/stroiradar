@@ -61,14 +61,14 @@
   "bazar-it6jfg"
  ],
  "diag": {
-  "at": "2026-10-24T14:49:43.333Z",
+  "at": "2026-10-24T15:15:05.812Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
