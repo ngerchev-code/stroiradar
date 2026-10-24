@@ -62,17 +62,18 @@
   "bazar-3b6mx0",
   "bazar-it6jfg",
   "kleinanzeigen-jy6t4k",
-  "bazar-4m858t"
+  "bazar-4m858t",
+  "bazar-1yunz0c"
  ],
  "diag": {
-  "at": "2026-10-24T22:13:21.067Z",
+  "at": "2026-10-24T22:43:59.532Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "getUpdates: 404 Not Found"
+  "error": "sendMessage: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
