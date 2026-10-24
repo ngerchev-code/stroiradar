@@ -62,14 +62,14 @@
   "kleinanzeigen-jy6t4k"
  ],
  "diag": {
-  "at": "2026-10-24T16:15:08.239Z",
+  "at": "2026-10-24T16:45:26.637Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164"
 }
