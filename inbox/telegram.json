@@ -79,14 +79,14 @@
   "kleinanzeigen-afprow"
  ],
  "diag": {
-  "at": "2026-10-28T20:31:13.530Z",
+  "at": "2026-10-28T21:17:53.999Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164",
  "sentWeek": "2026-W43"
