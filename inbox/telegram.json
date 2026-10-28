@@ -77,14 +77,14 @@
   "bazar-n4n6eh"
  ],
  "diag": {
-  "at": "2026-10-28T10:24:22.804Z",
+  "at": "2026-10-28T11:20:28.112Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164",
  "sentWeek": "2026-W43"
