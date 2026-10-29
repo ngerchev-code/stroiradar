@@ -24,7 +24,9 @@
   "kleinanzeigen-h7klbs",
   "kleinanzeigen-16j4dze",
   "kleinanzeigen-16f2u92",
-  "bazar-1qcu6iq"
+  "bazar-1qcu6iq",
+  "kleinanzeigen-1bqz9b9",
+  "machineseeker-1xcvsfe"
  ],
  "sentAlarm": [
   "bazar-x81dra",
@@ -79,14 +81,14 @@
   "kleinanzeigen-afprow"
  ],
  "diag": {
-  "at": "2026-10-29T15:27:38.302Z",
+  "at": "2026-10-29T16:29:28.616Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "getUpdates: 404 Not Found"
+  "error": "sendMessage: 404 Not Found"
  },
  "welcomed": "5457374164",
  "sentWeek": "2026-W43"
