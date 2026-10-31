@@ -89,17 +89,18 @@
   "kleinanzeigen-pzia7n",
   "kleinanzeigen-1kgi3x",
   "kleinanzeigen-8ci4wu",
-  "kleinanzeigen-1heikq6"
+  "kleinanzeigen-1heikq6",
+  "kleinanzeigen-1bzvocf"
  ],
  "diag": {
-  "at": "2026-10-31T12:27:09.496Z",
+  "at": "2026-10-31T13:27:35.231Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "getUpdates: 404 Not Found"
+  "error": "sendMessage: 404 Not Found"
  },
  "welcomed": "5457374164",
  "sentWeek": "2026-W43"
