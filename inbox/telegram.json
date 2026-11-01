@@ -98,14 +98,14 @@
   "kleinanzeigen-1bzvocf"
  ],
  "diag": {
-  "at": "2026-11-01T07:19:27.520Z",
+  "at": "2026-11-01T08:11:15.890Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164",
  "sentWeek": "2026-W43"
