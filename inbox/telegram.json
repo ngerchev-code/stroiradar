@@ -96,17 +96,18 @@
   "kleinanzeigen-1kgi3x",
   "kleinanzeigen-8ci4wu",
   "kleinanzeigen-1heikq6",
-  "kleinanzeigen-1bzvocf"
+  "kleinanzeigen-1bzvocf",
+  "mobilebg-kuf5uj"
  ],
  "diag": {
-  "at": "2026-11-02T09:48:33.011Z",
+  "at": "2026-11-02T10:48:49.739Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "getUpdates: 404 Not Found"
+  "error": "sendMessage: 404 Not Found"
  },
  "welcomed": "5457374164",
  "sentWeek": "2026-W44"
