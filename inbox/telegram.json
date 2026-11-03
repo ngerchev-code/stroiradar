@@ -105,14 +105,14 @@
   "mobilebg-kuf5uj"
  ],
  "diag": {
-  "at": "2026-11-03T16:31:00.745Z",
+  "at": "2026-11-03T17:29:28.529Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164",
  "sentWeek": "2026-W44"
