@@ -121,14 +121,14 @@
   "bazar-1iqrtjr"
  ],
  "diag": {
-  "at": "2026-11-06T17:28:10.434Z",
+  "at": "2026-11-06T18:24:10.232Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164",
  "sentWeek": "2026-W44"
