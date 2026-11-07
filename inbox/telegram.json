@@ -123,14 +123,14 @@
   "bazar-16dbks9"
  ],
  "diag": {
-  "at": "2026-11-06T23:49:44.050Z",
+  "at": "2026-11-07T00:29:48.853Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164",
  "sentWeek": "2026-W44"
