@@ -137,14 +137,14 @@
   "bazar-1ivia11"
  ],
  "diag": {
-  "at": "2026-11-09T17:49:20.701Z",
+  "at": "2026-11-09T18:43:00.848Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164",
  "sentWeek": "2026-W45"
