@@ -147,14 +147,14 @@
   "bazar-673dhr"
  ],
  "diag": {
-  "at": "2026-11-11T12:07:19.921Z",
+  "at": "2026-11-11T13:26:31.766Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164",
  "sentWeek": "2026-W45"
