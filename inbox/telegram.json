@@ -89,7 +89,8 @@
   "kleinanzeigen-ztei1k",
   "kleinanzeigen-g3tdlc",
   "kleinanzeigen-13lo6fu",
-  "kleinanzeigen-1tbf97g"
+  "kleinanzeigen-1tbf97g",
+  "kleinanzeigen-otg1ta"
  ],
  "sentAlarm": [
   "bazar-x81dra",
@@ -154,10 +155,11 @@
   "bazar-6n6o1m",
   "bazar-1ivia11",
   "bazar-673dhr",
-  "kleinanzeigen-18r2nsj"
+  "kleinanzeigen-18r2nsj",
+  "kleinanzeigen-1aok6ui"
  ],
  "diag": {
-  "at": "2026-11-13T17:29:55.427Z",
+  "at": "2026-11-13T22:52:42.621Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
