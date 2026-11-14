@@ -162,14 +162,14 @@
   "kleinanzeigen-1aok6ui"
  ],
  "diag": {
-  "at": "2026-11-14T16:08:08.644Z",
+  "at": "2026-11-14T20:47:02.224Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164",
  "sentWeek": "2026-W45"
