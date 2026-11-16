@@ -96,7 +96,8 @@
   "kleinanzeigen-17rkvs5",
   "kleinanzeigen-f8q5nb",
   "kleinanzeigen-1f1sqqi",
-  "kleinanzeigen-bme627"
+  "kleinanzeigen-bme627",
+  "machineseeker-l7ehnv"
  ],
  "sentAlarm": [
   "bazar-x81dra",
@@ -163,10 +164,11 @@
   "bazar-673dhr",
   "kleinanzeigen-18r2nsj",
   "kleinanzeigen-1aok6ui",
-  "kleinanzeigen-1vqqiat"
+  "kleinanzeigen-1vqqiat",
+  "bazar-14yjhu3"
  ],
  "diag": {
-  "at": "2026-11-16T13:09:14.741Z",
+  "at": "2026-11-16T23:00:20.070Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
