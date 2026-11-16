@@ -162,17 +162,18 @@
   "bazar-1ivia11",
   "bazar-673dhr",
   "kleinanzeigen-18r2nsj",
-  "kleinanzeigen-1aok6ui"
+  "kleinanzeigen-1aok6ui",
+  "kleinanzeigen-1vqqiat"
  ],
  "diag": {
-  "at": "2026-11-16T04:35:18.016Z",
+  "at": "2026-11-16T13:09:14.741Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "getUpdates: 404 Not Found"
+  "error": "sendMessage: 404 Not Found"
  },
  "welcomed": "5457374164",
  "sentWeek": "2026-W46"
