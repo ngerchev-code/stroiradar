@@ -165,7 +165,7 @@
   "kleinanzeigen-1aok6ui"
  ],
  "diag": {
-  "at": "2026-11-15T20:04:46.889Z",
+  "at": "2026-11-16T00:02:02.037Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
@@ -175,5 +175,5 @@
   "error": "sendMessage: 404 Not Found"
  },
  "welcomed": "5457374164",
- "sentWeek": "2026-W45"
+ "sentWeek": "2026-W46"
 }
