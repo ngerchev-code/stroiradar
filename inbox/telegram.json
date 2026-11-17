@@ -168,14 +168,14 @@
   "bazar-14yjhu3"
  ],
  "diag": {
-  "at": "2026-11-16T23:00:20.070Z",
+  "at": "2026-11-17T04:54:00.600Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164",
  "sentWeek": "2026-W46"
