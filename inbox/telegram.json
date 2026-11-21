@@ -175,17 +175,18 @@
   "kleinanzeigen-18r2nsj",
   "kleinanzeigen-1aok6ui",
   "kleinanzeigen-1vqqiat",
-  "bazar-14yjhu3"
+  "bazar-14yjhu3",
+  "bazar-iq6jio"
  ],
  "diag": {
-  "at": "2026-11-21T11:45:23.200Z",
+  "at": "2026-11-21T18:25:10.648Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "getUpdates: 404 Not Found"
+  "error": "sendMessage: 404 Not Found"
  },
  "welcomed": "5457374164",
  "sentWeek": "2026-W46"
