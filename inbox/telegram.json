@@ -112,7 +112,11 @@
   "machineseeker-ox73a3",
   "kleinanzeigen-1akdtgr",
   "machineseeker-1deyjkh",
-  "kleinanzeigen-1rm6sm4"
+  "kleinanzeigen-1rm6sm4",
+  "kleinanzeigen-1gy9wkf",
+  "kleinanzeigen-1sxy1oh",
+  "kleinanzeigen-1myzzyp",
+  "kleinanzeigen-78b5wy"
  ],
  "sentAlarm": [
   "bazar-x81dra",
@@ -183,10 +187,11 @@
   "bazar-14yjhu3",
   "bazar-iq6jio",
   "kleinanzeigen-1o7p6ke",
-  "bazar-1c6m5yx"
+  "bazar-1c6m5yx",
+  "kleinanzeigen-1ylrfzi"
  ],
  "diag": {
-  "at": "2026-11-23T04:36:22.472Z",
+  "at": "2026-11-23T15:18:10.858Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
