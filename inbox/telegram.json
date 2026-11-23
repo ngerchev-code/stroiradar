@@ -186,15 +186,15 @@
   "bazar-1c6m5yx"
  ],
  "diag": {
-  "at": "2026-11-23T00:00:05.564Z",
+  "at": "2026-11-23T04:36:22.472Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "getUpdates: 404 Not Found"
+  "error": "sendMessage: 404 Not Found"
  },
  "welcomed": "5457374164",
- "sentWeek": "2026-W46"
+ "sentWeek": "2026-W47"
 }
