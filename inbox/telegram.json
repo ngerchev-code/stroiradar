@@ -191,14 +191,14 @@
   "kleinanzeigen-1ylrfzi"
  ],
  "diag": {
-  "at": "2026-11-23T15:18:10.858Z",
+  "at": "2026-11-24T02:17:12.322Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164",
  "sentWeek": "2026-W47"
