@@ -195,14 +195,14 @@
   "bazar-1kxa14f"
  ],
  "diag": {
-  "at": "2026-11-25T23:50:26.322Z",
+  "at": "2026-11-26T05:45:26.245Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164",
  "sentWeek": "2026-W47"
