@@ -194,17 +194,18 @@
   "bazar-1c6m5yx",
   "kleinanzeigen-1ylrfzi",
   "mobilebg-y8gtcm",
-  "bazar-1kxa14f"
+  "bazar-1kxa14f",
+  "mobilebg-1f33qk8"
  ],
  "diag": {
-  "at": "2026-11-27T00:13:16.774Z",
+  "at": "2026-11-27T08:40:59.112Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "getUpdates: 404 Not Found"
+  "error": "sendMessage: 404 Not Found"
  },
  "welcomed": "5457374164",
  "sentWeek": "2026-W47"
