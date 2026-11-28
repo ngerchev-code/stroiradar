@@ -201,14 +201,14 @@
   "mobilebg-1f33qk8"
  ],
  "diag": {
-  "at": "2026-11-28T01:43:28.192Z",
+  "at": "2026-11-28T09:27:54.512Z",
   "bot": null,
   "tokenOk": false,
   "updates": 0,
   "pending": null,
   "lastErrorMsg": null,
   "webhook": "няма",
-  "error": "sendMessage: 404 Not Found"
+  "error": "getUpdates: 404 Not Found"
  },
  "welcomed": "5457374164",
  "sentWeek": "2026-W47"
